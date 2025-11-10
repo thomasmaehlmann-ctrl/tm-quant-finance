@@ -98,7 +98,7 @@ Die im Buch enthaltenen Python-Beispiele dürfen **für Lehr- und Lernzwecke** v
 
 **Autor:** Univ.-Prof. Dr. Thomas Mählmann  
 **E-Mail:** thomas.maehlmann@ku.de  
-**Website (optional):** https://www.ku.de/wfi/lfb/mitarbeitende/prof-dr-thomas-maehlmann
+**Website:** https://www.ku.de/wfi/lfb/mitarbeitende/prof-dr-thomas-maehlmann
 
 ---
 
