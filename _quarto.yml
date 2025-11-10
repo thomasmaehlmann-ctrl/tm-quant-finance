@@ -1,0 +1,40 @@
+project:
+  type: book
+
+book:
+  title: "Grundlagen des quantitativen Portfoliomanagements mit Python"
+  author: "Prof. Dr. Thomas Mählmann, Lehrstuhl für Banken und Finanzierung, Katholische Universität Eichstätt-Ingolstadt"
+  date: "2025-11-08"
+  chapters:
+    - index.ipynb
+    - kapitel1.ipynb
+    - kapitel2.ipynb
+    - kapitel3.ipynb
+    - kapitel4.ipynb
+    - kapitel5.ipynb
+    - kapitel6.ipynb
+    - kapitel7.ipynb
+    - kapitel8.ipynb
+    - projekt.ipynb
+
+  sidebar:
+    style: floating
+    search: true
+    collapse-level: 2
+
+
+
+format:
+  html:
+    theme:
+      light: flatly
+      dark: darkly
+    code-copy: true
+    code-fold: true
+    code-line-numbers: true
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    smooth-scroll: true
+    link-external-newwindow: true
+    css: styles.css
