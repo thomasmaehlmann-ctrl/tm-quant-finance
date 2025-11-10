@@ -1,0 +1,1926 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.25">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>2&nbsp; Grundlagen der klassischen (absoluten) Portfoliooptimierung – Grundlagen des quantitativen Portfoliomanagements mit Python</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./kapitel2.html" rel="next">
+<link href="./index.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-707d8167ce6003fca903bfe2be84ab7f.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-e0fdce12ac1367d4b47c179a2935dd10.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark-74c88ba48ad0bebf983f0ffd06dd1671.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap-e0fdce12ac1367d4b47c179a2935dd10.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-sidebar floating quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./kapitel1.html"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Grundlagen der klassischen (absoluten) Portfoliooptimierung</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+      <a href="./index.html" class="sidebar-logo-link">
+      </a>
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Grundlagen des quantitativen Portfoliomanagements mit Python</a> 
+        <div class="sidebar-tools-main">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Willkommen zu „Grundlagen des quantitativen Portfoliomanagements mit Python“</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./kapitel1.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Grundlagen der klassischen (absoluten) Portfoliooptimierung</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./kapitel2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Relative Portfoliooptimierung</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./kapitel3.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Schätzrisiken in der Portfoliotheorie</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./kapitel4.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Verbesserte Schätzung der Inputparameter: Geschrumpfte Schätzer</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./kapitel5.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Das Black-Litterman Modell</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./kapitel6.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Berücksichtigung des Schätzrisikos: Portfolio-Resampling</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./kapitel7.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Risikogesteuerte Ansätze: Verzicht auf die Schätzung der erwarteten Rendite</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./kapitel8.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Index Tracking</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./projekt.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Abschlußprojekt</span></span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#mu-sigma-effiziente-portfolios-ohne-risikoloses-asset" id="toc-mu-sigma-effiziente-portfolios-ohne-risikoloses-asset" class="nav-link active" data-scroll-target="#mu-sigma-effiziente-portfolios-ohne-risikoloses-asset"><span class="header-section-number">2.1</span> <span class="math inline">\((\mu-\sigma)\)</span>-effiziente Portfolios ohne risikoloses Asset</a></li>
+  <li><a href="#analytische-bestimmung-der-effizienzkurve" id="toc-analytische-bestimmung-der-effizienzkurve" class="nav-link" data-scroll-target="#analytische-bestimmung-der-effizienzkurve"><span class="header-section-number">2.2</span> Analytische Bestimmung der Effizienzkurve</a>
+  <ul class="collapse">
+  <li><a href="#allgemein-mit-leerverkaufsverbot" id="toc-allgemein-mit-leerverkaufsverbot" class="nav-link" data-scroll-target="#allgemein-mit-leerverkaufsverbot"><span class="header-section-number">2.2.1</span> Allgemein (mit Leerverkaufsverbot)</a></li>
+  <li><a href="#diskussion-der-nebenbedingungen" id="toc-diskussion-der-nebenbedingungen" class="nav-link" data-scroll-target="#diskussion-der-nebenbedingungen"><span class="header-section-number">2.2.2</span> Diskussion der Nebenbedingungen</a></li>
+  <li><a href="#sonderfall-ohne-leerverkaufsverbot" id="toc-sonderfall-ohne-leerverkaufsverbot" class="nav-link" data-scroll-target="#sonderfall-ohne-leerverkaufsverbot"><span class="header-section-number">2.2.3</span> Sonderfall (ohne Leerverkaufsverbot)</a></li>
+  </ul></li>
+  <li><a href="#zwei-extreme-optimale-portfolios-mvp-und-mep" id="toc-zwei-extreme-optimale-portfolios-mvp-und-mep" class="nav-link" data-scroll-target="#zwei-extreme-optimale-portfolios-mvp-und-mep"><span class="header-section-number">2.3</span> Zwei extreme optimale Portfolios: MVP und MEP</a></li>
+  <li><a href="#einführung-eines-risikolosen-assets" id="toc-einführung-eines-risikolosen-assets" class="nav-link" data-scroll-target="#einführung-eines-risikolosen-assets"><span class="header-section-number">2.4</span> Einführung eines risikolosen Assets</a></li>
+  <li><a href="#bestimmung-des-anlegerindividuell-optimalen-portfolios" id="toc-bestimmung-des-anlegerindividuell-optimalen-portfolios" class="nav-link" data-scroll-target="#bestimmung-des-anlegerindividuell-optimalen-portfolios"><span class="header-section-number">2.5</span> Bestimmung des anlegerindividuell-optimalen Portfolios</a></li>
+  <li><a href="#beginn-der-fallstudie" id="toc-beginn-der-fallstudie" class="nav-link" data-scroll-target="#beginn-der-fallstudie"><span class="header-section-number">2.6</span> Beginn der Fallstudie</a>
+  <ul class="collapse">
+  <li><a href="#anmerkungen-zur-umsetzung-der-numerischen-optimierung-in-python" id="toc-anmerkungen-zur-umsetzung-der-numerischen-optimierung-in-python" class="nav-link" data-scroll-target="#anmerkungen-zur-umsetzung-der-numerischen-optimierung-in-python"><span class="header-section-number">2.6.1</span> Anmerkungen zur Umsetzung der numerischen Optimierung in Python</a></li>
+  <li><a href="#laden-und-beschreiben-der-datenbasis" id="toc-laden-und-beschreiben-der-datenbasis" class="nav-link" data-scroll-target="#laden-und-beschreiben-der-datenbasis"><span class="header-section-number">2.6.2</span> Laden und Beschreiben der Datenbasis</a></li>
+  <li><a href="#schätzung-der-inputdaten-für-die-optimierung" id="toc-schätzung-der-inputdaten-für-die-optimierung" class="nav-link" data-scroll-target="#schätzung-der-inputdaten-für-die-optimierung"><span class="header-section-number">2.6.3</span> Schätzung der Inputdaten für die Optimierung</a></li>
+  <li><a href="#anwendung-der-absoluten-portfoliooptimierung" id="toc-anwendung-der-absoluten-portfoliooptimierung" class="nav-link" data-scroll-target="#anwendung-der-absoluten-portfoliooptimierung"><span class="header-section-number">2.6.4</span> Anwendung der absoluten Portfoliooptimierung</a></li>
+  </ul></li>
+  <li><a href="#literatur" id="toc-literatur" class="nav-link" data-scroll-target="#literatur"><span class="header-section-number">2.7</span> Literatur</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Grundlagen der klassischen (absoluten) Portfoliooptimierung</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>Gegenstand der <strong>Portfoliobildung</strong> bzw. <strong>Portfoliorealisierung</strong> ist die wertmäßige Aufteilung des Anlagebetrages auf die Assets des in Frage kommenden Anlageuniversums.</p>
+<p>Bei der Portfoliobildung durch Anwendung von Optimierungsverfahren erfolgt die Bestimmung der optimalen Portfoliostruktur (Anteilsgewichte der Assets) in Bezug auf den jeweils verfolgten Zweck (operationalisiert durch eine Zielfunktion <em>ZF</em>) unter Beachtung eventueller Nebenbedingungen.</p>
+<section id="mu-sigma-effiziente-portfolios-ohne-risikoloses-asset" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="mu-sigma-effiziente-portfolios-ohne-risikoloses-asset"><span class="header-section-number">2.1</span> <span class="math inline">\((\mu-\sigma)\)</span>-effiziente Portfolios ohne risikoloses Asset</h2>
+<p>Was sind optimale Portfolios und wie lassen sie sich bestimmen? Markowitz (1952, 1998) beschränkt zur Bewältigung dieses Problems seine Lösung darauf, dass aus der Menge aller möglichen und zulässigen Portfolios diejenigen ausgeschlosen werden, welche eindeutig schlechter sind als andere. Die verbleibenden sogenannten <span class="math inline">\((\mu-\sigma)\)</span>-effizienten Portfolios bestimmen sich durch die Auswahl derjenigen Portfolios aus der Menge aller möglichen Portfolios, welche bei gegebenem Erwartungswert der Rendite <span class="math inline">\((\mu_{p})\)</span> das minimale Risiko (Varianz bzw. Standardabweichung der Rendite - <span class="math inline">\(\sigma^2_{p}\)</span> bzw. <span class="math inline">\(\sigma_{p}\)</span>) aufweisen, oder bei gegebenem Risiko die maximale Rendite erwarten lassen. Diese Portfolios werden auch als dominant gegenüber den anderen Portfolios bezeichnet.</p>
+<p>Diese Auswahl effizienter Portfolios basiert jedoch implizit auf zwei zentralen Annahmen:</p>
+<ul>
+<li>Investoren bevorzugen mehr Rendite gegenüber weniger.</li>
+<li>Weisen zwei Portfolios dieselbe erwartete Rendite auf, so wird dasjenige mit dem geringeren Risiko gewählt.</li>
+</ul>
+<p>Damit unterstellt Markowitz implizit <em>risikoaverse Anleger</em>. Das <em>Dominanzkriterium</em> lässt sich also hier in folgender Weise formulieren:</p>
+<p>Eine Anlage (Portfolio) dominiert eine andere, wenn sie</p>
+<ul>
+<li>bei gleicher Rendite ein geringeres Risiko aufweist, oder</li>
+<li>bei gleichem Risiko eine höhere Rendite besitzt.</li>
+</ul>
+<p>Ein Portfolio wird genau dann effizient genannt, wenn kein anderes Portfolio existiert, welches</p>
+<ul>
+<li>bei gleicher erwarteter Rendite ein geringeres Risiko oder</li>
+<li>bei gleichem Risiko eine höhere erwartete Rendite oder</li>
+<li>bei höherer erwarteter Rendite gleichzeitig ein geringeres Risiko</li>
+</ul>
+<p>besitzt. Damit ergibt sich unter Verwendung des Dominanzkriteriums die äquivalente Aussage:</p>
+<ul>
+<li>Ein Portfolio ist genau dann effizient, wenn kein anderes Portfolio existiert, welches dieses dominiert.</li>
+</ul>
+<p>Die Menge aller effizienten Portfolios wird auch als Rand oder Kurve aller effizienten Portfolios oder kurz <em>Effizienzkurve</em> (“Efficient Frontier”) bezeichnet.</p>
+</section>
+<section id="analytische-bestimmung-der-effizienzkurve" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="analytische-bestimmung-der-effizienzkurve"><span class="header-section-number">2.2</span> Analytische Bestimmung der Effizienzkurve</h2>
+<section id="allgemein-mit-leerverkaufsverbot" class="level3" data-number="2.2.1">
+<h3 data-number="2.2.1" class="anchored" data-anchor-id="allgemein-mit-leerverkaufsverbot"><span class="header-section-number">2.2.1</span> Allgemein (mit Leerverkaufsverbot)</h3>
+<p>Um die Effizienzkurve rechnerisch zu bestimmen, ist das folgende quadratische Optimierungsproblem (in Matrizenschreibweise) zu lösen:</p>
+<p><span class="math display">\[
+\begin{split}
+\\(OP1) \quad ZF(w) = \sigma_P^2=w^{T}\Sigma w \rightarrow \min_{w}!, \\
+\text{unter den Nebenbedingungen}\quad
+&amp; \text{(a)}\ w^{T}\mu = \mu_{P}, \\
+&amp; \text{(b)}\ w^{T}\iota = 1 \quad \text{(Budgetrestriktion)}, \\
+&amp; \text{(c)}\ w\geqq 0 \quad \text{(Leerverkaufsverbot)},
+\end{split}
+\]</span></p>
+<p>wobei</p>
+<p><span class="math display">\[
+w = \begin{bmatrix} w_1 \\ \vdots \\ w_N \end{bmatrix}, \quad
+\mu = \begin{bmatrix} \mu_1 \\ \vdots \\ \mu_N \end{bmatrix}, \quad
+\Sigma = \begin{bmatrix} \sigma_1^2 &amp; \cdots &amp; \sigma_{1N} \\
+\vdots &amp; \ddots &amp; \vdots \\
+\sigma_{N1} &amp; \cdots &amp; \sigma_N^2 \\
+\end{bmatrix}.
+\]</span></p>
+<ul>
+<li><span class="math inline">\(\mu_{P}\)</span> : beliebige, fest vorgegebene Portfoliorendite</li>
+<li><span class="math inline">\(\mu\)</span> : Vektor der erwarteten Assetrenditen</li>
+<li><span class="math inline">\(\Sigma\)</span> : zukünftige Varianz-Kovarianzmatrix der Assetrenditen</li>
+<li><span class="math inline">\(\iota\)</span> : Einheitsvektor (alle Elemente des Vektors sind eins)</li>
+</ul>
+<p>Für eine beliebige, fest vorgegebene Portfoliorendite <span class="math inline">\(\mu_{P}\)</span> werden also die Gewichte <span class="math inline">\(w_{i}\)</span> (<span class="math inline">\(i=1, ..., N\)</span>, und <span class="math inline">\(N=\)</span> Anzahl der Assets im Anlageuniversum) derart bestimmt, dass das resultierende Portfoliorisiko (Varianz der Portfoliorendite) minimal wird. Die Lösung des Optimierungsproblems OP1 liefert einen Punkt <span class="math inline">\((\mu_{P}, \sigma^2_{p})\)</span> der Effizienzkurve. Löst man nun das Optimierungsproblem für variierende <span class="math inline">\(\mu_{P}\)</span>, so lässt sich die Effizienzkurve punktweise konstruieren.</p>
+</section>
+<section id="diskussion-der-nebenbedingungen" class="level3" data-number="2.2.2">
+<h3 data-number="2.2.2" class="anchored" data-anchor-id="diskussion-der-nebenbedingungen"><span class="header-section-number">2.2.2</span> Diskussion der Nebenbedingungen</h3>
+<p>Als mögliche Nebenbedingungen wurden die <strong>Budgetrestriktion</strong> und die <strong>Nichtnegativitätsbedingung (Leerverkaufsverbot)</strong> eingeführt. Die Budgetrestriktion beinhaltet die Anforderung, dass die Summe der Einzelgewichte gleich eins ist. Der Investor kann also nicht mehr als den zur Verfügung stehenden Anlagebetrag auf die Anlagen aufteilen. Dies schließt die Aufnahme von Fremdkapital (Leverage) aus. Gleichzeitig wird aber auch die Vollinvestition gefordert. Ist eventuell eine Bargeldhaltung zu berücksichtigen, so ist Bargeld einfach als ein Asset mit erwarteter Rendite und Risiko von Null in das Anlageuniversum zu integrieren.</p>
+<p>Die Möglichkeit von Leerverkäufen wird durch die Nichtnegativitätsanforderung an die Einzelgewichte ausgeschlossen. Dies ist eine in der Praxis übliche Beschränkung, die sich z.B. aufgrund eines gesetzlichen oder satzungsmäßigen Verbots von Leerverkäufen ergeben kann. Unter einem <em>Leerverkauf</em> versteht man den Verkauf eines Wertpapiers, welches sich nicht im Eigentum des Verkäufers befindet, sondern von ihm mittels <em>Wertpapierleihe</em> beschafft wird. Ein Leerverkäufer zielt darauf ab, unter Erwartung fallender Kurse, das Wertpapier später zu einem niedrigeren Kurs erwerben zu können, so dass die Differenz zwischen Kaufkurs und Verkaufkurs die zu entrichtende Leihgebühr überkompensiert.</p>
+<p>Ferner kann es eine Vielzahl von weiteren Nebenbedingungen gesetzlicher, statutarischer oder persönlicher Art geben. Hierzu zählen z.B. Mindest- und Höchstbestandsgrenzen für einzelne Assets, zulässige Höchstbestandsgrenzen für Gruppen von Assets, eine geforderte Mindestdividendenrendite des Portfolios, Ausschluss bestimmter Assets (z.B. “Sin Stocks”), Beachtung von Nachhaltigkeitskriterien (z.B. ein Portfoliominimum-ESG-Score), Beschränkung des Umschichtungsvolumens, der Transaktionskosten usw.</p>
+<p>Offensichtlich erschwert das Hinzufügen von (linearen und nichtlinearen) Nebenbedingungen die Lösungsfindung bei der Optimierung. Da bei einem Optimierungsproblem eine hochgradig nichtlineare Zielfunktion mit ebenfalls hochgradig komplexen, nichtlinearen Nebenbedingungen vorliegen kann, lässt sich schon intuitiv vermuten, dass kein gleichermaßen allgemein gültiges wie zugleich effizientes Lösungsverfahren existiert.</p>
+</section>
+<section id="sonderfall-ohne-leerverkaufsverbot" class="level3" data-number="2.2.3">
+<h3 data-number="2.2.3" class="anchored" data-anchor-id="sonderfall-ohne-leerverkaufsverbot"><span class="header-section-number">2.2.3</span> Sonderfall (ohne Leerverkaufsverbot)</h3>
+<section id="geschlossene-lösung" class="level4" data-number="2.2.3.1">
+<h4 data-number="2.2.3.1" class="anchored" data-anchor-id="geschlossene-lösung"><span class="header-section-number">2.2.3.1</span> Geschlossene Lösung</h4>
+<p>In der Regel lässt sich keine geschlossene Lösung des obigen Optimierungsproblems angeben. Entfällt aber die Nebenbedingung (c), das Leerverkaufsverbot (bzw. die Nichtnegativitätsbedingung), kann über einen Lagrangeansatz die folgende geschlossene Lösung für den optimalen (d.h., varianzminimalen) Portfoliogewichtsvektor <span class="math inline">\(w\)</span> bei gegebener erwarteter Portfoliorendite <span class="math inline">\(\mu_{P}\)</span> ermittelt werden (siehe z.B. Franzen und Schäfer, 2018, S. 182-189, für die Herleitung)</p>
+<p><span class="math display">\[
+w =
+\frac{C\mu_P-A}{D}\Sigma^{-1}\mu + \frac{B-A\mu_P}{D}\Sigma^{-1}\iota,
+\]</span></p>
+<p>wobei</p>
+<p><span class="math display">\[
+A =\mu^{T}\Sigma^{-1}\iota,\ B=\mu^{T}\Sigma^{-1}\mu,\
+C =\iota^{T}\Sigma^{-1}\iota,\ D = B C - A^2.
+\]</span></p>
+<p>Die Beziehung zwischen der gegebenen Portfoliorendite <span class="math inline">\(\mu_P\)</span> und dem dazugehörigen minimalen Portfoliorisiko <span class="math inline">\(\sigma_P\)</span> läßt sich dann schreiben als:</p>
+<p><span class="math display">\[
+\sigma_P = \sqrt{\frac{C\mu_P^2 - 2A\mu_P + B}{D}}
+= \sqrt{\frac{C}{D}\left(\mu_P-\frac{A}{C}\right)^2+\frac1{C}},
+\]</span></p>
+<p>und für die <span class="math inline">\((\mu_P-\sigma_{P})\)</span>-Effizienzkurve gilt</p>
+<p><span class="math display">\[ (1) \quad
+\mu_P = \begin{cases}
+\displaystyle
+\frac{A + \sqrt{D(C\sigma_P^2 - 1)}}{C}, &amp; \mu_P &gt; \frac{A}{C}; \\
+&amp; \\
+\displaystyle
+\frac{A - \sqrt{D(C\sigma_P^2 - 1)}}{C}, &amp; \mu_P &lt; \frac{A}{C}.
+\end{cases}
+\]</span></p>
+</section>
+<section id="two-fund-theorem" class="level4" data-number="2.2.3.2">
+<h4 data-number="2.2.3.2" class="anchored" data-anchor-id="two-fund-theorem"><span class="header-section-number">2.2.3.2</span> Two-Fund Theorem</h4>
+<p>Im <span class="math inline">\((\mu-\sigma)\)</span>-Koordinatensystem stellen die varianzminimalen Portfolios, die für eine gegebene erwartete Rendite das Risiko (Varianz oder Standardabweichung der Rendite) minimieren, eine Parabel (Möglichkeitskurve - “Envelop”) dar. Der effiziente obere Rand der Parabel ist die Effizienzkurve. Der untere Rand (die “Ineffizienzkurve”) enthält ineffiziente Portfolios, die von den Portfolios des effizienten Rands dominiert werden (diese Portfolios besitzen für ein gegebenes <span class="math inline">\(\sigma_{p}\)</span> jeweils ein größeres <span class="math inline">\(\mu_{p})\)</span>. Der Scheitelpunkt der Parabel, der den effizienten vom ineffizienten Rand trennt, ist das sogenannte <em>Minimum-Varianz-Portfolio</em> (siehe unten).</p>
+<p>Wir können nun zwei Theoreme, die auf Black (1972) und Merton (1972) zurückgehen (siehe hierzu auch Benninga, 2014, Kapitel 9), verwenden, um mit Hilfe zweier beliebiger Basisportfolios auf der Parabel die gesamte Parabel aufzuspannen.</p>
+<p>Das erste Theorem besagt, dass sich die Anteilsgewichte eines jeden Portfolios der Parabel beschreiben lassen durch:</p>
+<p><span class="math display">\[ (2) \quad w(c)=\frac{\Sigma^{-1}(\mu-c \iota)}{\iota^T[\Sigma^{-1}(\mu-c\iota)]},\]</span></p>
+<p>wobei <span class="math inline">\(c\)</span> eine beliebige Konstante und <span class="math inline">\(\iota\)</span> den Einheitsvektor der Dimension <span class="math inline">\(N\)</span> darstellt. Durch Variation von <span class="math inline">\(c\)</span> erhalten wir unterschiedliche Punkte auf der Parabel. Nun wählen wir zwei beliebige Basisportfolios <span class="math inline">\(X\)</span> und <span class="math inline">\(Y\)</span> auf der Parabel. Für <span class="math inline">\(X\)</span> setzen wir z.B. <span class="math inline">\(c=2\)</span> und für <span class="math inline">\(Y\)</span> <span class="math inline">\(c=4\)</span>.</p>
+<p>Das zweite Theorem besagt, gegeben zwei Basisportfolios <span class="math inline">\(X\)</span> und <span class="math inline">\(Y\)</span> auf der Parabel, jedes weitere Portfolio <span class="math inline">\(Z\)</span> (Punkt auf der Parabel) lässt sich als konvexe Kombination von <span class="math inline">\(X\)</span> und <span class="math inline">\(Y\)</span> darstellen: <span class="math inline">\(Z=\alpha X+(1-\alpha)Y\)</span>, wobei <span class="math inline">\(\alpha\)</span> eine beliebige Konstante ist. Daraus folgt für die erwartete Rendite und das Risiko von <span class="math inline">\(Z\)</span>:</p>
+<p><span class="math display">\[(3a) \quad \mu_{Z} = \alpha \mu_{X} + (1-\alpha) \mu_{Y} \]</span></p>
+<p><span class="math display">\[(3b) \quad \sigma_{Z}=\sqrt{\alpha^2 \sigma^2_{X} + (1-\alpha^2) \sigma^2_{Y}+ 2\alpha (1-\alpha)Cov(X,Y)} \]</span></p>
+<p><span class="math inline">\(Cov(X,Y)\)</span> bezeichnet hier die Renditekovarianz zwischen den beiden Basisportfolios.</p>
+<p>Die Bestimmung der Parabel der varianzminimalen Portfolios (effizienter + ineffizienter Rand) anhand des Two-Fund Theorems erfordert somit die folgenden Schritte:</p>
+<ol type="1">
+<li>Wahl der Basisportfolios <span class="math inline">\(X\)</span> und <span class="math inline">\(Y\)</span> durch die Festlegung zweier beliebiger Werte für <span class="math inline">\(c\)</span>.</li>
+<li>Bestimmung der Anteilsgewichte von <span class="math inline">\(X\)</span> und <span class="math inline">\(Y\)</span> anhand Gleichung (2).</li>
+<li>Ermittlung der erwarteten Rendite, Varianz der Rendite und der Renditekovarianz zwischen <span class="math inline">\(X\)</span> und <span class="math inline">\(Y\)</span>.</li>
+<li>Für eine große Zahl unterschiedlicher Werte für <span class="math inline">\(\alpha\)</span>: Berechnung der erwarteten Rendite und der Renditevarianz für <span class="math inline">\(Z\)</span> gemäß der Gleichungen (3a) und (3b).</li>
+</ol>
+</section>
+</section>
+</section>
+<section id="zwei-extreme-optimale-portfolios-mvp-und-mep" class="level2" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="zwei-extreme-optimale-portfolios-mvp-und-mep"><span class="header-section-number">2.3</span> Zwei extreme optimale Portfolios: MVP und MEP</h2>
+<p>Die Effizienzkurve optimaler, d.h. <span class="math inline">\((\mu-\sigma)\)</span>-effizienter, Portfolios wird begrenzt von zwei Extrempositionen, dem <em>Minimum-Varianz-Portfolio (MVP)</em> und dem <em>Maximum-Ertrag-Portfolio (MEP)</em>.</p>
+<p>Das MVP ist dasjenige Portfolio, welches das <em>global</em> geringste zu erwartende Risiko aufweist. Das Optimierungsproblem (in Matrizenschreibweise) lautet: <span class="math display">\[
+\begin{split}
+\\(OP2) \quad ZF(w) = \sigma_P^2=w^{T}\Sigma w \rightarrow \min_{w}!, \\
+\text{unter den Nebenbedingungen}\quad
+&amp; \text{(a)}\ w^{T}\iota = 1 \quad \text{(Budgetrestriktion)}, \\
+&amp; \text{(b)}\ w\geqq 0 \quad \text{(Leerverkaufsverbot)},
+\end{split}
+\]</span></p>
+<p>Für das am anderen Ende der Effizienzkurve liegende MEP gilt:</p>
+<p><span class="math display">\[ (OP3) \quad ZF(w) = \mu_{P}=w^{T}\mu  \rightarrow \max_{w}! \]</span></p>
+<p>Die obigen Nebenbedingungen gelten hier analog. Für das MEP bildet das Portfolio folglich die Lösung, welches zu 100% aus dem Asset mit der höchsten zu erwartenden Rendite besteht.</p>
+</section>
+<section id="einführung-eines-risikolosen-assets" class="level2" data-number="2.4">
+<h2 data-number="2.4" class="anchored" data-anchor-id="einführung-eines-risikolosen-assets"><span class="header-section-number">2.4</span> Einführung eines risikolosen Assets</h2>
+<p>Das Problem der Bestimmung aller effizienten Portfolios kann unter Anwendung der <em>Tobin-Separation</em> vereinfacht werden. Diese ermöglicht es, durch Einführung einer <em>risikofreien</em> Anlage, nur noch ein effizientes Portfolio bestimmen zu müssen. Die Einführung einer risikolosen Anlagemöglichkeit mit Zinssatz <span class="math inline">\(r_{f}\)</span> führt zu einem modifizierten Problem: Der Anleger hat nun die Möglichkeit, <em>Mischportfolios</em> aus der risikolosen Anlagemöglichkeit und einem beliebigen Portfolio auf der Effizienzkurve zu bilden, z.B. mit dem Portfolio <em>P</em>. Die sich dann ergebenden <span class="math inline">\((\mu-\sigma)\)</span>-Kombinationen für variierende Mischungsverhältnisse von <span class="math inline">\(r_{f}\)</span> und <em>P</em> liegen auf einer Geraden. Ziel ist es nun, dasjenige Portfolio <em>TP</em> auf der Effizienzkurve für die Mischung mit <span class="math inline">\(r_{f}\)</span> zu verwenden, für dass die resultierenden Mischportfolios nicht durch Kombinationen von <span class="math inline">\(r_{f}\)</span> mit anderen effizienten Portfolios <em>P</em> dominiert werden.</p>
+<p>Das Portfolio <em>TP</em> wird dabei in folgenden Weise bestimmt:</p>
+<p><span class="math display">\[
+\begin{split}
+\\(OP4) \quad ZF(w) =  \frac{\mu_p-r_f}{\sigma_p} \rightarrow \max_{w}!, \\
+\text{unter den Nebenbedingungen}\quad
+&amp; \text{(a)}\ w^{T}\iota = 1 \quad \text{(Budgetrestriktion)}, \\
+&amp; \text{(b)}\ w\geqq 0 \quad \text{(Leerverkaufsverbot)},
+\end{split}
+\]</span></p>
+<p>Das obige Optimierungsproblem OP4 entspricht der Maximierung der Steigung der Geraden durch den Punkt <span class="math inline">\(r_{f}\)</span> einerseits und durch einen durch ein effizientes Portfolio bestimmten Punkt andererseits. Dies ist gleichbedeutend mit der Bestimmung der Tangente an die Effizienzkurve ausgehend vom Punkt <span class="math inline">\(r_{f}\)</span>. Der Ausdruck <span class="math inline">\(\frac{\mu_p-r_f}{\sigma_p}\)</span> wird auch als die <strong>Sharpe-Ratio</strong> des Portfolios <span class="math inline">\(P\)</span> bezeichnet.</p>
+<p>Die sich für den risikoaversen Investor neu ergebende <em>Effizienzline</em> wird durch alle möglichen Kombinationen aus dem <em>Tangentialportfolio TP</em> und der risikofreien Anlage <span class="math inline">\(r_{f}\)</span> gebildet. Für dieses Mischportfolio ergeben sich die erwartete Rendite und dessen Risiko wie folgt:</p>
+<p><span class="math display">\[
+\begin{split}
+\ \mu_{Misch}=\alpha\mu_{TP}+(1-\alpha)r_{f} \
+\text{und}\
+\ \sigma_{Misch}=\alpha \sigma_{TP}, \
+\end{split}
+\]</span></p>
+<p>mit <span class="math inline">\(\alpha=\)</span> Anteil der Investitionssumme, der in das risikobehaftete Portfolio <em>TP</em> investiert wird.</p>
+</section>
+<section id="bestimmung-des-anlegerindividuell-optimalen-portfolios" class="level2" data-number="2.5">
+<h2 data-number="2.5" class="anchored" data-anchor-id="bestimmung-des-anlegerindividuell-optimalen-portfolios"><span class="header-section-number">2.5</span> Bestimmung des anlegerindividuell-optimalen Portfolios</h2>
+<p>Mit der Bestimmung der effizienten Portfolios ist man aber noch nicht am Ziel. Gewünscht ist schlussendlich die Bestimmung eines für den individuellen Anleger optimalen Portfolios (Poddig et al., S. 84).</p>
+<p>Im Rahmen der absoluten Optimierung werden wir die Bestimmung anlegerindividuell-optimaler Portfolios hier nicht behandeln. Wir fokussieren in der folgenden Fallstudie ausschließlich auf die Ermittlung der vollständigen Effizienzkurve. Für die Bestimmung anlegerindividuell-optimaler Portfolios sei auf die nachfolgenden Kapitel verwiesen.</p>
+</section>
+<section id="beginn-der-fallstudie" class="level2" data-number="2.6">
+<h2 data-number="2.6" class="anchored" data-anchor-id="beginn-der-fallstudie"><span class="header-section-number">2.6</span> Beginn der Fallstudie</h2>
+<p>Wir starten mit dem Import der benötigten Pakete.</p>
+<div id="cell-2" class="cell" data-execution_count="1">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="im">from</span> scipy.optimize <span class="im">import</span> minimize</span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="im">import</span> numpy.linalg <span class="im">as</span> la</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<section id="anmerkungen-zur-umsetzung-der-numerischen-optimierung-in-python" class="level3" data-number="2.6.1">
+<h3 data-number="2.6.1" class="anchored" data-anchor-id="anmerkungen-zur-umsetzung-der-numerischen-optimierung-in-python"><span class="header-section-number">2.6.1</span> Anmerkungen zur Umsetzung der numerischen Optimierung in Python</h3>
+<p>Wir setzen im Folgenden die numerische Optimierung der jeweils formulierten Zielfunktion (OP1-OP4) unter Nebenbedingungen mit Hilfe der Funktion <code>minimize</code> aus dem Modul <code>scipy.optimize</code> um. Bei der Umsetzung sind einige Besonderheiten zu beachten.</p>
+<p>Erstens bietet Scipy eine “Minimieren”-Funktionalität, aber keine “Maximieren”-Funktion. Möchten wir beispielsweise die Sharpe-Ratio im Optimierungsproblem 4 (OP4) maximieren, mag dies auf den ersten Blick wie ein kleines Problem erscheinen, aber es lässt sich leicht lösen, wenn man bedenkt, dass die Maximierung der Sharpe-Ratio analog zur Minimierung der negativen Sharpe-Ratio ist - also buchstäblich nur der Sharpe-Ratio-Wert mit einem vorangestellten Minuszeichen.</p>
+<p>Das grundsätzliche Vorgehen bei der Optimierung ist immer identisch: Zuerst schreiben wir die zu optimierende <code>Zielfunktion</code> als Funktion und definieren dann über das Objekt <code>constraints</code> die Struktur der Nebenbedingungen.</p>
+<p>Lassen Sie uns die einzelnen Einträge durchgehen, um sie besser zu verstehen:</p>
+<p>Da wir die <code>SLSQP</code>-Methode in unserer “Minimieren”-Funktion verwenden werden (was für “Sequential Least Squares Programming” steht), muss das <code>constraints</code> Objekt das Format eines Tupels von <code>Dictionaries</code> haben, das die Felder <code>type</code> und <code>fun</code> mit den optionalen Feldern <code>jac</code> und <code>args</code> enthält. Wir brauchen nur die Felder <code>type</code>, <code>fun</code> und <code>args</code>. Ein Tupel ist eine unveränderliche Sequenz fester Länge aus Python-Objekten, eingebettet in runde Klammern () wobei die einzelnen Objekte kommasepariert sind.</p>
+<p>Der <code>type</code> kann entweder <code>eq</code> oder <code>ineq</code> sein, was sich auf <em>equality</em> bzw. <em>inequality</em> bezieht. Das <code>fun</code> bezieht sich auf die Funktion, die die Beschränkung definiert, in unserem Fall die Beschränkung, dass die Summe der Anteilsgewichte Eins sein muss (Budgetrestriktion). Die Art und Weise, wie dies eingegeben werden muss, ist etwas umständlich. Das <code>eq</code> bedeutet, dass wir nach einer Funktion suchen, deren Ausgabewert gleich Null ist (das ist es, worauf sich die Gleichheit bezieht - Gleichheit mit Null). Der einfachste Weg, dies zu erreichen, besteht darin, eine <code>Lambda</code>-Funktion zu erstellen, die die Summe der Portfoliogewichte minus Eins liefert. Die Beschränkung, dass der Ausgabewert dieser Funktion gleich Null sein muss, bedeutet per Definition, dass die Gewichte zu Eins summiert werden müssen.</p>
+<p>Über das Tuple <code>bounds</code>, das <span class="math inline">\(N\)</span> identische <code>bound</code>=(Mindestbestandsgrenze, Höchstbestandsgrenze) Tuple enthält, legen wir fest, dass jedes einzelne Anteilsgewicht zwischen Null und Eins liegen muss (Leerverkaufsverbot). Die <code>args</code> sind die Argumente, die wir an die Funktion übergeben wollen, die wir zu minimieren versuchen (<code>Zielfunktion</code>) - das sind alle Argumente AUßER dem Anteilsvektor, der natürlich das Zielfunktionsargument ist, das wir zur Optimierung der ZF-Ausgabe ändern.</p>
+<p>Über die Liste <code>Startgewichte</code> legen wir den Ausgangspunkt für die numerische Suche nach den optimalen Gewichten fest. Der grundlegende Code für die Anwendung der <code>minimize</code>-Optimierungsfunktion sieht demnach folgendermaßen aus:</p>
+<div id="cell-4" class="cell" data-execution_count="2">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># basic structure of code for optimization</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a>constraints <span class="op">=</span> ({<span class="st">'type'</span>: <span class="st">'eq'</span>, <span class="st">'fun'</span>: <span class="kw">lambda</span> x: np.<span class="bu">sum</span>(x) <span class="op">-</span> <span class="dv">1</span>})</span>
+<span id="cb2-3"><a href="#cb2-3"></a>bound <span class="op">=</span> (<span class="fl">0.0</span>,<span class="fl">1.0</span>)</span>
+<span id="cb2-4"><a href="#cb2-4"></a>bounds <span class="op">=</span> <span class="bu">tuple</span>(bound <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(Anzahl_Assets))</span>
+<span id="cb2-5"><a href="#cb2-5"></a>minimize(Zielfunktion, Startgewichte, args<span class="op">=</span>args,</span>
+<span id="cb2-6"><a href="#cb2-6"></a>               method<span class="op">=</span><span class="st">'SLSQP'</span>, bounds<span class="op">=</span>bounds, constraints<span class="op">=</span>constraints)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p><code>minimize</code> liefert als Ausgabe das Array <code>x</code> mit den optimierten Anteilsgewichten.</p>
+</section>
+<section id="laden-und-beschreiben-der-datenbasis" class="level3" data-number="2.6.2">
+<h3 data-number="2.6.2" class="anchored" data-anchor-id="laden-und-beschreiben-der-datenbasis"><span class="header-section-number">2.6.2</span> Laden und Beschreiben der Datenbasis</h3>
+<p>Das beispielhafte Anlageuniversum der Fallstudie umfasst zehn Unternehmen aus den folgenden Branchen: Technologie, Gesundheit, Nahrungsmittel, Pharma, Energie sowie Luft- und Raumfahrt. Die Unternehmen sind: Abbott Laboratories (ABT), Boeing Industries (BA), Costco Wholesale (COST), Cisco Systems (CSCO), IBM (IBM), Intel (INTC), Merk (MRK), Microsoft (MSFT), AT&amp;T (T), und Exxon Mobil Corporation (XOM).</p>
+<p>Die Datengrundlage stellen Monatsanfangskurse (“Adjusted Close”) über einen 5-Jahres-Zeitraum vom 1.12.2004 bis zum 1.12.2009 dar. Die Stichprobe enthält somit 61 Zeitreihenbeobachtungen.</p>
+<div id="cell-7" class="cell" data-execution_count="3">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a><span class="co"># Hier Ihren lokalen Pfad zur Datei 'Kapitel A1' eingeben!</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="co"># cd "..."</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="cell-8" class="cell" data-execution_count="4">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a>frame <span class="op">=</span> pd.read_excel(<span class="st">'Kapitel A1.xlsx'</span>, <span class="st">'Tabelle1'</span>, index_col<span class="op">=</span><span class="dv">0</span>, parse_dates<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="cell-9" class="cell" data-execution_count="5">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1"></a>frame.head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="5">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">ABT</th>
+<th data-quarto-table-cell-role="th">BA</th>
+<th data-quarto-table-cell-role="th">COST</th>
+<th data-quarto-table-cell-role="th">CSCO</th>
+<th data-quarto-table-cell-role="th">IBM</th>
+<th data-quarto-table-cell-role="th">INTC</th>
+<th data-quarto-table-cell-role="th">MRK</th>
+<th data-quarto-table-cell-role="th">MSFT</th>
+<th data-quarto-table-cell-role="th">T</th>
+<th data-quarto-table-cell-role="th">XOM</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2004-12-01</th>
+<td>46.65</td>
+<td>51.77</td>
+<td>48.41</td>
+<td>19.32</td>
+<td>98.58</td>
+<td>23.39</td>
+<td>32.14</td>
+<td>26.72</td>
+<td>25.77</td>
+<td>51.26</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">2005-01-03</th>
+<td>45.02</td>
+<td>50.60</td>
+<td>47.27</td>
+<td>18.04</td>
+<td>93.42</td>
+<td>22.45</td>
+<td>28.05</td>
+<td>26.28</td>
+<td>23.76</td>
+<td>51.60</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2005-02-01</th>
+<td>45.99</td>
+<td>54.97</td>
+<td>46.59</td>
+<td>17.42</td>
+<td>92.58</td>
+<td>23.99</td>
+<td>31.70</td>
+<td>25.16</td>
+<td>24.06</td>
+<td>63.31</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">2005-03-01</th>
+<td>46.62</td>
+<td>58.46</td>
+<td>44.18</td>
+<td>17.89</td>
+<td>91.38</td>
+<td>23.23</td>
+<td>32.37</td>
+<td>24.17</td>
+<td>23.69</td>
+<td>59.60</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2005-04-01</th>
+<td>49.16</td>
+<td>59.52</td>
+<td>40.63</td>
+<td>17.27</td>
+<td>76.38</td>
+<td>23.52</td>
+<td>33.90</td>
+<td>25.30</td>
+<td>23.80</td>
+<td>57.03</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="schätzung-der-inputdaten-für-die-optimierung" class="level3" data-number="2.6.3">
+<h3 data-number="2.6.3" class="anchored" data-anchor-id="schätzung-der-inputdaten-für-die-optimierung"><span class="header-section-number">2.6.3</span> Schätzung der Inputdaten für die Optimierung</h3>
+<p>Alle oben formulierten Optimierungsprobleme benötigen als Ausgangsdaten den Vektor der erwarteten, zukünftigen Assetrenditen <span class="math inline">\(\mu\)</span> und die zukünftige Varianz-Kovarianzmatrix <span class="math inline">\(\Sigma\)</span>. Unterschiedliche Methode stehen zur Schätzung dieser Parameter zur Verfügung.</p>
+<p>Die denkbar einfachste Vorgehensweise besteht darin, anhand einer beobachteten Renditereihe ihren historischen Mittelwert und empirische Varianz als Schätzer für den Erwartungswert der Rendite und die zukünftige Varianz zu ermitteln. In gleicher Weise kann man die empirische Kovarianz zweier Renditereihen als Schätzer der zukünftigen Kovarianz berechnen. Diese Vorgehensweise wird auch als <strong>einfache historisch basierte Schätzung</strong> bezeichnet. Sie wird im Folgenden wegen ihrer leichten Umsetzbarkeit und Anschaulichkeit als Verfahren zur Rendite- bzw. Risikoprognose eingesetzt, obwohl die damit erzielbaren Ergebnisse im Regelfall eher schlecht sind. Die Verwendung begründet sich hier ausschließlich mit der didaktischen Zielsetzung, die verschiedenen Verfahren der Portfoliooptimierung verfahrenstechnisch zu demonstrieren, wofür zwar Prognosen benötigt werden, deren Güte aber für den hier verfolgten Zweck keine Rolle spielt.</p>
+<p>Poddig et al.&nbsp;(2009, S. 116-121) geben einen Überblick über komplexere Methoden zur Prognose von Renditen und Risiken.</p>
+<p>Wir berechnen zunächst diskrete Monatsrenditen über <code>frame.pct_change()</code>, erhöhen diese um Eins und berechnen davon den Logarithmus (über die Funktion <code>log1p</code>) um stetige (Log-) Renditen zu erhalten. Hierauf wenden wir die Schätzung an und übertragen die historisch geschätzen (und annualiserten) Mittelwerte und die empirische Varianz-Kovarianzmatrix in die Arrays <code>means</code> und <code>Sigma</code>.</p>
+<div id="cell-12" class="cell" data-execution_count="6">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1"></a><span class="co"># simple, historical estimation based on log returns</span></span>
+<span id="cb6-2"><a href="#cb6-2"></a>log_returns <span class="op">=</span> np.log1p(frame.pct_change().dropna()) </span>
+<span id="cb6-3"><a href="#cb6-3"></a>means <span class="op">=</span> log_returns.mean().values<span class="op">*</span><span class="dv">100</span><span class="op">*</span><span class="dv">12</span> <span class="co"># annualised</span></span>
+<span id="cb6-4"><a href="#cb6-4"></a>Sigma <span class="op">=</span> log_returns.cov().values<span class="op">*</span><span class="dv">12</span> <span class="co"># annualised</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="anwendung-der-absoluten-portfoliooptimierung" class="level3" data-number="2.6.4">
+<h3 data-number="2.6.4" class="anchored" data-anchor-id="anwendung-der-absoluten-portfoliooptimierung"><span class="header-section-number">2.6.4</span> Anwendung der absoluten Portfoliooptimierung</h3>
+<section id="berechnung-des-minimum-varianz-portfolios-mvp" class="level4" data-number="2.6.4.1">
+<h4 data-number="2.6.4.1" class="anchored" data-anchor-id="berechnung-des-minimum-varianz-portfolios-mvp"><span class="header-section-number">2.6.4.1</span> Berechnung des Minimum-Varianz-Portfolios (MVP)</h4>
+<section id="ohne-leerverkaufsverbot" class="level5" data-number="2.6.4.1.1">
+<h5 data-number="2.6.4.1.1" class="anchored" data-anchor-id="ohne-leerverkaufsverbot"><span class="header-section-number">2.6.4.1.1</span> Ohne Leerverkaufsverbot</h5>
+<p>Wir beginnen mit der Formulierung der Zielfunktion des Optimierungsproblems OP2 in der Funktion <code>calculate_portfolio_var</code>. Über <code>matrix(w)</code> transformieren wir das Array <code>w</code> in einen Zeilenvektor der Dimension <span class="math inline">\(1xN\)</span>.</p>
+<div id="cell-14" class="cell" data-execution_count="7">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1"></a><span class="co"># definition of target function to be minimized</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a><span class="kw">def</span> calculate_portfolio_var(w,Sigma):</span>
+<span id="cb7-3"><a href="#cb7-3"></a>    <span class="co"># function that calculates portfolio risk</span></span>
+<span id="cb7-4"><a href="#cb7-4"></a>    w <span class="op">=</span> np.matrix(w) <span class="co"># w is a row (not column!) vector</span></span>
+<span id="cb7-5"><a href="#cb7-5"></a>    <span class="cf">return</span> (w<span class="op">*</span>Sigma<span class="op">*</span>w.T)[<span class="dv">0</span>,<span class="dv">0</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>Für die Startgewichte der Optimierung verwenden wir ein gleichgewichtetes Portfolio. Durch Aufruf von <code>np.tile(A,x)</code> wird ein Array generiert, welches x-Mal den Wert A enthält. Die Anzahl der Assets in unserem Beispieluniversum erhalten wir über <code>means.shape[0]</code>.</p>
+<div id="cell-16" class="cell" data-execution_count="8">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1"></a><span class="co"># use equal weights "Weight_1N" as starting values </span></span>
+<span id="cb8-2"><a href="#cb8-2"></a>Weight_1N <span class="op">=</span> np.tile(<span class="fl">1.0</span><span class="op">/</span>means.shape[<span class="dv">0</span>], means.shape[<span class="dv">0</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>Nun sind wir bereit für die Optimierung, die optimierten Anteilsgewichte speichern wir im Array <code>Weight_MV1</code>. Durch setzen von <code>options={'disp': True}</code> werden allgemeine Informationen zum Ablauf der Optimierung angezeigt, und <code>tol</code> legt die Genauigkeit der gefundenen Lösung fest.</p>
+<div id="cell-18" class="cell" data-execution_count="9">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1"></a><span class="co"># unconstrained portfolio (only sum(w) = 1 )</span></span>
+<span id="cb9-2"><a href="#cb9-2"></a>cons <span class="op">=</span> ({<span class="st">'type'</span>: <span class="st">'eq'</span>, <span class="st">'fun'</span>: <span class="kw">lambda</span> x:  np.<span class="bu">sum</span>(x)<span class="op">-</span><span class="fl">1.0</span>})</span>
+<span id="cb9-3"><a href="#cb9-3"></a>res1<span class="op">=</span> minimize(calculate_portfolio_var, Weight_1N, args<span class="op">=</span>Sigma,</span>
+<span id="cb9-4"><a href="#cb9-4"></a>              method<span class="op">=</span><span class="st">'SLSQP'</span>,constraints<span class="op">=</span>cons, tol<span class="op">=</span><span class="fl">1e-10</span>,</span>
+<span id="cb9-5"><a href="#cb9-5"></a>              options<span class="op">=</span>{<span class="st">'disp'</span>: <span class="va">True</span>})</span>
+<span id="cb9-6"><a href="#cb9-6"></a>Weight_MV1 <span class="op">=</span> res1.x</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Optimization terminated successfully    (Exit mode 0)
+            Current function value: 0.010828658442158556
+            Iterations: 31
+            Function evaluations: 341
+            Gradient evaluations: 31</code></pre>
+</div>
+</div>
+<p>Aus Gründen der besseren Übersicht transformieren wir <code>Weight_MV1</code> in ein DataFrame.</p>
+<div id="cell-20" class="cell" data-execution_count="10">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1"></a>pd.DataFrame([<span class="bu">round</span>(x,<span class="dv">4</span>) <span class="cf">for</span> x <span class="kw">in</span> Weight_MV1],index<span class="op">=</span>frame.columns).T</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="10">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">ABT</th>
+<th data-quarto-table-cell-role="th">BA</th>
+<th data-quarto-table-cell-role="th">COST</th>
+<th data-quarto-table-cell-role="th">CSCO</th>
+<th data-quarto-table-cell-role="th">IBM</th>
+<th data-quarto-table-cell-role="th">INTC</th>
+<th data-quarto-table-cell-role="th">MRK</th>
+<th data-quarto-table-cell-role="th">MSFT</th>
+<th data-quarto-table-cell-role="th">T</th>
+<th data-quarto-table-cell-role="th">XOM</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>0.4359</td>
+<td>-0.0418</td>
+<td>0.2083</td>
+<td>-0.0125</td>
+<td>0.141</td>
+<td>0.0902</td>
+<td>-0.1451</td>
+<td>-0.0239</td>
+<td>0.0445</td>
+<td>0.3035</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Positive Gewichte stellen Long-Positionen und negative Gewichte Short-Positionen dar. Assets mit negativen Gewichten werden somit leerverkauft.</p>
+</section>
+<section id="leerverkaufsverbot" class="level5" data-number="2.6.4.1.2">
+<h5 data-number="2.6.4.1.2" class="anchored" data-anchor-id="leerverkaufsverbot"><span class="header-section-number">2.6.4.1.2</span> Leerverkaufsverbot</h5>
+<p>Wir implementieren nun die Beschränkung auf positive Gewichte über eine Liste von zehn (0, 1)-Tuplen.</p>
+<div id="cell-22" class="cell" data-execution_count="11">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1"></a><span class="co"># positive weight portfolio</span></span>
+<span id="cb12-2"><a href="#cb12-2"></a>bnd<span class="op">=</span>[(<span class="dv">0</span>, <span class="dv">1</span>),(<span class="dv">0</span>, <span class="dv">1</span>),(<span class="dv">0</span>, <span class="dv">1</span>),(<span class="dv">0</span>, <span class="dv">1</span>),(<span class="dv">0</span>, <span class="dv">1</span>),</span>
+<span id="cb12-3"><a href="#cb12-3"></a>     (<span class="dv">0</span>, <span class="dv">1</span>),(<span class="dv">0</span>, <span class="dv">1</span>),(<span class="dv">0</span>, <span class="dv">1</span>),(<span class="dv">0</span>, <span class="dv">1</span>),(<span class="dv">0</span>, <span class="dv">1</span>)] <span class="co"># only positive weights</span></span>
+<span id="cb12-4"><a href="#cb12-4"></a>cons <span class="op">=</span> ({<span class="st">'type'</span>: <span class="st">'eq'</span>, <span class="st">'fun'</span>: <span class="kw">lambda</span> x:  np.<span class="bu">sum</span>(x)<span class="op">-</span><span class="fl">1.0</span>})</span>
+<span id="cb12-5"><a href="#cb12-5"></a></span>
+<span id="cb12-6"><a href="#cb12-6"></a>res2<span class="op">=</span> minimize(calculate_portfolio_var, Weight_1N, args<span class="op">=</span>Sigma, </span>
+<span id="cb12-7"><a href="#cb12-7"></a>               bounds <span class="op">=</span> bnd, method<span class="op">=</span><span class="st">'SLSQP'</span>,constraints<span class="op">=</span>cons,tol<span class="op">=</span><span class="fl">1e-10</span>, </span>
+<span id="cb12-8"><a href="#cb12-8"></a>               options<span class="op">=</span>{<span class="st">'disp'</span>: <span class="va">True</span>})</span>
+<span id="cb12-9"><a href="#cb12-9"></a>Weight_MV2 <span class="op">=</span> res2.x</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Optimization terminated successfully    (Exit mode 0)
+            Current function value: 0.012112846573987465
+            Iterations: 21
+            Function evaluations: 231
+            Gradient evaluations: 21</code></pre>
+</div>
+</div>
+<div id="cell-23" class="cell" data-execution_count="12">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1"></a>pd.DataFrame([<span class="bu">round</span>(x,<span class="dv">4</span>) <span class="cf">for</span> x <span class="kw">in</span> Weight_MV2],index<span class="op">=</span>frame.columns).T</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="12">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">ABT</th>
+<th data-quarto-table-cell-role="th">BA</th>
+<th data-quarto-table-cell-role="th">COST</th>
+<th data-quarto-table-cell-role="th">CSCO</th>
+<th data-quarto-table-cell-role="th">IBM</th>
+<th data-quarto-table-cell-role="th">INTC</th>
+<th data-quarto-table-cell-role="th">MRK</th>
+<th data-quarto-table-cell-role="th">MSFT</th>
+<th data-quarto-table-cell-role="th">T</th>
+<th data-quarto-table-cell-role="th">XOM</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>0.3617</td>
+<td>0.0</td>
+<td>0.1652</td>
+<td>0.0</td>
+<td>0.1621</td>
+<td>0.0137</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0523</td>
+<td>0.2449</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>In der gefundenen Lösung fällt auf, das vier der zehn Aktien nicht im optimierten Portfolio enthalten sind und mehr als 60% des Portfolios auf die beiden Aktien ABT und XOM entfällt. Um ein stärker diversifiziertes Portfolio zu konstruieren, wird bei der Berechnung eines dritten MVP eine zusätzliche Nebenbedingung eingeführt. Die einzelnen Assets sollen mindestens mit einem Anteilsgewicht von 5%, aber maximal mit einem Höchstanteil von 35% im Portfolio enthalten sein.</p>
+</section>
+<section id="zusätzliche-nebenbedingung-bestandsgrenzen-min5-max35" class="level5" data-number="2.6.4.1.3">
+<h5 data-number="2.6.4.1.3" class="anchored" data-anchor-id="zusätzliche-nebenbedingung-bestandsgrenzen-min5-max35"><span class="header-section-number">2.6.4.1.3</span> Zusätzliche Nebenbedingung: Bestandsgrenzen (min=5%, max=35%)</h5>
+<div id="cell-25" class="cell" data-execution_count="13">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1"></a><span class="co"># position constraints</span></span>
+<span id="cb15-2"><a href="#cb15-2"></a>bnd<span class="op">=</span>[(<span class="fl">0.05</span>, <span class="fl">0.35</span>),(<span class="fl">0.05</span>, <span class="fl">0.35</span>),(<span class="fl">0.05</span>, <span class="fl">0.35</span>),(<span class="fl">0.05</span>, <span class="fl">0.35</span>),(<span class="fl">0.05</span>, <span class="fl">0.35</span>),</span>
+<span id="cb15-3"><a href="#cb15-3"></a>     (<span class="fl">0.05</span>, <span class="fl">0.35</span>),(<span class="fl">0.05</span>, <span class="fl">0.35</span>),(<span class="fl">0.05</span>, <span class="fl">0.35</span>),(<span class="fl">0.05</span>, <span class="fl">0.35</span>),(<span class="fl">0.05</span>, <span class="fl">0.35</span>)]</span>
+<span id="cb15-4"><a href="#cb15-4"></a>cons <span class="op">=</span> ({<span class="st">'type'</span>: <span class="st">'eq'</span>, <span class="st">'fun'</span>: <span class="kw">lambda</span> x:  np.<span class="bu">sum</span>(x)<span class="op">-</span><span class="fl">1.0</span>})</span>
+<span id="cb15-5"><a href="#cb15-5"></a></span>
+<span id="cb15-6"><a href="#cb15-6"></a>res3<span class="op">=</span> minimize(calculate_portfolio_var, Weight_1N, args<span class="op">=</span>Sigma, </span>
+<span id="cb15-7"><a href="#cb15-7"></a>               bounds <span class="op">=</span> bnd, method<span class="op">=</span><span class="st">'SLSQP'</span>,constraints<span class="op">=</span>cons,tol<span class="op">=</span><span class="fl">1e-10</span>, </span>
+<span id="cb15-8"><a href="#cb15-8"></a>               options<span class="op">=</span>{<span class="st">'disp'</span>: <span class="va">True</span>})</span>
+<span id="cb15-9"><a href="#cb15-9"></a>Weight_MV3 <span class="op">=</span> res3.x</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Optimization terminated successfully    (Exit mode 0)
+            Current function value: 0.014612315837805704
+            Iterations: 18
+            Function evaluations: 198
+            Gradient evaluations: 18</code></pre>
+</div>
+</div>
+<div id="cell-26" class="cell" data-execution_count="14">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1"></a>pd.DataFrame([<span class="bu">round</span>(x,<span class="dv">4</span>) <span class="cf">for</span> x <span class="kw">in</span> Weight_MV3],index<span class="op">=</span>frame.columns).T</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="14">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">ABT</th>
+<th data-quarto-table-cell-role="th">BA</th>
+<th data-quarto-table-cell-role="th">COST</th>
+<th data-quarto-table-cell-role="th">CSCO</th>
+<th data-quarto-table-cell-role="th">IBM</th>
+<th data-quarto-table-cell-role="th">INTC</th>
+<th data-quarto-table-cell-role="th">MRK</th>
+<th data-quarto-table-cell-role="th">MSFT</th>
+<th data-quarto-table-cell-role="th">T</th>
+<th data-quarto-table-cell-role="th">XOM</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>0.3313</td>
+<td>0.05</td>
+<td>0.0689</td>
+<td>0.05</td>
+<td>0.1062</td>
+<td>0.05</td>
+<td>0.05</td>
+<td>0.05</td>
+<td>0.05</td>
+<td>0.1935</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="berechnung-des-maximum-ertrag-portfolios-mep-mit-leerverkaufsverbot" class="level4" data-number="2.6.4.2">
+<h4 data-number="2.6.4.2" class="anchored" data-anchor-id="berechnung-des-maximum-ertrag-portfolios-mep-mit-leerverkaufsverbot"><span class="header-section-number">2.6.4.2</span> Berechnung des Maximum-Ertrag-Portfolios (MEP) mit Leerverkaufsverbot</h4>
+<p>Wir beginnen wieder mit der Formulierung der Zielfunktion des Optimierungsproblems OP3 in der Funktion <code>calculate_negative_portfolio_ret</code>. <strong>Beachte</strong>: Minimieren der mit -1 multiplizierten erwarteten Portfoliorendite ist äquivalent zur Renditemaximierung.</p>
+<div id="cell-28" class="cell" data-execution_count="15">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1"></a><span class="co"># definition of target function to be minimized</span></span>
+<span id="cb18-2"><a href="#cb18-2"></a><span class="kw">def</span> calculate_negative_portfolio_ret(w,means):</span>
+<span id="cb18-3"><a href="#cb18-3"></a>    <span class="co"># function that calculates -1 times portfolio expected return</span></span>
+<span id="cb18-4"><a href="#cb18-4"></a>    w <span class="op">=</span> np.matrix(w) <span class="co"># w is a row (not column!) vector</span></span>
+<span id="cb18-5"><a href="#cb18-5"></a>    means <span class="op">=</span> np.matrix(means)</span>
+<span id="cb18-6"><a href="#cb18-6"></a>    <span class="cf">return</span> <span class="op">-</span>(w<span class="op">*</span>means.T)[<span class="dv">0</span>,<span class="dv">0</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="cell-29" class="cell" data-execution_count="16">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1"></a><span class="co"># positive weight portfolio</span></span>
+<span id="cb19-2"><a href="#cb19-2"></a>bnd<span class="op">=</span>[(<span class="dv">0</span>, <span class="dv">1</span>),(<span class="dv">0</span>, <span class="dv">1</span>),(<span class="dv">0</span>, <span class="dv">1</span>),(<span class="dv">0</span>, <span class="dv">1</span>),(<span class="dv">0</span>, <span class="dv">1</span>),</span>
+<span id="cb19-3"><a href="#cb19-3"></a>     (<span class="dv">0</span>, <span class="dv">1</span>),(<span class="dv">0</span>, <span class="dv">1</span>),(<span class="dv">0</span>, <span class="dv">1</span>),(<span class="dv">0</span>, <span class="dv">1</span>),(<span class="dv">0</span>, <span class="dv">1</span>)] <span class="co"># only positive weights</span></span>
+<span id="cb19-4"><a href="#cb19-4"></a>cons <span class="op">=</span> ({<span class="st">'type'</span>: <span class="st">'eq'</span>, <span class="st">'fun'</span>: <span class="kw">lambda</span> x:  np.<span class="bu">sum</span>(x)<span class="op">-</span><span class="fl">1.0</span>})</span>
+<span id="cb19-5"><a href="#cb19-5"></a></span>
+<span id="cb19-6"><a href="#cb19-6"></a>res4<span class="op">=</span> minimize(calculate_negative_portfolio_ret, Weight_1N, args<span class="op">=</span>means, </span>
+<span id="cb19-7"><a href="#cb19-7"></a>               bounds <span class="op">=</span> bnd, method<span class="op">=</span><span class="st">'SLSQP'</span>,constraints<span class="op">=</span>cons,tol<span class="op">=</span><span class="fl">1e-10</span>, </span>
+<span id="cb19-8"><a href="#cb19-8"></a>               options<span class="op">=</span>{<span class="st">'disp'</span>: <span class="va">True</span>})</span>
+<span id="cb19-9"><a href="#cb19-9"></a>Weight_MRP <span class="op">=</span> res4.x</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Optimization terminated successfully    (Exit mode 0)
+            Current function value: -7.886975933686317
+            Iterations: 2
+            Function evaluations: 22
+            Gradient evaluations: 2</code></pre>
+</div>
+</div>
+<div id="cell-30" class="cell" data-execution_count="17">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1"></a>pd.DataFrame([<span class="bu">round</span>(x,<span class="dv">4</span>) <span class="cf">for</span> x <span class="kw">in</span> Weight_MRP],index<span class="op">=</span>frame.columns).T</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="17">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">ABT</th>
+<th data-quarto-table-cell-role="th">BA</th>
+<th data-quarto-table-cell-role="th">COST</th>
+<th data-quarto-table-cell-role="th">CSCO</th>
+<th data-quarto-table-cell-role="th">IBM</th>
+<th data-quarto-table-cell-role="th">INTC</th>
+<th data-quarto-table-cell-role="th">MRK</th>
+<th data-quarto-table-cell-role="th">MSFT</th>
+<th data-quarto-table-cell-role="th">T</th>
+<th data-quarto-table-cell-role="th">XOM</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>1.0</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Das Portfolio ist zu 100% investiert in XOM, der Aktie mit der höchsten mittleren Rendite im Datensatz. Um ein breiter diversifiziertes Portfolio zu erhalten könnten wir wieder Bestandsgrenzen als zusätzliche Nebenbedingung einführen.</p>
+</section>
+<section id="berechnung-eines-punktes-der-effizienzkurve-mit-leerverkaufsverbot" class="level4" data-number="2.6.4.3">
+<h4 data-number="2.6.4.3" class="anchored" data-anchor-id="berechnung-eines-punktes-der-effizienzkurve-mit-leerverkaufsverbot"><span class="header-section-number">2.6.4.3</span> Berechnung eines Punktes der Effizienzkurve mit Leerverkaufsverbot</h4>
+<p>Wir bestimmen nun einen Punkt der Effizienzkurve in dem wir im Optimierungsproblem OP1 die Zielrendite <span class="math inline">\(\mu_P\)</span> z.B. auf 6% setzen. Wir implementieren diese zusätzliche Nebenbedingung in zwei Schritten. Zunächst schreiben wir die Funktion <code>calculate_portfolio_ret</code>, die die erwartete Portfoliorendite berechnet. Dann fügen wir diese Funktion als <code>Lambda</code>-Funktion in das Tuple <code>cons</code> der Nebenbedingungs-Dictionaries.</p>
+<div id="cell-33" class="cell" data-execution_count="18">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1"></a><span class="co"># definition of function for portfolio expected return</span></span>
+<span id="cb22-2"><a href="#cb22-2"></a><span class="kw">def</span> calculate_portfolio_ret(w,means):</span>
+<span id="cb22-3"><a href="#cb22-3"></a>    w <span class="op">=</span> np.matrix(w) <span class="co"># w is a row (not column!) vector</span></span>
+<span id="cb22-4"><a href="#cb22-4"></a>    means <span class="op">=</span> np.matrix(means)</span>
+<span id="cb22-5"><a href="#cb22-5"></a>    <span class="cf">return</span> (w<span class="op">*</span>means.T)[<span class="dv">0</span>,<span class="dv">0</span>]</span>
+<span id="cb22-6"><a href="#cb22-6"></a></span>
+<span id="cb22-7"><a href="#cb22-7"></a><span class="co"># positive weight portfolio</span></span>
+<span id="cb22-8"><a href="#cb22-8"></a>bnd<span class="op">=</span>[(<span class="dv">0</span>, <span class="dv">1</span>),(<span class="dv">0</span>, <span class="dv">1</span>),(<span class="dv">0</span>, <span class="dv">1</span>),(<span class="dv">0</span>, <span class="dv">1</span>),(<span class="dv">0</span>, <span class="dv">1</span>),</span>
+<span id="cb22-9"><a href="#cb22-9"></a>     (<span class="dv">0</span>, <span class="dv">1</span>),(<span class="dv">0</span>, <span class="dv">1</span>),(<span class="dv">0</span>, <span class="dv">1</span>),(<span class="dv">0</span>, <span class="dv">1</span>),(<span class="dv">0</span>, <span class="dv">1</span>)] <span class="co"># only positive weights</span></span>
+<span id="cb22-10"><a href="#cb22-10"></a></span>
+<span id="cb22-11"><a href="#cb22-11"></a>cons <span class="op">=</span> ({<span class="st">'type'</span>: <span class="st">'eq'</span>, <span class="st">'fun'</span>: <span class="kw">lambda</span> x:  np.<span class="bu">sum</span>(x)<span class="op">-</span><span class="fl">1.0</span>},</span>
+<span id="cb22-12"><a href="#cb22-12"></a>        {<span class="st">'type'</span>: <span class="st">'eq'</span>, <span class="st">'fun'</span>: <span class="kw">lambda</span> x:  calculate_portfolio_ret(x,means)<span class="op">-</span><span class="fl">6.0</span>})</span>
+<span id="cb22-13"><a href="#cb22-13"></a></span>
+<span id="cb22-14"><a href="#cb22-14"></a></span>
+<span id="cb22-15"><a href="#cb22-15"></a>res4<span class="op">=</span> minimize(calculate_portfolio_var, Weight_1N, args<span class="op">=</span>Sigma, </span>
+<span id="cb22-16"><a href="#cb22-16"></a>               bounds <span class="op">=</span> bnd, method<span class="op">=</span><span class="st">'SLSQP'</span>,constraints<span class="op">=</span>cons,tol<span class="op">=</span><span class="fl">1e-10</span>, </span>
+<span id="cb22-17"><a href="#cb22-17"></a>               options<span class="op">=</span>{<span class="st">'disp'</span>: <span class="va">True</span>})</span>
+<span id="cb22-18"><a href="#cb22-18"></a>Weight_tar6 <span class="op">=</span> res4.x</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Optimization terminated successfully    (Exit mode 0)
+            Current function value: 0.0149725199855123
+            Iterations: 13
+            Function evaluations: 143
+            Gradient evaluations: 13</code></pre>
+</div>
+</div>
+<p>Wir überprüfen kurz ob die optimierten Portfoliogewichte wirklich zu einer erwarteten Portfoliorendite von 6% führen.</p>
+<div id="cell-35" class="cell" data-execution_count="19">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1"></a>calculate_portfolio_ret(Weight_tar6,means)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="19">
+<pre><code>6.000000000000562</code></pre>
+</div>
+</div>
+<div id="cell-36" class="cell" data-execution_count="20">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1"></a>pd.DataFrame([<span class="bu">round</span>(x,<span class="dv">4</span>) <span class="cf">for</span> x <span class="kw">in</span> Weight_tar6],index<span class="op">=</span>frame.columns).T</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="20">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">ABT</th>
+<th data-quarto-table-cell-role="th">BA</th>
+<th data-quarto-table-cell-role="th">COST</th>
+<th data-quarto-table-cell-role="th">CSCO</th>
+<th data-quarto-table-cell-role="th">IBM</th>
+<th data-quarto-table-cell-role="th">INTC</th>
+<th data-quarto-table-cell-role="th">MRK</th>
+<th data-quarto-table-cell-role="th">MSFT</th>
+<th data-quarto-table-cell-role="th">T</th>
+<th data-quarto-table-cell-role="th">XOM</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>0.2001</td>
+<td>0.0</td>
+<td>0.149</td>
+<td>0.0</td>
+<td>0.1609</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.49</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="berechnung-der-vollständigen-effizienkurve-mit-leerverkaufsverbot" class="level4" data-number="2.6.4.4">
+<h4 data-number="2.6.4.4" class="anchored" data-anchor-id="berechnung-der-vollständigen-effizienkurve-mit-leerverkaufsverbot"><span class="header-section-number">2.6.4.4</span> Berechnung der vollständigen Effizienkurve mit Leerverkaufsverbot</h4>
+<p>Zunächst berechnen wir das Intervall der erwarteten Renditen aller Portfolios auf der Effizienzkurve. Dies ist gleichbedeutend mit dem Intervall der Zielrenditen im Optimierungsproblem OP1. Hierbei gilt: Minimum Zielrendite = Rendite des MVP, und Maximum Zielrendite = Rendite der MEP.</p>
+<div id="cell-38" class="cell" data-execution_count="21">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1"></a><span class="co"># calculation of min and max target return</span></span>
+<span id="cb27-2"><a href="#cb27-2"></a><span class="co"># min: expected return of GMVP, max: expected return of MRP</span></span>
+<span id="cb27-3"><a href="#cb27-3"></a></span>
+<span id="cb27-4"><a href="#cb27-4"></a><span class="bu">min</span> <span class="op">=</span> calculate_portfolio_ret(Weight_MV2, means)</span>
+<span id="cb27-5"><a href="#cb27-5"></a><span class="bu">max</span> <span class="op">=</span> calculate_portfolio_ret(Weight_MRP, means)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>Über <code>np.linspace</code> generieren wir nun das Array <code>V_Target</code> mit 45 gleichmäßig verteilten Zielrenditen zwischen den oben definierten Minimum und Maximum. Wir definieren die Arrays <code>V_Risk</code> und <code>V_Return</code> in denen wir später die aus der Optimierung resultierenden <span class="math inline">\(\sigma_P\)</span> und <span class="math inline">\(\mu_P\)</span> speichern. Zudem definieren wir die Matrix <code>V_Weight</code> der Dimension 45x10. In den Zeilen dieser Matrix speichern wir die zehn Anteilsgewichte der zehn Assets für die 45 optimierten Portfolios (eins für jede Zielrendite).</p>
+<p>Nun iterieren wir über eine for-Schleife durch das Array der Zielrenditen. Wir verwenden <code>enumerate</code> um den Iterationsindex (hier als <code>idx</code> bezeichnet) bei den Iterationen “mitzunehmen” und damit die Positionen in den Ergebnis-Arrays bzw. der Gewichtsmatrix zu indexieren.</p>
+<div id="cell-40" class="cell" data-execution_count="22">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1"></a>V_Target <span class="op">=</span> np.linspace(<span class="bu">min</span>, <span class="bu">max</span>, num<span class="op">=</span><span class="dv">45</span>)</span>
+<span id="cb28-2"><a href="#cb28-2"></a>V_Risk <span class="op">=</span> np.zeros(V_Target.shape)</span>
+<span id="cb28-3"><a href="#cb28-3"></a>V_Return <span class="op">=</span> np.zeros(V_Target.shape)</span>
+<span id="cb28-4"><a href="#cb28-4"></a>V_Weight <span class="op">=</span> np.zeros((V_Target.shape[<span class="dv">0</span>], means.shape[<span class="dv">0</span>]))</span>
+<span id="cb28-5"><a href="#cb28-5"></a><span class="cf">for</span> idx, Target_Return <span class="kw">in</span> <span class="bu">enumerate</span>(V_Target):</span>
+<span id="cb28-6"><a href="#cb28-6"></a>    cons <span class="op">=</span> ({<span class="st">'type'</span>: <span class="st">'eq'</span>, <span class="st">'fun'</span>: <span class="kw">lambda</span> x:  np.<span class="bu">sum</span>(x)<span class="op">-</span><span class="fl">1.0</span>},</span>
+<span id="cb28-7"><a href="#cb28-7"></a>            {<span class="st">'type'</span>: <span class="st">'eq'</span>, <span class="st">'fun'</span>: <span class="kw">lambda</span> x:  calculate_portfolio_ret(x,means)<span class="op">-</span>Target_Return})</span>
+<span id="cb28-8"><a href="#cb28-8"></a>    res<span class="op">=</span> minimize(calculate_portfolio_var, Weight_1N, args<span class="op">=</span>Sigma, </span>
+<span id="cb28-9"><a href="#cb28-9"></a>               bounds <span class="op">=</span> bnd, method<span class="op">=</span><span class="st">'SLSQP'</span>,constraints<span class="op">=</span>cons,tol<span class="op">=</span><span class="fl">1e-10</span>)</span>
+<span id="cb28-10"><a href="#cb28-10"></a>    V_Weight[idx, :] <span class="op">=</span> res.x.T</span>
+<span id="cb28-11"><a href="#cb28-11"></a>    V_Return[idx] <span class="op">=</span> calculate_portfolio_ret(res.x,means)</span>
+<span id="cb28-12"><a href="#cb28-12"></a>    V_Risk[idx] <span class="op">=</span> np.sqrt(calculate_portfolio_var(res.x, Sigma))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>Wir plotten die resultierende Effizienkurve und die Positionen der zehn Assets.</p>
+<div id="cell-42" class="cell" data-execution_count="23">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1"></a>fig1 <span class="op">=</span> plt.figure(num<span class="op">=</span><span class="dv">1</span>, facecolor<span class="op">=</span><span class="st">'w'</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">5</span>))</span>
+<span id="cb29-2"><a href="#cb29-2"></a>plt.plot(V_Risk, V_Target, <span class="st">'g:'</span>, label<span class="op">=</span><span class="st">'Efficient frontier without short selling'</span>)</span>
+<span id="cb29-3"><a href="#cb29-3"></a>plt.plot(np.sqrt(np.diagonal(Sigma)), means, <span class="st">'rx'</span>, label<span class="op">=</span><span class="st">'Asset'</span>)</span>
+<span id="cb29-4"><a href="#cb29-4"></a>plt.legend(loc<span class="op">=</span><span class="st">'best'</span>,  frameon<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb29-5"><a href="#cb29-5"></a>plt.xlabel(<span class="st">'Standard deviation'</span>)</span>
+<span id="cb29-6"><a href="#cb29-6"></a>plt.ylabel(<span class="st">'Expected return (%)'</span>)</span>
+<span id="cb29-7"><a href="#cb29-7"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="kapitel1_files/figure-html/cell-24-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Hier plotten wir die optimalen Anteilsgewichte für die 45 Zielrenditen.</p>
+<div id="cell-44" class="cell" data-execution_count="24">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1"></a>fig2 <span class="op">=</span> plt.figure(num<span class="op">=</span><span class="dv">2</span>, facecolor<span class="op">=</span><span class="st">'w'</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">5</span>))</span>
+<span id="cb30-2"><a href="#cb30-2"></a>plt.stackplot(V_Target, V_Weight.T<span class="op">*</span><span class="dv">100</span>)</span>
+<span id="cb30-3"><a href="#cb30-3"></a><span class="co"># colors=tuple([tuple(gray*np.ones(3)) for gray in np.linspace(0.4, 0.8, num=means.shape[0])]))</span></span>
+<span id="cb30-4"><a href="#cb30-4"></a>plt.axis([<span class="bu">min</span>, <span class="bu">max</span>, <span class="fl">0.0</span>, <span class="fl">100.0</span>])</span>
+<span id="cb30-5"><a href="#cb30-5"></a>plt.legend(<span class="bu">list</span>(frame.columns),</span>
+<span id="cb30-6"><a href="#cb30-6"></a>           loc<span class="op">=</span><span class="st">'upper left'</span>, bbox_to_anchor<span class="op">=</span>(<span class="fl">1.0</span>, <span class="fl">1.0</span>), frameon<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb30-7"><a href="#cb30-7"></a>plt.xlabel(<span class="st">'Target expected return (%)'</span>)</span>
+<span id="cb30-8"><a href="#cb30-8"></a>plt.ylabel(<span class="st">'Allocation weight (%)'</span>)</span>
+<span id="cb30-9"><a href="#cb30-9"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="kapitel1_files/figure-html/cell-25-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="berechnung-der-vollständigen-effizienzkurve-ohne-leerverkaufsverbot" class="level4" data-number="2.6.4.5">
+<h4 data-number="2.6.4.5" class="anchored" data-anchor-id="berechnung-der-vollständigen-effizienzkurve-ohne-leerverkaufsverbot"><span class="header-section-number">2.6.4.5</span> Berechnung der vollständigen Effizienzkurve ohne Leerverkaufsverbot</h4>
+<p>Im Sonderfall ohne Leerverkaufsverbot (und nur Gültigkeit der Budgetrestriktion) kann die Parabel varianzminimaler Portfolios auch ohne numerische Optimierung über eine geschlossene Lösung ermittelt werden (siehe oben Kapitel 2.2.3). Wir berechnen nun die Parabel über Gleichung (1).<br>
+Hierfür benötigen wir das NumPy Module <code>numpy.linalg</code> für Lineare Algebra, dass wir oben als <code>la</code> importiert hatten. <strong>Wichtig</strong>: In Sonderfall ohne Leerverkaufsverbot gilt für die Varianz des MVP: <span class="math inline">\(\sigma^2_{MVP}=\frac{1}{C}\)</span>, wobei <span class="math inline">\(C=\iota^{T}\Sigma^{-1}\iota\)</span> (siehe zur Herleitung z.B. Franzen und Schäfer, 2018, S. 189).</p>
+<p><code>inv</code> bezeichnet die Funktion zur Berechnung der Inversen einer Matrix, und <code>@</code> ist der Operator für Matrixmultiplikationen. <strong>Wichtig</strong>: Beachten Sie, dass in Python <code>@</code> anwendbar ist, solange die Länge eines Vektors mit der Länge der entsprechenden Zeile/Spalte einer Matrix übereinstimmt. Wir müssen also den Transponierungsoperator <code>T</code> nicht auf <code>means</code> oder <code>iota</code> anwenden.</p>
+<p>Zunächst generieren wir den Einheitsvektor der Dimension <span class="math inline">\(N\)</span> und extrahieren die Standardabweichungen der Assets.</p>
+<div id="cell-46" class="cell" data-execution_count="25">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1"></a>iota <span class="op">=</span> np.ones(means.shape)</span>
+<span id="cb31-2"><a href="#cb31-2"></a>Stdev <span class="op">=</span> np.sqrt(np.diagonal(Sigma))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>Dann berechnen wir die Inverse der Varianz-Kovarianzmatrix und die vier Komponenten A, B, C, und D der Gleichung (1).</p>
+<div id="cell-48" class="cell" data-execution_count="26">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1"></a>inv_Sigma <span class="op">=</span> la.inv(Sigma)</span>
+<span id="cb32-2"><a href="#cb32-2"></a>A <span class="op">=</span> means <span class="op">@</span> inv_Sigma <span class="op">@</span> iota</span>
+<span id="cb32-3"><a href="#cb32-3"></a>B <span class="op">=</span> means <span class="op">@</span> inv_Sigma <span class="op">@</span> means</span>
+<span id="cb32-4"><a href="#cb32-4"></a>C <span class="op">=</span> iota <span class="op">@</span> inv_Sigma <span class="op">@</span> iota</span>
+<span id="cb32-5"><a href="#cb32-5"></a>D <span class="op">=</span> B <span class="op">*</span> C <span class="op">-</span> A <span class="op">**</span> <span class="dv">2</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>Wir speichern die Standardabweichung des MVP als <code>sigma_gmv</code>. Diese dient als Minimum der <span class="math inline">\(\sigma_P\)</span>’s für die wir die beiden (effizienten und ineffizienten) <span class="math inline">\(\mu_P\)</span>’s gemäß Gleichung (1) berechnen. Das Maximum der <span class="math inline">\(\sigma_P\)</span>’s legen wir in Form der maximalen Standardabweichung (<code>np.max(Stdev)</code>) unter allen Assets fest. Für 250 gleichmäßig verteilte <span class="math inline">\(\sigma_P\)</span>’s innerhalb dieser Grenzen berechnen wir den effizienten und ineffizienten Bereich der Parabel varianzminimaler Portfolios (in den beiden Arrays <code>mu_p_efficient</code> und <code>mu_p_inefficient</code>) .</p>
+<div id="cell-50" class="cell" data-execution_count="27">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1"></a>sigma_gmv <span class="op">=</span> <span class="fl">1.0</span> <span class="op">/</span> np.sqrt(C)</span>
+<span id="cb33-2"><a href="#cb33-2"></a>sigma_p <span class="op">=</span> np.linspace(sigma_gmv, np.<span class="bu">max</span>(Stdev), num<span class="op">=</span><span class="dv">250</span>)</span>
+<span id="cb33-3"><a href="#cb33-3"></a>mu_p_efficient <span class="op">=</span> (A <span class="op">+</span> np.sqrt(np.<span class="bu">abs</span>(C <span class="op">*</span> sigma_p <span class="op">**</span> <span class="dv">2</span> <span class="op">-</span> <span class="fl">1.0</span>) <span class="op">*</span> D)) <span class="op">/</span> C</span>
+<span id="cb33-4"><a href="#cb33-4"></a>mu_p_inefficient <span class="op">=</span> (A <span class="op">-</span> np.sqrt(np.<span class="bu">abs</span>(C <span class="op">*</span> sigma_p <span class="op">**</span> <span class="dv">2</span> <span class="op">-</span> <span class="fl">1.0</span>) <span class="op">*</span> D)) <span class="op">/</span> C</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>Abschließend plotten wir die Effizienzkurve mit und ohne Leerverkaufsverbot gemeinsam in einem Graph.</p>
+<div id="cell-52" class="cell" data-execution_count="28">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1"></a>fig2 <span class="op">=</span> plt.figure(num<span class="op">=</span><span class="dv">1</span>, facecolor<span class="op">=</span><span class="st">'w'</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">5</span>))</span>
+<span id="cb34-2"><a href="#cb34-2"></a>plt.plot(sigma_p, mu_p_efficient, <span class="st">'b-'</span>, label<span class="op">=</span><span class="st">'Efficient frontier with short selling'</span>)</span>
+<span id="cb34-3"><a href="#cb34-3"></a>plt.plot(V_Risk, V_Target, <span class="st">'g:'</span>, label<span class="op">=</span><span class="st">'Efficient frontier without short selling'</span>)</span>
+<span id="cb34-4"><a href="#cb34-4"></a>plt.plot(np.sqrt(np.diagonal(Sigma)), means, <span class="st">'rx'</span>, label<span class="op">=</span><span class="st">'Asset'</span>)</span>
+<span id="cb34-5"><a href="#cb34-5"></a>plt.legend(loc<span class="op">=</span><span class="st">'best'</span>,  frameon<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb34-6"><a href="#cb34-6"></a>plt.xlabel(<span class="st">'Standard deviation'</span>)</span>
+<span id="cb34-7"><a href="#cb34-7"></a>plt.ylabel(<span class="st">'Expected return (%)'</span>)</span>
+<span id="cb34-8"><a href="#cb34-8"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="kapitel1_files/figure-html/cell-29-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Wir erwartet liegt die Effizienzkurve ohne Leerverkaufsverbot oberhalb derjenigen mit Leerverkaufsverbot. Zusätzliche Nebenbedingungen schränken den Lösungsraum optimaler Portfolios immer weiter ein.</p>
+</section>
+<section id="berechnung-der-effizienzkurve-auf-basis-des-two-fund-theorems" class="level4" data-number="2.6.4.6">
+<h4 data-number="2.6.4.6" class="anchored" data-anchor-id="berechnung-der-effizienzkurve-auf-basis-des-two-fund-theorems"><span class="header-section-number">2.6.4.6</span> Berechnung der Effizienzkurve auf Basis des Two-Fund Theorems</h4>
+<p><strong>Wichtig: Dieser Ansatz ist nur gültig wenn Leerverkäufe erlaubt sind!</strong></p>
+<p>Im ersten Schritt ermitteln wir die Gewichte (<code>port1</code> und <code>port2</code>) von zwei Basisportfolios <span class="math inline">\(X\)</span> und <span class="math inline">\(Y\)</span> gemäß Gleichung (2) oben. Wir wählen die Werte 2.0 und 4.0 für die Konstante <span class="math inline">\(c\)</span>.</p>
+<p>Für beide Portfolios berechnen wir die erwartete Rendite, Varianz der Rendite, und die Renditekovarianz zwischen <span class="math inline">\(X\)</span> und <span class="math inline">\(Y\)</span>.</p>
+<p><strong>Beachten Sie:</strong> die Renditekovarianz ist gegeben durch <span class="math inline">\(Cov(X,Y)=w^{T}_X\Sigma w_Y\)</span></p>
+<div id="cell-55" class="cell" data-execution_count="29">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1"></a><span class="co"># use 2.0 and 4.0 as constant values</span></span>
+<span id="cb35-2"><a href="#cb35-2"></a><span class="co"># calculate the two basis portfolios 1 and 2</span></span>
+<span id="cb35-3"><a href="#cb35-3"></a>port1 <span class="op">=</span> (inv_Sigma<span class="op">*</span>np.matrix(means<span class="op">-</span><span class="fl">2.0</span>).T)<span class="op">/</span>np.<span class="bu">sum</span>(inv_Sigma<span class="op">*</span>np.matrix(means<span class="op">-</span><span class="fl">2.0</span>).T)</span>
+<span id="cb35-4"><a href="#cb35-4"></a>port2 <span class="op">=</span> (inv_Sigma<span class="op">*</span>np.matrix(means<span class="op">-</span><span class="fl">4.0</span>).T)<span class="op">/</span>np.<span class="bu">sum</span>(inv_Sigma<span class="op">*</span>np.matrix(means<span class="op">-</span><span class="fl">4.0</span>).T)</span>
+<span id="cb35-5"><a href="#cb35-5"></a>covariance<span class="op">=</span>(port1.T<span class="op">*</span>Sigma<span class="op">*</span>port2)[<span class="dv">0</span>,<span class="dv">0</span>]</span>
+<span id="cb35-6"><a href="#cb35-6"></a>ret1 <span class="op">=</span> (np.matrix(means) <span class="op">*</span> port1)[<span class="dv">0</span>,<span class="dv">0</span>] </span>
+<span id="cb35-7"><a href="#cb35-7"></a>ret2 <span class="op">=</span> (np.matrix(means) <span class="op">*</span> port2)[<span class="dv">0</span>,<span class="dv">0</span>] </span>
+<span id="cb35-8"><a href="#cb35-8"></a>var1 <span class="op">=</span> (port1.T<span class="op">*</span>Sigma<span class="op">*</span>port1)[<span class="dv">0</span>,<span class="dv">0</span>]</span>
+<span id="cb35-9"><a href="#cb35-9"></a>var2 <span class="op">=</span> (port2.T<span class="op">*</span>Sigma<span class="op">*</span>port2)[<span class="dv">0</span>,<span class="dv">0</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>Danach berechnen wir gemäß der Formeln (3a) und (3b) die erwartete Rendite und die Renditevarianz für ein Portfolio <span class="math inline">\(Z=\alpha X+(1-\alpha)Y\)</span>. Über <code>np.linspace</code> wählen wir dabei 250 gleichmäßig verteilte Werte für <span class="math inline">\(\alpha\)</span> zwischen 0 und 1.5. Die resultierende erwartete Rendite und das Risiko der 250 <span class="math inline">\(Z\)</span>-Portfolios speichern wir dann in den Arrays <code>Risk</code> und <code>Return</code>. Wir verwenden wieder die <code>enumerate</code> Funktion um die Arrays zu indexieren.</p>
+<div id="cell-57" class="cell" data-execution_count="30">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1"></a><span class="co"># construction of portfolios from the two basis portfolios for </span></span>
+<span id="cb36-2"><a href="#cb36-2"></a><span class="co"># different weights w</span></span>
+<span id="cb36-3"><a href="#cb36-3"></a>weight <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="fl">1.5</span>, num<span class="op">=</span><span class="dv">250</span>)</span>
+<span id="cb36-4"><a href="#cb36-4"></a>Risk <span class="op">=</span> np.zeros(weight.shape)</span>
+<span id="cb36-5"><a href="#cb36-5"></a>Return <span class="op">=</span> np.zeros(weight.shape)</span>
+<span id="cb36-6"><a href="#cb36-6"></a><span class="cf">for</span> idx, w <span class="kw">in</span> <span class="bu">enumerate</span>(weight):</span>
+<span id="cb36-7"><a href="#cb36-7"></a>    Return[idx] <span class="op">=</span> w<span class="op">*</span>ret1 <span class="op">+</span> (<span class="dv">1</span><span class="op">-</span>w)<span class="op">*</span>ret2</span>
+<span id="cb36-8"><a href="#cb36-8"></a>    Risk[idx] <span class="op">=</span> np.sqrt(w<span class="op">**</span><span class="dv">2</span> <span class="op">*</span> var1 <span class="op">+</span> (<span class="dv">1</span><span class="op">-</span>w)<span class="op">**</span><span class="dv">2</span> <span class="op">*</span> var2 <span class="op">+</span> <span class="dv">2</span><span class="op">*</span>w<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>w)<span class="op">*</span>covariance)</span>
+<span id="cb36-9"><a href="#cb36-9"></a>    </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>Final plotten wir die sich ergebende Effizienzkurve zusammen mit der oben numerisch bestimmten Kurve für den Fall dass Leerverkäufe unzulässig sind.</p>
+<div id="cell-59" class="cell" data-execution_count="31">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1"></a>fig3 <span class="op">=</span> plt.figure(num<span class="op">=</span><span class="dv">1</span>, facecolor<span class="op">=</span><span class="st">'w'</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">5</span>))</span>
+<span id="cb37-2"><a href="#cb37-2"></a>plt.plot(Risk, Return, <span class="st">'b-'</span>, label<span class="op">=</span><span class="st">'Efficient frontier with short selling'</span>)</span>
+<span id="cb37-3"><a href="#cb37-3"></a>plt.plot(V_Risk, V_Target, <span class="st">'g:'</span>, label<span class="op">=</span><span class="st">'Efficient frontier without short selling'</span>)</span>
+<span id="cb37-4"><a href="#cb37-4"></a>plt.plot(np.sqrt(np.diagonal(Sigma)), means, <span class="st">'rx'</span>, label<span class="op">=</span><span class="st">'Asset'</span>)</span>
+<span id="cb37-5"><a href="#cb37-5"></a>plt.legend(loc<span class="op">=</span><span class="st">'best'</span>,  frameon<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb37-6"><a href="#cb37-6"></a>plt.xlabel(<span class="st">'Standard deviation'</span>)</span>
+<span id="cb37-7"><a href="#cb37-7"></a>plt.ylabel(<span class="st">'Expected return (%)'</span>)</span>
+<span id="cb37-8"><a href="#cb37-8"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="kapitel1_files/figure-html/cell-32-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="bestimmung-des-tangentialportfolios-tp-mit-leerverkaufsverbot" class="level4" data-number="2.6.4.7">
+<h4 data-number="2.6.4.7" class="anchored" data-anchor-id="bestimmung-des-tangentialportfolios-tp-mit-leerverkaufsverbot"><span class="header-section-number">2.6.4.7</span> Bestimmung des Tangentialportfolios (TP) mit Leerverkaufsverbot</h4>
+<p>Wie schon oben geschildert, ergibt sich unter der Annahme der Existenz einer risikofreien Anlage eine neue Effizienzline. Die Bestimmung des Tangentialportfolios TP (das Portfolio mit der maximalen <em>Sharpe-Ratio</em>) beinhaltet die Frage: Welches Portfolio maximiert die Überschussrendite (über den risikolosen Zins hinaus) relativ zum Portfoliorisiko?</p>
+<p>Die Zielfunktion des Optimierungsproblems OP4 implementieren wir in der Funktion <code>calc_neg_sharpe</code>. Diese Funktion erfordert als Eingabe <span class="math inline">\(w\)</span>, <span class="math inline">\(\mu\)</span>, <span class="math inline">\(\Sigma\)</span>, <span class="math inline">\(r_f\)</span> und die Zeitfrequenz <code>freq</code> der Renditebeobachtungen. Liegen beispielsweise monatliche Renditen vor, ist <code>freq=12</code>. Um als Ausgabe der Funktion die (negative) <em>annualisierte</em> Sharpe-Ratio zu erhalten, wird die erwartete Portfoliorendite (<code>portfolio_return</code>) mit <code>freq</code> multipliziert, und die Standardabweichung der Rendite (<code>portfolio_std</code>) mit der Wurzel aus <code>freq</code>. <span class="math inline">\(r_f\)</span> sollte als Jahreszins angegeben werden. Die Annualisierung entfällt natürlich (und <code>freq</code> ist auf den Wert Eins zu setzen) falls die Schätzungen von <span class="math inline">\(\mu\)</span> und <span class="math inline">\(\Sigma\)</span> bereits annualisiert wurden (wie in unserem Fall oben).</p>
+<p>Beachten Sie, dass die Portfoliovarianz in Matrizenschreibweise durch <span class="math inline">\(\sigma_P^2=w^{T}\Sigma w\)</span> gegeben ist. In der Funktion führen wir die Matrizenmultiplikation zweimal hintereinander über <code>np.dot</code> durch.</p>
+<div id="cell-61" class="cell" data-execution_count="32">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1"></a><span class="co"># definition of target function for maximum Sharpe portfolio</span></span>
+<span id="cb38-2"><a href="#cb38-2"></a><span class="co"># "freq" denotes the return frequency (daily=252, monthly=12, annual=1, etc.)</span></span>
+<span id="cb38-3"><a href="#cb38-3"></a><span class="kw">def</span> calc_neg_sharpe(weights, mean_returns, cov, rf, freq):</span>
+<span id="cb38-4"><a href="#cb38-4"></a>    portfolio_return <span class="op">=</span> np.<span class="bu">sum</span>(mean_returns <span class="op">*</span> weights) <span class="op">*</span> freq</span>
+<span id="cb38-5"><a href="#cb38-5"></a>    portfolio_std <span class="op">=</span> np.sqrt(np.dot(weights.T, np.dot(cov, weights))) <span class="op">*</span> np.sqrt(freq)</span>
+<span id="cb38-6"><a href="#cb38-6"></a>    sharpe_ratio <span class="op">=</span> (portfolio_return <span class="op">-</span> rf) <span class="op">/</span> portfolio_std</span>
+<span id="cb38-7"><a href="#cb38-7"></a>    <span class="cf">return</span> <span class="op">-</span>sharpe_ratio</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>Das vollständige Optimierungsproblem schreiben wir in die Funktion <code>max_sharpe_ratio</code>. Es gilt hier zwei Besonderheiten zu beachten:</p>
+<ol type="1">
+<li>Das Tuple <code>bounds</code> mit den identischen Positionsgrenzen für alle Assets generieren wir elegant über eine for-Schleife.</li>
+<li>Das gleichgewichtete Portfolio als Startlösung erzeugen wir als Liste durch <code>num_assets*[1./num_assets,]</code>.</li>
+</ol>
+<div id="cell-63" class="cell" data-execution_count="33">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1"></a><span class="co"># function that implements the Sharpe portfolio optimization</span></span>
+<span id="cb39-2"><a href="#cb39-2"></a><span class="kw">def</span> max_sharpe_ratio(mean_returns, cov, rf, freq):</span>
+<span id="cb39-3"><a href="#cb39-3"></a>    num_assets <span class="op">=</span> <span class="bu">len</span>(mean_returns)</span>
+<span id="cb39-4"><a href="#cb39-4"></a>    args <span class="op">=</span> (mean_returns, cov, rf, freq)</span>
+<span id="cb39-5"><a href="#cb39-5"></a>    constraints <span class="op">=</span> ({<span class="st">'type'</span>: <span class="st">'eq'</span>, <span class="st">'fun'</span>: <span class="kw">lambda</span> x: np.<span class="bu">sum</span>(x) <span class="op">-</span> <span class="dv">1</span>})</span>
+<span id="cb39-6"><a href="#cb39-6"></a>    bound <span class="op">=</span> (<span class="fl">0.0</span>,<span class="fl">1.0</span>)</span>
+<span id="cb39-7"><a href="#cb39-7"></a>    bounds <span class="op">=</span> <span class="bu">tuple</span>(bound <span class="cf">for</span> asset <span class="kw">in</span> <span class="bu">range</span>(num_assets))</span>
+<span id="cb39-8"><a href="#cb39-8"></a>    result <span class="op">=</span> minimize(calc_neg_sharpe, num_assets<span class="op">*</span>[<span class="fl">1.</span><span class="op">/</span>num_assets,], args<span class="op">=</span>args,</span>
+<span id="cb39-9"><a href="#cb39-9"></a>                        method<span class="op">=</span><span class="st">'SLSQP'</span>, bounds<span class="op">=</span>bounds, constraints<span class="op">=</span>constraints,tol<span class="op">=</span><span class="fl">1e-10</span>)</span>
+<span id="cb39-10"><a href="#cb39-10"></a>    <span class="cf">return</span> result</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>Für einen jährlichen risikolosen Zins von 3% berechnen für nun für unser Beispiel-Anlageuniversum die Gewichte des Tangentialportfolios.</p>
+<div id="cell-65" class="cell" data-execution_count="34">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1"></a><span class="co"># set annual risk-free rate to 3% and calculate maximum Sharpe portfolio</span></span>
+<span id="cb40-2"><a href="#cb40-2"></a>rf <span class="op">=</span> <span class="fl">3.0</span></span>
+<span id="cb40-3"><a href="#cb40-3"></a>optimal_port_sharpe <span class="op">=</span> max_sharpe_ratio(means, Sigma, rf, <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="cell-66" class="cell" data-execution_count="35">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1"></a>pd.DataFrame([<span class="bu">round</span>(x,<span class="dv">4</span>) <span class="cf">for</span> x <span class="kw">in</span> optimal_port_sharpe[<span class="st">'x'</span>]],index<span class="op">=</span>frame.columns).T</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="35">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">ABT</th>
+<th data-quarto-table-cell-role="th">BA</th>
+<th data-quarto-table-cell-role="th">COST</th>
+<th data-quarto-table-cell-role="th">CSCO</th>
+<th data-quarto-table-cell-role="th">IBM</th>
+<th data-quarto-table-cell-role="th">INTC</th>
+<th data-quarto-table-cell-role="th">MRK</th>
+<th data-quarto-table-cell-role="th">MSFT</th>
+<th data-quarto-table-cell-role="th">T</th>
+<th data-quarto-table-cell-role="th">XOM</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0979</td>
+<td>0.0</td>
+<td>0.1474</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.7547</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Augenscheinlich besteht des Tangentialportfolio zu 75% aus XOM. Ein breiter diversifiziertes Portfolio würde Bestandshöchstgrenzen (z.B. 35%) erfordern.</p>
+</section>
+</section>
+</section>
+<section id="literatur" class="level2" data-number="2.7">
+<h2 data-number="2.7" class="anchored" data-anchor-id="literatur"><span class="header-section-number">2.7</span> Literatur</h2>
+<p>Benninga, S., (2014). Financial Modeling, 4. Auflage, MIT Press, London.</p>
+<p>Franzen, D., Schäfer, K. (2018). Assetmanagement, 1. Auflage, Schäffer-Poeschel, Stuttgart.</p>
+<p>Poddig, T., Brinkmann, U., Seiler, K. (2009). Portfolio Management: Konzepte und Strategien, 2. Auflage, Uhlenbruch Verlag, Wiesbaden.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./index.html" class="pagination-link" aria-label="Willkommen zu „Grundlagen des quantitativen Portfoliomanagements mit Python“">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Willkommen zu „Grundlagen des quantitativen Portfoliomanagements mit Python“</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./kapitel2.html" class="pagination-link" aria-label="Relative Portfoliooptimierung">
+        <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Relative Portfoliooptimierung</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+<script src="site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

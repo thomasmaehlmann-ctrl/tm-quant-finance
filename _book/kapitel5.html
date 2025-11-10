@@ -1,0 +1,1789 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.25">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>6&nbsp; Das Black-Litterman Modell – Grundlagen des quantitativen Portfoliomanagements mit Python</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./kapitel6.html" rel="next">
+<link href="./kapitel4.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-707d8167ce6003fca903bfe2be84ab7f.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-e0fdce12ac1367d4b47c179a2935dd10.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark-74c88ba48ad0bebf983f0ffd06dd1671.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap-e0fdce12ac1367d4b47c179a2935dd10.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-sidebar floating quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./kapitel5.html"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Das Black-Litterman Modell</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+      <a href="./index.html" class="sidebar-logo-link">
+      </a>
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Grundlagen des quantitativen Portfoliomanagements mit Python</a> 
+        <div class="sidebar-tools-main">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Willkommen zu „Grundlagen des quantitativen Portfoliomanagements mit Python“</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./kapitel1.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Grundlagen der klassischen (absoluten) Portfoliooptimierung</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./kapitel2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Relative Portfoliooptimierung</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./kapitel3.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Schätzrisiken in der Portfoliotheorie</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./kapitel4.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Verbesserte Schätzung der Inputparameter: Geschrumpfte Schätzer</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./kapitel5.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Das Black-Litterman Modell</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./kapitel6.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Berücksichtigung des Schätzrisikos: Portfolio-Resampling</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./kapitel7.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Risikogesteuerte Ansätze: Verzicht auf die Schätzung der erwarteten Rendite</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./kapitel8.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Index Tracking</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./projekt.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Abschlußprojekt</span></span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#defizite-der-portfoliooptimierung-nach-markowitz" id="toc-defizite-der-portfoliooptimierung-nach-markowitz" class="nav-link active" data-scroll-target="#defizite-der-portfoliooptimierung-nach-markowitz"><span class="header-section-number">6.1</span> Defizite der Portfoliooptimierung nach Markowitz</a></li>
+  <li><a href="#der-ansatz-des-black-litterman-verfahrens" id="toc-der-ansatz-des-black-litterman-verfahrens" class="nav-link" data-scroll-target="#der-ansatz-des-black-litterman-verfahrens"><span class="header-section-number">6.2</span> Der Ansatz des Black-Litterman Verfahrens</a></li>
+  <li><a href="#referenzportfolios-und-implizite-renditen-als-ausgangspunkt-des-black-litterman-verfahrens" id="toc-referenzportfolios-und-implizite-renditen-als-ausgangspunkt-des-black-litterman-verfahrens" class="nav-link" data-scroll-target="#referenzportfolios-und-implizite-renditen-als-ausgangspunkt-des-black-litterman-verfahrens"><span class="header-section-number">6.3</span> Referenzportfolios und implizite Renditen als Ausgangspunkt des Black-Litterman Verfahrens</a></li>
+  <li><a href="#die-verbindung-des-referenzportfolios-mit-renditeprognosen" id="toc-die-verbindung-des-referenzportfolios-mit-renditeprognosen" class="nav-link" data-scroll-target="#die-verbindung-des-referenzportfolios-mit-renditeprognosen"><span class="header-section-number">6.4</span> Die Verbindung des Referenzportfolios mit Renditeprognosen</a>
+  <ul class="collapse">
+  <li><a href="#spezifikation-von-renditeprognosen-im-black-litterman-modell" id="toc-spezifikation-von-renditeprognosen-im-black-litterman-modell" class="nav-link" data-scroll-target="#spezifikation-von-renditeprognosen-im-black-litterman-modell"><span class="header-section-number">6.4.1</span> Spezifikation von Renditeprognosen im Black-Litterman Modell</a></li>
+  <li><a href="#die-black-litterman-formel" id="toc-die-black-litterman-formel" class="nav-link" data-scroll-target="#die-black-litterman-formel"><span class="header-section-number">6.4.2</span> Die Black-Litterman Formel</a></li>
+  </ul></li>
+  <li><a href="#fazit" id="toc-fazit" class="nav-link" data-scroll-target="#fazit"><span class="header-section-number">6.5</span> Fazit</a></li>
+  <li><a href="#beginn-der-fallstudie" id="toc-beginn-der-fallstudie" class="nav-link" data-scroll-target="#beginn-der-fallstudie"><span class="header-section-number">6.6</span> Beginn der Fallstudie</a>
+  <ul class="collapse">
+  <li><a href="#laden-und-beschreiben-der-datenbasis" id="toc-laden-und-beschreiben-der-datenbasis" class="nav-link" data-scroll-target="#laden-und-beschreiben-der-datenbasis"><span class="header-section-number">6.6.1</span> Laden und Beschreiben der Datenbasis</a></li>
+  <li><a href="#ermittlung-der-impliziten-renditen" id="toc-ermittlung-der-impliziten-renditen" class="nav-link" data-scroll-target="#ermittlung-der-impliziten-renditen"><span class="header-section-number">6.6.2</span> Ermittlung der impliziten Renditen</a></li>
+  <li><a href="#formulierung-und-implementierung-von-prognosemeinungen-views" id="toc-formulierung-und-implementierung-von-prognosemeinungen-views" class="nav-link" data-scroll-target="#formulierung-und-implementierung-von-prognosemeinungen-views"><span class="header-section-number">6.6.3</span> Formulierung und Implementierung von Prognosemeinungen (Views)</a></li>
+  <li><a href="#portfoliooptimierung-nach-black-litterman" id="toc-portfoliooptimierung-nach-black-litterman" class="nav-link" data-scroll-target="#portfoliooptimierung-nach-black-litterman"><span class="header-section-number">6.6.4</span> Portfoliooptimierung nach Black-Litterman</a></li>
+  <li><a href="#portfoliooptimierung-nach-black-litterman-und-markowitz-im-vergleich" id="toc-portfoliooptimierung-nach-black-litterman-und-markowitz-im-vergleich" class="nav-link" data-scroll-target="#portfoliooptimierung-nach-black-litterman-und-markowitz-im-vergleich"><span class="header-section-number">6.6.5</span> Portfoliooptimierung nach Black-Litterman und Markowitz im Vergleich</a></li>
+  </ul></li>
+  <li><a href="#literatur" id="toc-literatur" class="nav-link" data-scroll-target="#literatur"><span class="header-section-number">6.7</span> Literatur</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Das Black-Litterman Modell</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="defizite-der-portfoliooptimierung-nach-markowitz" class="level2" data-number="6.1">
+<h2 data-number="6.1" class="anchored" data-anchor-id="defizite-der-portfoliooptimierung-nach-markowitz"><span class="header-section-number">6.1</span> Defizite der Portfoliooptimierung nach Markowitz</h2>
+<p>Die im Kapitel 2 <strong>“Absolute Portfoliooptimierung”</strong> dargestellte Portfolio-Selection-Theorie von Markowitz stellt eine quantitativ generell anerkannte Methode dar, um den Trade-off zwischen den zwei Grundzielen der Renditemaximierung und der Risikominimierung bei Investitionen zu erklären. Dieser Ansatz bildet nach wie vor das akademische Grundgerüst der Portfoliotheorie. In der Praxis konnte sich der Markowitz’sche Ansatz aufgrund diverser schwerwiegender Probleme allerdings nur eingeschränkt durchsetzen. Die vier Hauptprobleme bei der Anwendung des klassischen Ansatzes sind (vgl. Drobetz, 2002, S. 4 ff.):</p>
+<ul>
+<li><strong>Extreme Portfolioallokationen</strong></li>
+</ul>
+<p>Häufig beinhalten optimierte Portfolios sowohl auf der Long-Seite als auch auf der Short-Seite extreme Portfoliogewichte. Diese Gewichte könnten in der Praxis bereits aus institutionellen und rechtlichen Gründen nicht umgesetzt werden. Die Mittelwert-Varianz-Optimierung tendiert auch bei Portfolios mit Restriktionen, wie zum Beispiel der Ausschluss von Leerverkäufen, zu extremen Portfoliogewichten.</p>
+<ul>
+<li><strong>Sensitivität der Portfoliogewichte</strong></li>
+</ul>
+<p>Ein weiteres Problem stellt die starke Sensitivität der Portfoliogewichte gegenüber Veränderungen der Inputfaktoren dar. Besonders Veränderungen der erwarteten Renditen führen zu unrealistisch großen Umschichtungen im Portfolio. Dies verursacht zum einen hohe Transaktionskosten, zum anderen steht eine zu hohe Umschichtungsfrequenz für inkonsistentes Portfolio-Management und ist nach außen nur schwer kommunizierbar.</p>
+<ul>
+<li><strong>Informationsaggregation</strong></li>
+</ul>
+<p>Der Markowitz’sche Ansatz erfordert die Spezifikation der Renditeerwartungen sämtlicher Wertpapiere sowie die dazugehörige Varianz-Kovarianz-Matrix. Die Schwierigkeit, qualitativ gute Renditeprognosen zu erstellen, und die Tatsache, dass Portfoliomanager in der Regel nur in ausgewählten Wertpapierklassen über verlässliche Renditeerwartungen verfügen, stellt die Portfoliomanager bei der Zusammenstellung der Eingabematrizen für die Mittelwert-Varianz-Optimierung vor eine große Herausforderung.</p>
+<ul>
+<li><strong>Keine Möglichkeit, Aussagen über die Prognosegüte zu treffen</strong></li>
+</ul>
+<p>Portfoliomanager haben durch den Einsatz verschiedener Analyseinstrumente bezüglich ihrer Prognosen häufig verschiedene Konfidenzen. Derartige Unterschiede in der Güte der Prognosen können in dem Markowitz-Formalismus nicht berücksichtigt werden.</p>
+<p>Diese Probleme, die durch den praktischen Einsatz der klassischen Portfoliotheorie aufkommen, führen dazu, dass das Modell in der Praxis nur bedingt umgesetzt weren kann. Der Versuch, das Modell durch verschiedene Restriktionen realistischer zu machen, ist oft mit einem unverhältnismäßigen Aufwand verbunden. Für Black und Litterman war dies der Anstoß, ein Portfolio-Management Modell zu entwickeln, das die oben angesprochenen Defizite des klassischen Ansatzes besser löst.</p>
+</section>
+<section id="der-ansatz-des-black-litterman-verfahrens" class="level2" data-number="6.2">
+<h2 data-number="6.2" class="anchored" data-anchor-id="der-ansatz-des-black-litterman-verfahrens"><span class="header-section-number">6.2</span> Der Ansatz des Black-Litterman Verfahrens</h2>
+<p>In diesem Abschnitt wird die grundsätzliche Vorgehensweise des Black-Litterman Verfahrens beschrieben, in den folgenden Abschnitten kann dann die Vorgehensweise formalisiert werden. Die Ausführungen hier beziehen sich auf die Originalquelle Black und Litterman (1992). Eine sehr anschauliche Darstellung der praktischen Umsetzung des Verfahrens findet sich bei Idzorek (2004).</p>
+<p>Das Black-Litterman Verfahren orientiert sich ständig an einem vom Portfoliomanager a-priori vorgegebenen Referenzportfolio. Dieses Portfolio soll dem langfristigen Anlageverhalten des Investors entsprechen. Hat der Portfoliomanager keine eigenen Erwartungen bezüglich der künftigen Renditeentwicklung von Wertpapieren in seinem Portfolio, stimmt er indirekt den impliziten Renditeerwartungen (abgeleitet aus den Referenzportfoliogewichten) zu. Dies führt dazu, dass die Gewichtungen der Wertpapiere in seinem Portfolio denen des Referenzportfolios entsprechen. Das Black-Litterman Verfahren erlaubt, eine beliebige Anzahl von Renditeprognosen unter Berücksichtigung der Prognosequalität in die Portfoliooptimierung zu integrieren. Es können sowohl absolute Prognosen über erwartete Renditeniveaus von einem Wertpapier als auch relative Prognosen über stärker und schwächer performende Wertpapiere in das Verfahren integriert werden.</p>
+<p>Das Ergebnis des Prozesses ist ein revidierter Renditevektor, der von dem Vektor der impliziten Renditen in Richtung der subjektiven Renditeerwartungen abweicht. Dieser revidierte Renditevektor kann schließlich einer Mittelwert-Varianz-Optimierungsroutine überführt werden. Als Ergebnis des Black-Litterman Verfahrens erhält man intuitive Veränderungen in den Portfoliogewichten, die konsistent mit den subjektiven Prognosen sind, und deshalb in der Praxis leichter umgesetzt werden können.</p>
+<p>Festzuhalten bleibt, dass es sich bei dem Black-Litterman Ansatz nicht um eine alternative Optimierungstechnik handelt. Das Black-Litterman Verfahren ist eine Methode, um ausgehend von einem neutralen Referenzportfolio die Renditeprognosen den eigenen Renditeerwartungen in einer sehr flexiblen Art anzupassen.</p>
+</section>
+<section id="referenzportfolios-und-implizite-renditen-als-ausgangspunkt-des-black-litterman-verfahrens" class="level2" data-number="6.3">
+<h2 data-number="6.3" class="anchored" data-anchor-id="referenzportfolios-und-implizite-renditen-als-ausgangspunkt-des-black-litterman-verfahrens"><span class="header-section-number">6.3</span> Referenzportfolios und implizite Renditen als Ausgangspunkt des Black-Litterman Verfahrens</h2>
+<p>Der innovative Ansatz des Black-Litterman Verfahrens (1992) hat die Zielsetzung, die oben aufgeführten Schwächen der Portfoliooptimierung nach Markowitz zu verhindern, und somit ein Modell zu schaffen, das für den Einsatz in der Praxis besser geeignet ist. Die wichtigste Eigenschaft des Black-Litterman Modells ist die Möglichkeit, implizite Renditen, welche im Folgenden erklärt werden, mit subjektiven Erwartungen über Kursentwicklungen von Wertpapieren im Portfolio konsistent zu verbinden.</p>
+<p>Die impliziten Renditen, welche den Ausgangspunkt des Black-Litterman Verfahrens bilden, werden durch eine Umkehroptimierung abgeleitet. Im ersten Schritt muss der Portfoliomanager die mittel- bis langfristigen Portfoliogewichte der Wertpapiere seines Portfolios festlegen. Diese Referenzgewichte können den Gleichgewichtsgewichten (auf Basis der relativen Marktkapitalisierung), wie sie dem CAPM-Modell zugrunde liegen, entsprechen oder aber auch Gegenstand strategischer Überlegungen des Portfoliomanagers sein. Black und Litterman (1991, S.3) schlagen vor, die aus den Marktkapitalisierungen resultierenden impliziten Gleichgewichtsrenditen als Ausgangspunkt für das Black-Litterman Verfahren zu verwenden:</p>
+<p><em>“Our model does not assume that the world is always at the CAPM equilibrium, but rather that when expected returns move away from their equilibrium values, imbalances in markets will tend to push them back. Thus, we think it is reasonable to assume that expected returns are not likely to deviate too far from equilibrium values. This intuitive idea suggests that the investor may profit by combining his views about returns in different markets with the information contained in the equilibrium.”</em></p>
+<p>Ein nutzenmaximierender Portfoliomanager mit einer Nutzenfunktion <span class="math inline">\(U(w)=\mu_P-\frac{\lambda}{2} \sigma^2_P\)</span> erhöht in dem Markowitz-Verfahren seinen Nutzen durch die optimale Aufteilung seines Budgets auf die Wertpapiere im Portfolio, bei gegebenem Vektor der erwarteten Renditen <span class="math inline">\(\mu\)</span> und bei gegebener Varianz-Kovarianz-Matrix <span class="math inline">\(\Sigma\)</span> der Renditen. Ohne Restriktionen hat die Maximierungsaufgabe folgende Form:</p>
+<p><span class="math display">\[ (1) \quad U(w) =w^{T}\mu-\frac{\lambda}{2}w^{T}\Sigma w \rightarrow \max_{w}! \]</span></p>
+<p>mit der Lösung</p>
+<p><span class="math display">\[ (2) \quad w^*=(\lambda \Sigma)^{-1}\mu . \]</span></p>
+<p>Im Black-Litterman Verfahren ist aber vorerst <span class="math inline">\(w^*\)</span> schon bekannt, sei es durch das CAPM-Gleichgewicht (d.h., die marktkapitalisierungsgerechten Gewichte) oder die strategisch festgelegten Gewichte. Die Umkehroptimierung legt die benötigten erwarteten Renditen fest, um in dem Markowitz-Verfahren genau die Referenzgewichte <span class="math inline">\(w_{REF}\)</span> zu erhalten. Diese Renditen werden im Folgenden als implizite Renditen <span class="math inline">\(\Pi\)</span>, oder, im Fall des Marktportfolios als Referenzportfolio, als Gleichgewichtsrenditen bezeichnet. Die Umkehroptimierung stellt eine Umformung der Formel (2) dar, und lässt sich folgendermaßen darstellen:</p>
+<p><span class="math display">\[ (3) \quad \Pi=\lambda \Sigma w_{REF} . \]</span></p>
+<p>Um die Unsicherheit bezüglich der zukünftigen Erwartungswerte der Renditen <span class="math inline">\(\mu\)</span> explizit zu berücksichtigen, werden diese als stochastische Größen angesehen. Unter der Annahme, dass Erwartungswerte eine geringere Varianz als die zugrunde liegenden Zufallsvariablen selbst haben, lässt sich die <strong>a-priori</strong> Verteilung von <span class="math inline">\(\mu\)</span> im Black-Litterman Modell schreiben als</p>
+<p><span class="math display">\[ (4) \quad \mu_{a-priori} \sim N(\Pi, \tau \Sigma) , \]</span></p>
+<p>wobei <span class="math inline">\(N(.)\)</span> die Normalverteilungsfunktion bezeichnet. Die Dimensionen sind dabei wie folgt: <span class="math inline">\(\mu\)</span> und <span class="math inline">\(\Pi\)</span> sind <span class="math inline">\(N×1\)</span> Vektoren und die Varianz-Kovarianz-Matrix <span class="math inline">\(\Sigma\)</span> ist eine <span class="math inline">\(N×N\)</span> Matrix, wobei <span class="math inline">\(N\)</span> die Anzahl der Wertpapiere ist. Der Parameter <span class="math inline">\(\tau\)</span> misst den Proportionalitätsfaktor der historischen Renditevolatilität zur Volatilität der erwarteten Rendite. Je größer das Vertrauen des Portfoliomanagers in das eigene Referenzportfolio ist, umso kleiner sollte der Parameter <span class="math inline">\(\tau\)</span> gewählt werden. Die impliziten (oder Gleichgewichts-) Renditen <span class="math inline">\(\Pi\)</span> stellen somit den a-priori Schätzer für die erwarteten Renditen <span class="math inline">\(\mu\)</span> dar. Für <span class="math inline">\(\tau=0\)</span> würde unterstellt, dass es keine Unsicherheit bezüglich der Erwartungswerte der zukünftigen Renditen gäbe und das diese den historischen Werten entsprächen.</p>
+<p>Im nächsten Schritt muss die a-priori Verteilung von <span class="math inline">\(\mu\)</span> mit den individuellen Renditeprognosen des Portfoliomanagers kombiniert werden um die a-posteriori Verteilung zu erhalten.</p>
+</section>
+<section id="die-verbindung-des-referenzportfolios-mit-renditeprognosen" class="level2" data-number="6.4">
+<h2 data-number="6.4" class="anchored" data-anchor-id="die-verbindung-des-referenzportfolios-mit-renditeprognosen"><span class="header-section-number">6.4</span> Die Verbindung des Referenzportfolios mit Renditeprognosen</h2>
+<section id="spezifikation-von-renditeprognosen-im-black-litterman-modell" class="level3" data-number="6.4.1">
+<h3 data-number="6.4.1" class="anchored" data-anchor-id="spezifikation-von-renditeprognosen-im-black-litterman-modell"><span class="header-section-number">6.4.1</span> Spezifikation von Renditeprognosen im Black-Litterman Modell</h3>
+<p>Der entscheidende Schritt bei der Formalisierung des Black-Litterman Verfahrens ist die Spezifikation der subjektiven Renditeerwartungen (Prognosen, Meinungen oder “Views”). Dies erfolgt ebenfalls in Form einer Wahrscheinlichkeitsverteilung.</p>
+<p>In der Regel werden Portfoliomanager Erwartungen über die Renditeentwicklung einiger Werte in ihrem Portfolio haben, die von den impliziten Renditen abweichen. Das Black-Litterman Modell ermöglicht es, sowohl absolute als auch relative Renditeprognosen in den Prozess der Asset Allocation einzubeziehen. Es ist nicht zwingend, dass für jedes Wertpapier in dem Portfolio eine Renditeerwartung spezifiziert wird.</p>
+<p>Die folgenden Beispiele verdeutlichen, wie absolute (A) und relative (B und C) Renditeerwartungen in dem Black-Litterman Modell ausgedrückt werden können.</p>
+<ul>
+<li><ol type="A">
+<li>„Wertpapier A wird eine Rendite von 6 % erwirtschaften (ca. 1,5 % unter der impliziten Rendite).“</li>
+</ol></li>
+<li><ol start="2" type="A">
+<li>„Wertpapier E wird eine um 5 % höhere Rendite erwirtschaften als Wertpapier C.“</li>
+</ol></li>
+<li><ol start="3" type="A">
+<li>„Die Wertpapiere B und D werden die Wertpapiere A und C um 10 % outperformen.“</li>
+</ol></li>
+</ul>
+<p>Nachdem der Investor sämtliche von den impliziten Renditen abweichende Erwartungen in Form der obigen Beispiele verbal festgelegt hat, müssen diese Erwartungen in eine Form umgewandelt werden, die es ermöglicht, sie in den Black-Litterman Prozess zu integrieren.</p>
+<p>In dem Modell wird angenommen, dass die Erwartungen bzw. Prognosen des Portfomanagers gemäß der folgenden Formel als <span class="math inline">\(k\)</span> unterschiedliche Linearkombinationen der <span class="math inline">\(N\)</span> Wertpapiere ausgedrückt werden können. <span class="math inline">\(k\)</span> stellt die Anzahl der formulierten Prognosen dar.</p>
+<p><span class="math display">\[ (5) \quad P \cdot \mu = V + \epsilon . \]</span></p>
+<p>Der Vektor der Renditeprognosen <span class="math inline">\(V\)</span> hat die Dimension <span class="math inline">\(k×1\)</span>. Als <span class="math inline">\(k×1\)</span> Vektor mit den Prognosefehlern wird <span class="math inline">\(\epsilon\)</span> verwendet. Die ermittelten Renditeprognosen (Meinungen oder “Views”) <span class="math inline">\(V\)</span> werden durch die Matrix <span class="math inline">\(P\)</span> den jeweils richtigen Wertpapieren zugewiesen. Jede einzelne Erwartung kann durch einen <span class="math inline">\(1×N\)</span> Vektor (eine Zeile von <span class="math inline">\(P\)</span>) den Wertpapieren eindeutig zugeordnet werden. Aus diesem Grund handelt es sich bei der Prognosematrix <span class="math inline">\(P\)</span> allgemein um eine <span class="math inline">\(k×N\)</span> Matrix. Jede Zeile von <span class="math inline">\(P\)</span> stellt dabei ein sogenanntes “View Portfolio” dar. Das erste Element des Vektors <span class="math inline">\(V\)</span> zeigt die Höhe der Renditeprognose an, das erste Element des Vektors <span class="math inline">\(\epsilon\)</span> den damit verbundenen Schätzfehler.</p>
+<p>Die Prognosen (Views) werden mit einem Schätzfehler versehen, da sie in der Praxis nicht mit Sicherheit geäußert werden können. Über den Vektor der Schätzfehler <span class="math inline">\(\epsilon\)</span> wird angenommen, er sei unabhängig und normal verteilt. Das Maß für die Prognosegüte ist in dem Black-Litterman Verfahren die Varianz-Kovarianz-Matrix der Prognosefehler, <span class="math inline">\(\Omega\)</span>. Wegen der Annahme der Unabhängigkeit der Prognosen untereinander, reduziert sich die <span class="math inline">\(k×k\)</span> Matrix <span class="math inline">\(\Omega\)</span> zu einer Diagonalmatrix, wobei die Varianzen der Schätzfehler <span class="math inline">\(\epsilon\)</span> entlang der Diagonalen eingetragen werden. Im Black-Litterman Modell gilt die Annahme der Normalverteilung der Prognosen gemäß</p>
+<p><span class="math display">\[ (6) \quad P \cdot \mu \sim N(V, \Omega) . \]</span></p>
+<p>In einem Sieben-Wertpapier-Beispiel mit den Wertpapieren <span class="math inline">\({A,B,C,D,E,F,G}\)</span> würden die obigen Prognosen (A), (B) und (C) folgendermaßen formalisiert werden:</p>
+<p><span class="math display">\[ (7) \quad P  \cdot \left( \begin{array}{rrrr}
+\mu_A \\
+\mu_B \\
+\mu_C \\
+\mu_D \\
+\mu_E \\
+\mu_F \\
+\mu_G \\
+\end{array}\right) =
+\left( \begin{array}{rrrr}
+0,06 \\
+0,05 \\
+0,10 \\
+\end{array}\right) +
+\left( \begin{array}{rrrr}
+\epsilon_{(A)} \\
+\epsilon_{(B)} \\
+\epsilon_{(C)} \\
+\end{array}\right)
+\
+\]</span></p>
+<p>mit</p>
+<p><span class="math display">\[ (8) \quad P=\left( \begin{array}{rrrr}
+1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 \\
+0 &amp; 0 &amp; -1 &amp; 0 &amp; 1 &amp; 0 &amp; 0 \\
+-0,49 &amp; 0,45 &amp; -0,51 &amp; 0,55 &amp; 0 &amp; 0 &amp; 0 \\
+\end{array}\right) .\]</span></p>
+<p>Die erste Reihe der Matrix <span class="math inline">\(P\)</span> stellt die absolute Erwartung (A) dar. Da A das erste Wertpapier im Beispielportfolio ist, und sich die Erwartung ausschließlich auf dieses Wertpapier bezieht, muss der erste Wert der ersten Zeile eins betragen. Sämtliche anderen Elemente der ersten Reihe der Matrix <span class="math inline">\(P\)</span> sind null.</p>
+<p>Die zweite Reihe der Matrix stellt die relative Erwartung (B) dar. Es wird ein gewichtungsneutrales Portfolio gebildet, indem die stärkere Aktie der Prognose die Longposition (Wert: 1), und die schwächere Aktie die Shortposition (Wert: –1) einnimmt. Die Höhe der Überperformance kommt in der zweiten Reihe des Vektors <span class="math inline">\(V\)</span> zum Tragen (Wert: 0,05).</p>
+<p>Die dritte Reihe der Matrix <span class="math inline">\(P\)</span> stellt den kompliziertesten Fall gleichzeitiger relativer Renditeerwartungen für mehr als zwei Wertpapiere dar, in dem Beispiel durch die Erwartung (C) dargestellt. Analog zu einer relativen Erwartung des Typs (B) müssen sich die Werte der Aktien mit der stärkeren erwarteten Performance zu eins addieren, die Werte der outperformten Wertpapiere müssen summiert minus eins ergeben. Die Aufteilung der auf eins bzw. minus eins begrenzten Werte zwischen den beiden Aktienklassen erfolgt proportional zu deren Marktkapitalisierung (hier willkürlich angenommen). Die Berechnung der Werte in der dritten Spalte der Matrix <span class="math inline">\(P\)</span> erfolgte gemäß der Formel (9):</p>
+<p><span class="math display">\[ (9) \quad P^T_{3.} =  \left( \begin{array}{rrrr}
+\frac{MCap_A}{MCAP_{A+C}} \\
+\frac{MCap_B}{MCAP_{B+D}} \\
+\frac{MCap_C}{MCAP_{A+C}} \\
+\frac{MCap_D}{MCAP_{B+D}} \\
+0 \\
+0 \\
+0 \\
+\end{array}\right) =
+\left( \begin{array}{rrrr}
+-0,49 \\
+0,45 \\
+-0,51 \\
+0,55 \\
+0 \\
+0 \\
+0 \\
+\end{array}\right) ,
+\]</span></p>
+<p>mit <span class="math display">\[ MCap_i: \text{Marktkapitalisierung des Wertpapiers i} . \]</span></p>
+<p>Ist dem Portfoliomanager der Grad an Unsicherheit bzw. die Varianz seiner Erwartungen ex ante nicht bekannt, so kann anstatt dieser die Varianz der Prognoseportfolios (View Portfolios) herangezogen werden:</p>
+<p><span class="math display">\[ (10) \quad \Omega_{kk}=P_{k.} \tau\Sigma \space P^T_{k.}.\]</span></p>
+<p>Da in diesem Beispiel die Güte der Prognosen unbekannt ist, wird die Varianz-Kovarianzmatrix der Schätzfehler - <span class="math inline">\(\Omega\)</span> - gemäß Formel (10) approximiert. Es ergibt sich (mit <span class="math inline">\(\tau=1\)</span>):</p>
+<p><span class="math display">\[ (11) \quad \Omega=\left( \begin{array}{rrrr}
+0.0065 &amp; 0 &amp; 0  \\
+0 &amp; 0.0037 &amp; 0  \\
+0 &amp; 0 &amp; 0.0016  \\
+\end{array}\right). \]</span></p>
+</section>
+<section id="die-black-litterman-formel" class="level3" data-number="6.4.2">
+<h3 data-number="6.4.2" class="anchored" data-anchor-id="die-black-litterman-formel"><span class="header-section-number">6.4.2</span> Die Black-Litterman Formel</h3>
+<p>Im Black-Litterman Modell wird angenommen, dass die unbekannte <strong>a-posteriori Verteilung</strong> der erwarteten Renditen <span class="math inline">\(\mu\)</span> eine gemischte Verteilung ist, die auf der <strong>a-priori</strong> Verteilung unter Verwendung der impliziten (oder der Gleichgewichts-) Renditen <span class="math inline">\(\Pi\)</span> und der Verteilung der Renditeprognosen <span class="math inline">\(V\)</span> basiert. Die a-priori Verteilung von <span class="math inline">\(\mu\)</span> ist in der Formel (4) spezifiziert, die Verteilung der Renditeprognosen wird in der Formel (6) dargestellt.</p>
+<p>Der optimale (a-posteriori) Schätzer für den Vektor der erwarteten Renditen entspricht dem Erwartungswert <span class="math inline">\(E(\mu_{a-posteriori})\)</span> der gemischten (a-posteriori) Verteilung der erwarteten Renditen. Dieser kann durch den folgenden Ausdruck berechnet werden:</p>
+<p><span class="math display">\[ (12) \quad E(\mu_{a-posteriori})=[(\tau\cdot\Sigma)^{-1}+P^T\Omega^{-1}P]^{-1}[(\tau\cdot\Sigma)^{-1}\Pi+P^T\Omega^{-1}V]. \]</span></p>
+<p>Die a-posteriori Verteilung der erwarteten Renditen ist wiederum eine Normalverteilung. Sie ist in der folgenden Formel wiedergegeben:</p>
+<p><span class="math display">\[ (13) \quad \mu_{a-posteriori} \sim N(E(\mu_{A-posteriori}), [(\tau\cdot\Sigma)^{-1}+P^T\Omega^{-1}P]^{-1}) . \]</span></p>
+<p>Die Formel (12) bildet die Basis des gesamten Black-Litterman Verfahrens. Durch diese Formel werden die impliziten Renditen und die subjektiven Prognosen zu einem neuen, revidierten Vektor erwarteter Renditen zusammengefasst. Durch die Weitergabe dieses Vektors an eine Mittelwert-Varianz-Optimierungsroutine können schließlich die Black-Litterman Portfoliogewichte ermittelt werden.</p>
+</section>
+</section>
+<section id="fazit" class="level2" data-number="6.5">
+<h2 data-number="6.5" class="anchored" data-anchor-id="fazit"><span class="header-section-number">6.5</span> Fazit</h2>
+<p>Der klassische portfoliotheoretische Ansatz von Markowitz ist theoretisch elegant und stellt in der akademischen Literatur das Gerüst der Portfoliotheorie dar. Es wurde allerdings anhand von Beispielen gezeigt (vgl. insbesondere Kapitel A3.1), dass der Ansatz in der Praxis zu erheblichen Problemen führen kann. Diese Defizite führen dazu, dass der traditionelle Ansatz von Portfoliomanagern kaum oder nur in stark veränderter Form eingesetzt wird.</p>
+<p>Aus diesem Grund haben Black und Litterman 1992 ein innovatives Verfahren entwickelt, das Portfoliomanagern erlaubt, ausgehend von stabilen Gleichgewichtsrenditen oder impliziten Renditen, subjektive Renditeprognosen und ein Grad an Vertrauen in diese Prognosen im Asset-Allocation-Prozess zu berücksichtigen. Letztendlich handelt es sich bei dem Black-Litterman Modell um eine Methode, die einen komplexen gewichteten Durchschnitt der impliziten Renditen und der subjektiven Renditeprognosen festlegt.</p>
+<p>Die Portfoliogewichte werden durch den Einsatz des Black-Litterman Verfahrens viel realistischer, da Erwartungen der Portfoliomanager eindeutig widergespiegelt und stark konzentrierte Portfolios vermieden werden. Aus diesen Gründen konnte sich das Black-Litterman Modell seit der Publikation im Jahr 1992 in zahlreichen Finanzunternehmen als Portfolio-Management Modell durchsetzen.</p>
+</section>
+<section id="beginn-der-fallstudie" class="level2" data-number="6.6">
+<h2 data-number="6.6" class="anchored" data-anchor-id="beginn-der-fallstudie"><span class="header-section-number">6.6</span> Beginn der Fallstudie</h2>
+<p>Wir starten mit dem Import der benötigten Pakete.</p>
+<div id="cell-2" class="cell" data-execution_count="2">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="im">from</span> scipy.optimize <span class="im">import</span> minimize</span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="im">import</span> numpy.linalg <span class="im">as</span> la</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<section id="laden-und-beschreiben-der-datenbasis" class="level3" data-number="6.6.1">
+<h3 data-number="6.6.1" class="anchored" data-anchor-id="laden-und-beschreiben-der-datenbasis"><span class="header-section-number">6.6.1</span> Laden und Beschreiben der Datenbasis</h3>
+<p>Der verwendete Datensatz enthält Kurshistorien (Monatsanfangskurse) der folgenden zehn Aktien: Alcoa, IBM, Intel, J.P. Morgan, Microsoft, AT&amp;T, Cisco, Ebay, Costco, Kraft Foods. Die Kurshistorien beziehen sich auf den Zeitraum <em>12.2004-12.2009</em> (61 Monate).</p>
+<div id="cell-4" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># hier den Dateipfad eingeben</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="co"># cd "..."</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="cell-5" class="cell" data-execution_count="3">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a>frame1 <span class="op">=</span> pd.read_excel(<span class="st">'Kapitel A3_3.xlsx'</span>, <span class="st">'Tabelle1'</span>, index_col<span class="op">=</span><span class="dv">0</span>, parse_dates<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="cell-6" class="cell" data-execution_count="4">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a>frame1.tail()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="4">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">AA</th>
+<th data-quarto-table-cell-role="th">IBM</th>
+<th data-quarto-table-cell-role="th">INTC</th>
+<th data-quarto-table-cell-role="th">JPM</th>
+<th data-quarto-table-cell-role="th">MSFT</th>
+<th data-quarto-table-cell-role="th">T</th>
+<th data-quarto-table-cell-role="th">CSCO</th>
+<th data-quarto-table-cell-role="th">EBAY</th>
+<th data-quarto-table-cell-role="th">COST</th>
+<th data-quarto-table-cell-role="th">KFT</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2009-08-03</th>
+<td>12.05</td>
+<td>118.05</td>
+<td>20.32</td>
+<td>43.46</td>
+<td>24.65</td>
+<td>26.05</td>
+<td>21.60</td>
+<td>22.14</td>
+<td>50.98</td>
+<td>28.35</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">2009-09-01</th>
+<td>13.12</td>
+<td>119.61</td>
+<td>19.57</td>
+<td>43.82</td>
+<td>25.72</td>
+<td>27.01</td>
+<td>23.54</td>
+<td>23.60</td>
+<td>56.38</td>
+<td>26.27</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2009-10-01</th>
+<td>12.42</td>
+<td>120.61</td>
+<td>19.11</td>
+<td>41.77</td>
+<td>27.73</td>
+<td>25.67</td>
+<td>22.81</td>
+<td>22.27</td>
+<td>56.85</td>
+<td>27.52</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">2009-11-02</th>
+<td>12.52</td>
+<td>126.35</td>
+<td>19.20</td>
+<td>42.49</td>
+<td>29.41</td>
+<td>26.94</td>
+<td>23.40</td>
+<td>24.47</td>
+<td>59.91</td>
+<td>26.58</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2009-12-01</th>
+<td>16.30</td>
+<td>132.57</td>
+<td>20.59</td>
+<td>41.53</td>
+<td>30.96</td>
+<td>28.32</td>
+<td>24.18</td>
+<td>23.80</td>
+<td>60.05</td>
+<td>27.49</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Auf Basis von stetigen (log) Renditen werden die historischen Mittelwerte und die Varianz-Kovarianzmatrix der Renditen berechnet und jeweils annualisiert.</p>
+<div id="cell-8" class="cell" data-execution_count="5">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1"></a><span class="co"># using log returns</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a>returns <span class="op">=</span> np.log1p(frame1.pct_change().dropna())</span>
+<span id="cb5-3"><a href="#cb5-3"></a></span>
+<span id="cb5-4"><a href="#cb5-4"></a>means <span class="op">=</span> returns.mean().values<span class="op">*</span><span class="dv">12</span> <span class="co"># annualised</span></span>
+<span id="cb5-5"><a href="#cb5-5"></a>Sigma <span class="op">=</span> returns.cov().values<span class="op">*</span><span class="dv">12</span> <span class="co"># annualised</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>Die Marktkapitalisierung der einzelnen Aktien wurde zum Stichtag 01.09.2012 ermittelt. Die relative Marktkapitalisierung der zehn Aktien ist im Array <code>cap_weights</code> gespeichert. Dieses stellt zugleich die Referenzgewichte <span class="math inline">\(w_{REF}\)</span> dar.</p>
+<div id="cell-10" class="cell" data-execution_count="6">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1"></a><span class="co"># current market cap of stocks and calculation of cap weights</span></span>
+<span id="cb6-2"><a href="#cb6-2"></a>market_cap <span class="op">=</span> pd.read_excel(<span class="st">'Market Cap.xlsx'</span>, <span class="st">'Tabelle1'</span>)</span>
+<span id="cb6-3"><a href="#cb6-3"></a>cap_weights <span class="op">=</span> np.asarray(market_cap)<span class="op">/</span>np.<span class="bu">sum</span>(np.asarray(market_cap))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="ermittlung-der-impliziten-renditen" class="level3" data-number="6.6.2">
+<h3 data-number="6.6.2" class="anchored" data-anchor-id="ermittlung-der-impliziten-renditen"><span class="header-section-number">6.6.2</span> Ermittlung der impliziten Renditen</h3>
+<p>Ausgehend vom Maximierungsproblem bei der Portfoliooptimierung nach Markowitz ohne Restriktionen ergeben sich die impliziten Renditen, die das Referenzportfolio zu einem effizienten Portfolio machen, durch die oben dargestellte Umkehroptimierung gemäß folgender Formel: <span class="math inline">\(\Pi=\lambda\Sigma w_{REF}\)</span>. Für den Risikoaversionskoeffizienten <span class="math inline">\(\lambda\)</span> wird beispielhaft der Wert 2,0 gewählt.</p>
+<div id="cell-12" class="cell" data-execution_count="8">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1"></a><span class="co"># calculation of market cap implied expected returns; lambda=gamma</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a>gamma <span class="op">=</span> <span class="dv">2</span></span>
+<span id="cb7-3"><a href="#cb7-3"></a>implied <span class="op">=</span> <span class="dv">2</span><span class="op">*</span>(cap_weights.dot(Sigma))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>Wie oben dargestellt, resultieren die Gewichte des Referenzportfolios als Ergebnis der Optimierung falls der Vektor der impliziten Renditen für <span class="math inline">\(\mu\)</span> eingesetzt wird.</p>
+<p><span class="math display">\[ (2) \quad w_{REF}=(\lambda \Sigma)^{-1}\Pi. \]</span></p>
+<div id="cell-14" class="cell" data-execution_count="9">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1"></a><span class="co"># optimal weights implied by implied expected returns</span></span>
+<span id="cb8-2"><a href="#cb8-2"></a><span class="co"># analytical solution w = inv(gamma * Sigma1)* implied</span></span>
+<span id="cb8-3"><a href="#cb8-3"></a><span class="co"># analytical solution possible because of no constraints</span></span>
+<span id="cb8-4"><a href="#cb8-4"></a><span class="co"># Of course, impl_weights must equal cap_weights</span></span>
+<span id="cb8-5"><a href="#cb8-5"></a>impl_weights <span class="op">=</span> implied.dot(la.inv(gamma <span class="op">*</span> Sigma))</span>
+<span id="cb8-6"><a href="#cb8-6"></a></span>
+<span id="cb8-7"><a href="#cb8-7"></a><span class="co"># optimal Markowitz weights based on hist. returns</span></span>
+<span id="cb8-8"><a href="#cb8-8"></a>marko_weights <span class="op">=</span> means.dot(la.inv(gamma <span class="op">*</span> Sigma))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>Es muss also gelten: <code>cap_weights=impl_weights</code>. Wird <span class="math inline">\(\mu\)</span> auf Basis der einfachen historischen Mittelwerte (<code>means</code>) geschätzt, resultieren die klassischen Markowitz-Gewichte (<code>marko_weights</code>).</p>
+<p>Vergleichen wir nun die historischen Mittelwerte mit den implizit erwarteten Renditen.</p>
+<p>Das Balkendiagramm zeigt einen Vergleich der historischen Renditemittelwerte mit den impliziten Gleichgewichtsrenditen auf Basis des marktkapitalisierungsgewichteten Referenzportfolios. Im Gegensatz zu den historischen Mittelwerten besitzen die impliziten erwarteten Renditen dabei stets positive Vorzeichen und wirken insgesamt weitaus ausgeglichener und stabiler.</p>
+<div id="cell-16" class="cell" data-execution_count="14">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1"></a>pd.DataFrame({<span class="st">'historical mean'</span>: means,<span class="st">'implied mean'</span>: implied[<span class="dv">0</span>,:]}, <span class="op">\</span></span>
+<span id="cb9-2"><a href="#cb9-2"></a>             index<span class="op">=</span>frame1.columns).plot.bar(stacked<span class="op">=</span><span class="va">False</span>, <span class="op">\</span></span>
+<span id="cb9-3"><a href="#cb9-3"></a>            alpha<span class="op">=</span><span class="fl">0.5</span>, figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="dv">5</span>))<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="kapitel5_files/figure-html/cell-10-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Das folgende Balkendiagramm veranschaulicht den Unterschied zwischen den Markowitz-Gewichtungen (ohne Restriktionen) auf der Basis historischer Renditen und den Referenzgewichtungen auf der Basis der impliziten Renditen. Es ist ersichtlich, dass das optimale Portfolio auf der Grundlage der impliziten Renditen (entspricht dem Referenzportfolio) grundsätzlich positive Gewichte und somit keine Leerverkaufspositionen aufweist. Im Gegensatz zum Portfolio, welches auf Grundlage historischer Renditemittelwerte optimiert wurde, besitzt das optimale Portfolio der Gleichgewichtsrenditen keinerlei extreme Portfolio-Gewichte. Dieses Portfolio entspricht viel eher der gängigen Anlagepraxis.</p>
+<div id="cell-18" class="cell" data-execution_count="15">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1"></a>pd.DataFrame({<span class="st">'Markowitz weights'</span>: marko_weights,<span class="st">'implied weights'</span>: impl_weights[<span class="dv">0</span>,:]}, <span class="op">\</span></span>
+<span id="cb10-2"><a href="#cb10-2"></a>             index<span class="op">=</span>frame1.columns).plot.bar(stacked<span class="op">=</span><span class="va">False</span>, <span class="op">\</span></span>
+<span id="cb10-3"><a href="#cb10-3"></a>            alpha<span class="op">=</span><span class="fl">0.5</span>, figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="dv">5</span>))<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="kapitel5_files/figure-html/cell-11-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="formulierung-und-implementierung-von-prognosemeinungen-views" class="level3" data-number="6.6.3">
+<h3 data-number="6.6.3" class="anchored" data-anchor-id="formulierung-und-implementierung-von-prognosemeinungen-views"><span class="header-section-number">6.6.3</span> Formulierung und Implementierung von Prognosemeinungen (Views)</h3>
+<p>Nach der Berechnung der impliziten Renditen sind nun die subjektiven Views des Portfolio-Managers zu implementieren. Die impliziten Renditen fungieren dabei als Ausgangspunkt für die weiteren Berechnungen und stabilisieren zugleich als zentraler “Anker” die Allokation des Portfolios. Die Ankerfunktion der impliziten Renditen trägt zur Vermeidung einer extremen Portfolioallokation und einer hohen Sensitivität des Portfolios bei, die bei der Portfoliooptimierung nach Markowitz oftmals auftritt. Hier zeigt sich bereits einer der genannten Vorteile des Black-Litterman Modells gegenüber dem Erwartungswert-Varianz-Ansatz. Da die Portfolio-Manager häufig eine von den impliziten Renditen abweichende Meinung über die zukünftige Renditeentwicklung besitzen, ist es notwendig die subjektiven Einschätzungen der jeweiligen Portfolio-Manager zu integrieren.</p>
+<p>Im Rahmen der Fallstudie wird von folgenden Wertpapierentwicklungen ausgegangen:</p>
+<ul>
+<li><p><strong>View 1</strong> Für das Unternehmen Ebay rechnet das Portfolio-Management im nächsten Jahr mit einer Rendite in Höhe von 12,0 %.</p></li>
+<li><p><strong>View 2</strong> Es wird angenommen, dass die Wertpapierrendite von AT&amp;T eine um 2,0 % höhere Rendite als Microsoft erzielen wird.</p></li>
+<li><p><strong>View 3</strong> Die Wertpapierrenditen von Cisco und IBM werden die Wertpapierrenditen von Costco und Kraft Foods in Höhe von 3,0 % übertreffen.</p></li>
+</ul>
+<p>Als Vektor <span class="math inline">\(V\)</span> ergibt sich aufgrund der festgelegten Views der Portfolio-Manager:</p>
+<p><span class="math display">\[ \quad V=\left( \begin{array}{rrrr}
+12\% \\
+2\% \\
+3\% \\
+\end{array}\right). \]</span></p>
+<p>Die relativen und absoluten Views führen zu folgenden Prognosematrix <span class="math inline">\(P\)</span>:</p>
+<p><span class="math display">\[ \quad P=\left( \begin{array}{rrrr}
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 1 &amp; 0 &amp; 0\\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; -1 &amp; 1 &amp; 0 &amp; 0 &amp; 0 &amp; 0\\
+0 &amp; 0,69 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0,31 &amp; 0 &amp; -0,36 &amp; -0,64\\
+\end{array}\right). \]</span></p>
+<p>Der absolute View 1 wird in der ersten Spalte der Matrix festgelegt. Zeile zwei repräsentiert View 2, der eine einfache relative Renditemeinung darstellt. View 3 stellt einen mehrfachen relativen View dar und ist dementsprechend in Zeile drei der Matrix <span class="math inline">\(P\)</span> vorzufinden. Die Wertpapiere der Outperformer und Underperformer (des dritten Views) sind mit ihren relativen Marktwertgewichten im Long- bzw. Short-Portfolio berücksichtigt.</p>
+<div id="cell-20" class="cell" data-execution_count="16">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1"></a><span class="co"># implementing the portfolio manager's view</span></span>
+<span id="cb11-2"><a href="#cb11-2"></a>P <span class="op">=</span> np.zeros((<span class="dv">3</span>,<span class="dv">10</span>))</span>
+<span id="cb11-3"><a href="#cb11-3"></a>P[<span class="dv">0</span>,<span class="dv">7</span>]<span class="op">=</span><span class="dv">1</span></span>
+<span id="cb11-4"><a href="#cb11-4"></a>P[<span class="dv">1</span>,<span class="dv">4</span>]<span class="op">=-</span><span class="dv">1</span></span>
+<span id="cb11-5"><a href="#cb11-5"></a>P[<span class="dv">1</span>,<span class="dv">5</span>]<span class="op">=</span><span class="dv">1</span></span>
+<span id="cb11-6"><a href="#cb11-6"></a>P[<span class="dv">2</span>,<span class="dv">1</span>]<span class="op">=</span><span class="fl">0.69</span></span>
+<span id="cb11-7"><a href="#cb11-7"></a>P[<span class="dv">2</span>,<span class="dv">6</span>]<span class="op">=</span><span class="fl">0.31</span></span>
+<span id="cb11-8"><a href="#cb11-8"></a>P[<span class="dv">2</span>,<span class="dv">8</span>]<span class="op">=-</span><span class="fl">0.36</span></span>
+<span id="cb11-9"><a href="#cb11-9"></a>P[<span class="dv">2</span>,<span class="dv">9</span>]<span class="op">=-</span><span class="fl">0.64</span></span>
+<span id="cb11-10"><a href="#cb11-10"></a></span>
+<span id="cb11-11"><a href="#cb11-11"></a>V <span class="op">=</span> np.matrix([<span class="fl">0.12</span>, <span class="fl">0.02</span>, <span class="fl">0.03</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>Im weiteren Verlauf sind die Black-Litterman Renditen zu berechnen. Da jedoch der Eintritt der einzelnen Views mit Unsicherheit behaftet ist, ist noch der individuelle Schätzfehler jedes Views zu quantifizieren. Hierbei wird der Methode, die Diagonalmatrix der Schätzfehler <span class="math inline">\(\Omega\)</span> proportional zur historischen Varianz-Kovarianzmatrix zu berechnen, gefolgt. Daraus ergibt sich für <span class="math inline">\(\Omega\)</span> folgende Matrix:</p>
+<p><span class="math display">\[\Omega=\left( \begin{array}{rrrr}
+(P_1\Sigma P^T_1)\cdot \tau &amp; 0 &amp; 0 \\
+0 &amp; \ddots &amp; 0 \\
+0 &amp; 0 &amp; (P_k\Sigma P^T_k)\cdot \tau \\
+\end{array}\right) =
+\left( \begin{array}{rrrr}
+0,0526 &amp; 0 &amp; 0 \\
+0 &amp; 0,0117 &amp; 0 \\
+0 &amp; 0 &amp; 0,0064 \\
+\end{array}\right).
+\]</span></p>
+<p>Für den Proportionalitätsfaktor <span class="math inline">\(\tau\)</span> (umso kleiner je größer das Vertrauen des Portfolio-Managers in das eigene Referenzportfolio ist) werden in der Literatur niedrige Werte empfohlen. Hier wird <span class="math inline">\(\tau=0,2\)</span> gesetzt.</p>
+<p><strong>Hinweis</strong>: Durch <code>np.diag(np.diag(x))</code> werden zunächst die Diagonalelemente der Matrix <span class="math inline">\(x\)</span> extrahiert und daraus wird dann eine Diagonalmatrix konstruiert.</p>
+<div id="cell-22" class="cell" data-execution_count="17">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1"></a><span class="co"># calculation of omega: diagonal matrix containing variances of manager's</span></span>
+<span id="cb12-2"><a href="#cb12-2"></a><span class="co"># forcasting errors</span></span>
+<span id="cb12-3"><a href="#cb12-3"></a></span>
+<span id="cb12-4"><a href="#cb12-4"></a>tau <span class="op">=</span> <span class="fl">0.2</span></span>
+<span id="cb12-5"><a href="#cb12-5"></a>Omega <span class="op">=</span> np.diag(np.diag((P.dot(tau<span class="op">*</span>Sigma)).dot(P.T)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>Nun sind die implementierten Views der Portfolio-Manager mit den impliziten Renditen analog der oben vorgestellten zentralen Black-Litterman Gleichung (12) zu mischen:</p>
+<p><span class="math display">\[ (12) \quad E(\mu_{a-posteriori})=[(\tau\cdot\Sigma)^{-1}+P^T\Omega^{-1}P]^{-1}[(\tau\cdot\Sigma)^{-1}\Pi+P^T\Omega^{-1}V]. \]</span></p>
+<p>Als Ergebnis resultieren die Black-Litterman Renditen. Inwieweit die impliziten Renditen durch die Views der Portfolio-Manager abweichen, ist anhand des Balkendiagramms unten ersichtlich.</p>
+<div id="cell-24" class="cell" data-execution_count="18">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1"></a><span class="co"># calculation of Black-Litterman expected returns</span></span>
+<span id="cb13-2"><a href="#cb13-2"></a><span class="co"># imputs: tau, Omega, Sigma, P, implied, V</span></span>
+<span id="cb13-3"><a href="#cb13-3"></a></span>
+<span id="cb13-4"><a href="#cb13-4"></a>bl_means <span class="op">=</span> la.inv(la.inv(tau<span class="op">*</span>Sigma) <span class="op">+</span> (P.T.dot(la.inv(Omega))).dot(P)).dot(<span class="op">\</span></span>
+<span id="cb13-5"><a href="#cb13-5"></a>    la.inv(tau<span class="op">*</span>Sigma).dot(implied.T) <span class="op">+</span> (P.T.dot(la.inv(Omega))).dot(V.T))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="cell-25" class="cell" data-execution_count="19">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1"></a>pd.DataFrame({<span class="st">'BL means'</span>: np.asarray(bl_means).T[<span class="dv">0</span>,:],<span class="st">'implied means'</span>: implied[<span class="dv">0</span>,:]}, <span class="op">\</span></span>
+<span id="cb14-2"><a href="#cb14-2"></a>             index<span class="op">=</span>frame1.columns).plot.bar(stacked<span class="op">=</span><span class="va">False</span>, <span class="op">\</span></span>
+<span id="cb14-3"><a href="#cb14-3"></a>            alpha<span class="op">=</span><span class="fl">0.5</span>, figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="dv">5</span>))<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="kapitel5_files/figure-html/cell-15-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<div id="cell-26" class="cell" data-execution_count="20">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1"></a>pd.DataFrame({<span class="st">'implied means'</span>: implied[<span class="dv">0</span>,:], <span class="st">'BL means'</span>: np.asarray(bl_means).T[<span class="dv">0</span>,:],<span class="op">\</span></span>
+<span id="cb15-2"><a href="#cb15-2"></a>             <span class="st">'Difference (%)'</span>: np.<span class="bu">round</span>((np.asarray(bl_means).T[<span class="dv">0</span>,:]<span class="op">-</span>implied[<span class="dv">0</span>,:]),<span class="dv">4</span>)<span class="op">*</span><span class="dv">100</span>}, <span class="op">\</span></span>
+<span id="cb15-3"><a href="#cb15-3"></a>             index<span class="op">=</span>frame1.columns)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="20">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">implied means</th>
+<th data-quarto-table-cell-role="th">BL means</th>
+<th data-quarto-table-cell-role="th">Difference (%)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">AA</th>
+<td>0.117003</td>
+<td>0.114132</td>
+<td>-0.29</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">IBM</th>
+<td>0.055150</td>
+<td>0.054665</td>
+<td>-0.05</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">INTC</th>
+<td>0.074694</td>
+<td>0.071138</td>
+<td>-0.36</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">JPM</th>
+<td>0.070246</td>
+<td>0.063142</td>
+<td>-0.71</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">MSFT</th>
+<td>0.068769</td>
+<td>0.053442</td>
+<td>-1.53</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">T</th>
+<td>0.044703</td>
+<td>0.051446</td>
+<td>0.67</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">CSCO</th>
+<td>0.075445</td>
+<td>0.074396</td>
+<td>-0.10</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">EBAY</th>
+<td>0.130241</td>
+<td>0.122653</td>
+<td>-0.76</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">COST</th>
+<td>0.047745</td>
+<td>0.044003</td>
+<td>-0.37</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">KFT</th>
+<td>0.030642</td>
+<td>0.028216</td>
+<td>-0.24</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Auffällig ist zunächst, dass sich prinzipiell die erwarteten Renditen aller Wertapiere verändern, obwohl lediglich für bestimmte Wertpapiere Views formuliert wurden. Der Grund für diese Veränderung aller Wertpapierrenditen liegt maßgeblich in der Korrelation der einzelnen Renditen untereinander, berücksichtigt in der Matrix <span class="math inline">\(\Sigma\)</span>.</p>
+<p>Die erwartete Rendite für Ebay wurde durch den abgegebenen View von ca. 13,0 % auf ca. 12,3 % reduziert. Der zweite View des Portfolio Managements führte zu einer Reduzierung der Renditeerwartung für Microsoft um absolut 1,53 %, wobei sich die Renditeerwartung für AT&amp;T um absolut 0,67 % erhöhte. Dieses Ergebnis ist auch intuitiv nachvollziehbar, da der vom Portfolio Management prognostizierte Renditeunterschied (AT&amp;T - Microsoft) mit 2,0 % positiv ausfiel während der Unterschied in den impliziten Renditen mit -2,41 % (4,47 % - 6,88 %) negativ ist. Dieser Umstand wirkte sich unvorteilhaft auf die Black-Litterman Rendite von Microsoft und vorteilhaft auf die Rendite von AT&amp;T aus.</p>
+<p>Die Beurteilung der Auswirkungen des mehrfachen relativen dritten Views erfordert im Gegensatz zu den beiden bisher betrachteten Views die Betrachtung der Long- (Cisco und IBM) und Short-Portfolios (Costco und Kraft Foods). Hierbei wird die Differenz (+2,47 %) der gewichteten impliziten Renditen des Long- (<span class="math inline">\(0,31\cdot7,54 +0,69\cdot5,52 = 6,15\)</span>) und des Short-Portfolios (<span class="math inline">\(0,36\cdot4,77+0,64\cdot3,06=3,68\)</span>) mit dem View (+3,0 %) verglichen. Auch in diesem Fall ist die Richtung der Renditeveränderung intuitiv nachvollziehbar. Da die erwartete Renditedifferenz zwischen Long- und Short-Portfolio geringer als der View ist, wird eine Erhöhung der Differenz erwartet. Im Ergebnis werden die Renditeerwartungen so verändert, dass sich die Renditedifferenz der Long- und Short-Portfolios vergrößert. Konkret schlägt sich dies nahezu unverändert auf die erwartete Rendite des Long-Portfolios nieder (IBM reduziert sich um absolut 0,05 %, Cisco um absolut 0,1 %). Die erwartete Rendite des Short-Portfolios erfährt hingegen eine deutliche Reduzierung. Die Black-Litterman Rendite für Costco ist absolut um 0,37 % (relativ: 7,75 %) geringer. Die Reduzierung für Kraft Foods fällt ähnlich aus (relativ um 7,84 %). Wie eingangs erwähnt, haben sich die Renditeerwartungen über alle Wertpapiere hinweg verändert. Die erwarteten Renditen der nicht in den Views angesprochenen Wertpapiere Alcoa, Intel und J.P. Morgan haben sich jeweils absolut um 0,29 %, 0,36 % und 0,71 % reduziert.</p>
+<p>Es kann also festgehalten werden, dass jeder View für ein Wertpapier implizit auch eine Prognose für jedes andere Wertpapier enthält. Dieser Effekt erklärt sich vorrangig durch die Multiplikation der einzelnen Matrizen <span class="math inline">\(P\)</span>, <span class="math inline">\(\tau\Omega\)</span> und <span class="math inline">\(\Sigma\)</span> in der Black-Litterman Formel (12).</p>
+</section>
+<section id="portfoliooptimierung-nach-black-litterman" class="level3" data-number="6.6.4">
+<h3 data-number="6.6.4" class="anchored" data-anchor-id="portfoliooptimierung-nach-black-litterman"><span class="header-section-number">6.6.4</span> Portfoliooptimierung nach Black-Litterman</h3>
+<p>Die Portfoliooptimierung, basierend auf den zuvor ermittelten impliziten bzw. den Black-Litterman Renditen, resultiert in folgender Portfolioallokation.</p>
+<div id="cell-29" class="cell" data-execution_count="21">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1"></a><span class="co"># calculation of optimal portfolio weights using BL returns </span></span>
+<span id="cb16-2"><a href="#cb16-2"></a><span class="co"># and analytic formula</span></span>
+<span id="cb16-3"><a href="#cb16-3"></a>bl_weights <span class="op">=</span> la.inv(gamma <span class="op">*</span> Sigma).dot(bl_means)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="cell-30" class="cell" data-execution_count="22">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1"></a>pd.DataFrame({<span class="st">'BL weights'</span>: np.asarray(bl_weights)[:,<span class="dv">0</span>],<span class="st">'implied weights'</span>: impl_weights[<span class="dv">0</span>,:]}, <span class="op">\</span></span>
+<span id="cb17-2"><a href="#cb17-2"></a>             index<span class="op">=</span>frame1.columns).plot.bar(stacked<span class="op">=</span><span class="va">False</span>, <span class="op">\</span></span>
+<span id="cb17-3"><a href="#cb17-3"></a>            alpha<span class="op">=</span><span class="fl">0.5</span>, figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="dv">5</span>))<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="kapitel5_files/figure-html/cell-18-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<div id="cell-31" class="cell" data-execution_count="23">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1"></a>pd.DataFrame({<span class="st">'implied weights'</span>: impl_weights[<span class="dv">0</span>,:], <span class="st">'BL weights'</span>: np.asarray(bl_weights)[:,<span class="dv">0</span>], <span class="op">\</span></span>
+<span id="cb18-2"><a href="#cb18-2"></a>              <span class="st">'Difference (%)'</span>: np.<span class="bu">round</span>((np.asarray(bl_weights)[:,<span class="dv">0</span>]<span class="op">-</span>impl_weights[<span class="dv">0</span>,:]), <span class="dv">3</span>)<span class="op">*</span><span class="dv">100</span>}, <span class="op">\</span></span>
+<span id="cb18-3"><a href="#cb18-3"></a>             index<span class="op">=</span>frame1.columns)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="23">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">implied weights</th>
+<th data-quarto-table-cell-role="th">BL weights</th>
+<th data-quarto-table-cell-role="th">Difference (%)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">AA</th>
+<td>0.007369</td>
+<td>0.007369</td>
+<td>0.0</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">IBM</th>
+<td>0.180836</td>
+<td>0.214646</td>
+<td>3.4</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">INTC</th>
+<td>0.099716</td>
+<td>0.099716</td>
+<td>-0.0</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">JPM</th>
+<td>0.113287</td>
+<td>0.113287</td>
+<td>0.0</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">MSFT</th>
+<td>0.205001</td>
+<td>0.016633</td>
+<td>-18.8</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">T</th>
+<td>0.170562</td>
+<td>0.358930</td>
+<td>18.8</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">CSCO</th>
+<td>0.081912</td>
+<td>0.097102</td>
+<td>1.5</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">EBAY</th>
+<td>0.048570</td>
+<td>0.043521</td>
+<td>-0.5</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">COST</th>
+<td>0.033295</td>
+<td>0.015655</td>
+<td>-1.8</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">KFT</th>
+<td>0.059452</td>
+<td>0.028093</td>
+<td>-3.1</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Wie erwartet wurden lediglich die Portfoliogewichte der in den Views angesprochenen Wertpapiere verändert. Die Wertpapiere Alcoa, Intel und J.P. Morgan, für die keine subjektiven Renditeschätzungen abgegeben wurden, gehen unverändert entsprechend der Höhe ihrer jeweiligen relativen Marktkapitalisierungen im Ausgangsportfolio in die Portfolioallokation ein. Bei den Wertpapieren IBM, Microsoft, AT&amp;T, Cisco, Ebay, Costco, und Kraft Foods, für die Prognosen abgegeben wurden, sind sichtbare Abweichungen zu beobachten. Der Anteil von Microsoft am Referenzportfolio mit 20,5 % reduzierte sich auf 1,66 % um absolut 18,8 %. Der Portfolioanteil von AT&amp;T erhöhte sich um absolut 18,8 % und beträgt nun 35,89 % im BL-Portfolio. Dieser Zusammenhang wird im Rahmen des mehrfachen relativen Views (View 3) noch deutlicher. Auch hier gleichen sich das Long-Portfolio (IBM + Cisco) mit absolut +4,9 % (= 3,4 % + 1,5 %) und das Short-Portfolio (Costco + Kraft Foods) mit absolut -4,9 % (= -1,8 % - 3,1 %) aus.</p>
+</section>
+<section id="portfoliooptimierung-nach-black-litterman-und-markowitz-im-vergleich" class="level3" data-number="6.6.5">
+<h3 data-number="6.6.5" class="anchored" data-anchor-id="portfoliooptimierung-nach-black-litterman-und-markowitz-im-vergleich"><span class="header-section-number">6.6.5</span> Portfoliooptimierung nach Black-Litterman und Markowitz im Vergleich</h3>
+<p>Das nachfolgende Balkendiagramm vergleicht die Allokation des Black-Litterman Portfolios und des Portfolios nach Markowitz.</p>
+<div id="cell-34" class="cell" data-execution_count="24">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1"></a>pd.DataFrame({<span class="st">'BL weights'</span>: np.asarray(bl_weights)[:,<span class="dv">0</span>],<span class="st">'Markowitz weights'</span>: marko_weights}, <span class="op">\</span></span>
+<span id="cb19-2"><a href="#cb19-2"></a>             index<span class="op">=</span>frame1.columns).plot.bar(stacked<span class="op">=</span><span class="va">False</span>, <span class="op">\</span></span>
+<span id="cb19-3"><a href="#cb19-3"></a>            alpha<span class="op">=</span><span class="fl">0.5</span>, figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="dv">5</span>))<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="kapitel5_files/figure-html/cell-20-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Zunächst fällt auf, dass die Portfoliogewichte nach dem Black-Litterman Verfahren im Vergleich zur Zusammensetzung des Portfolios nach Markowitz weitaus ausgewogener sind. Hierbei zeigt sich der bereits angesprochene Vorteil des Black-Litterman Ansatzes gegenüber der Portfoliooptimierung nach Markowitz. Das Black-Litterman Portfolio orientiert sich in seiner Allokation an der dem Portfolio Manager vorschwebenden Diversifikation (gemäß Referenzportfolio). Das Black-Litterman Portfolio erfüllt damit die Forderungen der Praxis, ein hinreichend diversifiziertes Portfolio zu bilden, keine extremen Portfoliogewichtungen oder gar Short-Positionen zu enthalten und sich (eventuell) an einer Benchmark zu orientieren.</p>
+<section id="markowitz-portfoliooptimierung-mit-restriktionen-corner-portfolios" class="level4" data-number="6.6.5.1">
+<h4 data-number="6.6.5.1" class="anchored" data-anchor-id="markowitz-portfoliooptimierung-mit-restriktionen-corner-portfolios"><span class="header-section-number">6.6.5.1</span> Markowitz-Portfoliooptimierung mit Restriktionen: Corner-Portfolios</h4>
+<p>Die oben dargestellte Portfolioallokation nach Markowitz stellt in der Praxis eine oft nicht realisierbare Portfoliokonstruktion dar - im Gegensatz zur Portfolioallokation nach Black und Litterman. Für den Fall einer Portfoliooptimierung nach Markowitz stellt die Einführung von Nebenbedingungen einen denkbaren Lösungsansatz dar. Einerseits könnten für Wertpapiere individuelle Ober- und Untergrenzen gesetzt werden. Andererseits könnte grundsätzlich ein Leerverkaufsverbot aus firmenpolitischen Gründen oder externen Restriktionen in den Nebenbedingungen festgelegt werden.</p>
+<p>Aus diesem Grund wird im Folgenden eine Leerverkaufsrestriktion eingeführt. Dieses Leerverkaufsverbot hat in der Fallstudie allerdings nur Auswirkungen auf die Portfoliokonstruktion nach Markowitz, da die Gewichte im Black-Litterman Portfolio ohnehin positiv sind. Wie zuvor bei den Schwächen des Markowitz-Ansatzes genannt, resultieren aber aus einer Leerverkaufsrestriktion häufig die so genannten <strong>Corner-Portfolios</strong>. Dieses Problem wird auch in der Fallstudie klar ersichtlich.</p>
+<p>Zunächst berechnen wir die Effizienzkurven unter Verwendung der Black-Litterman erwarteten Renditen und der klassischen, historisch geschätzten Renditeerwartungswerte.</p>
+</section>
+<section id="berechnung-der-effizienzkurven-für-bl-und-historisch-geschätzte-erwartete-renditen" class="level4" data-number="6.6.5.2">
+<h4 data-number="6.6.5.2" class="anchored" data-anchor-id="berechnung-der-effizienzkurven-für-bl-und-historisch-geschätzte-erwartete-renditen"><span class="header-section-number">6.6.5.2</span> Berechnung der Effizienzkurven für BL und historisch geschätzte erwartete Renditen</h4>
+<div id="cell-38" class="cell" data-execution_count="25">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1"></a><span class="co"># use equal weights "Weight_1N" as starting values </span></span>
+<span id="cb20-2"><a href="#cb20-2"></a>Weight_1N <span class="op">=</span> np.tile(<span class="fl">1.0</span><span class="op">/</span>means.shape[<span class="dv">0</span>], means.shape[<span class="dv">0</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>Definition der beiden Zielfunktionen für das <em>Globale Minimum Varianz Portfolio (GMVP)</em> und das <em>Maximum Ertrags Portfolio (MRP)</em>.</p>
+<div id="cell-40" class="cell" data-execution_count="26">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1"></a><span class="co"># definition of target function for GMVP to be minimized</span></span>
+<span id="cb21-2"><a href="#cb21-2"></a><span class="kw">def</span> calculate_portfolio_var(w,Sigma):</span>
+<span id="cb21-3"><a href="#cb21-3"></a>    <span class="co"># function that calculates portfolio risk</span></span>
+<span id="cb21-4"><a href="#cb21-4"></a>    w <span class="op">=</span> np.matrix(w) <span class="co"># w is a row (not column!) vector</span></span>
+<span id="cb21-5"><a href="#cb21-5"></a>    <span class="cf">return</span> (w<span class="op">*</span>Sigma<span class="op">*</span>w.T)[<span class="dv">0</span>,<span class="dv">0</span>]</span>
+<span id="cb21-6"><a href="#cb21-6"></a></span>
+<span id="cb21-7"><a href="#cb21-7"></a><span class="co"># definition of target function for MRP to be maximized</span></span>
+<span id="cb21-8"><a href="#cb21-8"></a><span class="kw">def</span> calculate_negative_portfolio_ret(w,means):</span>
+<span id="cb21-9"><a href="#cb21-9"></a>    <span class="co"># function that calculates portfolio risk</span></span>
+<span id="cb21-10"><a href="#cb21-10"></a>    w <span class="op">=</span> np.matrix(w) <span class="co"># w is a row (not column!) vector</span></span>
+<span id="cb21-11"><a href="#cb21-11"></a>    means <span class="op">=</span> np.matrix(means)</span>
+<span id="cb21-12"><a href="#cb21-12"></a>    <span class="cf">return</span> <span class="op">-</span>(w<span class="op">*</span>means.T)[<span class="dv">0</span>,<span class="dv">0</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="cell-41" class="cell" data-execution_count="27">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1"></a><span class="co"># calculation of GMVP and MRP portfolio weights</span></span>
+<span id="cb22-2"><a href="#cb22-2"></a><span class="co"># GMVP without short-sales</span></span>
+<span id="cb22-3"><a href="#cb22-3"></a>bnd<span class="op">=</span>[(<span class="dv">0</span>, <span class="dv">1</span>),(<span class="dv">0</span>, <span class="dv">1</span>),(<span class="dv">0</span>, <span class="dv">1</span>),(<span class="dv">0</span>, <span class="dv">1</span>),(<span class="dv">0</span>, <span class="dv">1</span>),</span>
+<span id="cb22-4"><a href="#cb22-4"></a>     (<span class="dv">0</span>, <span class="dv">1</span>),(<span class="dv">0</span>, <span class="dv">1</span>),(<span class="dv">0</span>, <span class="dv">1</span>),(<span class="dv">0</span>, <span class="dv">1</span>),(<span class="dv">0</span>, <span class="dv">1</span>)] <span class="co"># only positive weights</span></span>
+<span id="cb22-5"><a href="#cb22-5"></a>cons <span class="op">=</span> ({<span class="st">'type'</span>: <span class="st">'eq'</span>, <span class="st">'fun'</span>: <span class="kw">lambda</span> x:  np.<span class="bu">sum</span>(x)<span class="op">-</span><span class="fl">1.0</span>})</span>
+<span id="cb22-6"><a href="#cb22-6"></a></span>
+<span id="cb22-7"><a href="#cb22-7"></a>res2<span class="op">=</span> minimize(calculate_portfolio_var, Weight_1N, args<span class="op">=</span>Sigma, </span>
+<span id="cb22-8"><a href="#cb22-8"></a>               bounds <span class="op">=</span> bnd, method<span class="op">=</span><span class="st">'SLSQP'</span>,constraints<span class="op">=</span>cons,tol<span class="op">=</span><span class="fl">1e-10</span>, </span>
+<span id="cb22-9"><a href="#cb22-9"></a>               options<span class="op">=</span>{<span class="st">'disp'</span>: <span class="va">True</span>})</span>
+<span id="cb22-10"><a href="#cb22-10"></a>Weight_GMV <span class="op">=</span> res2.x</span>
+<span id="cb22-11"><a href="#cb22-11"></a></span>
+<span id="cb22-12"><a href="#cb22-12"></a><span class="co"># MRP portfolio</span></span>
+<span id="cb22-13"><a href="#cb22-13"></a><span class="co"># for historic mean returns</span></span>
+<span id="cb22-14"><a href="#cb22-14"></a>res4<span class="op">=</span> minimize(calculate_negative_portfolio_ret, Weight_1N, args<span class="op">=</span>means, </span>
+<span id="cb22-15"><a href="#cb22-15"></a>               bounds <span class="op">=</span> bnd, method<span class="op">=</span><span class="st">'SLSQP'</span>,constraints<span class="op">=</span>cons,tol<span class="op">=</span><span class="fl">1e-10</span>, </span>
+<span id="cb22-16"><a href="#cb22-16"></a>               options<span class="op">=</span>{<span class="st">'disp'</span>: <span class="va">True</span>})</span>
+<span id="cb22-17"><a href="#cb22-17"></a>Weight_MRP_hist <span class="op">=</span> res4.x</span>
+<span id="cb22-18"><a href="#cb22-18"></a></span>
+<span id="cb22-19"><a href="#cb22-19"></a><span class="co"># for BL mean returns</span></span>
+<span id="cb22-20"><a href="#cb22-20"></a>res4<span class="op">=</span> minimize(calculate_negative_portfolio_ret, Weight_1N, args<span class="op">=</span>bl_means.T, </span>
+<span id="cb22-21"><a href="#cb22-21"></a>               bounds <span class="op">=</span> bnd, method<span class="op">=</span><span class="st">'SLSQP'</span>,constraints<span class="op">=</span>cons,tol<span class="op">=</span><span class="fl">1e-10</span>, </span>
+<span id="cb22-22"><a href="#cb22-22"></a>               options<span class="op">=</span>{<span class="st">'disp'</span>: <span class="va">True</span>})</span>
+<span id="cb22-23"><a href="#cb22-23"></a>Weight_MRP_bl <span class="op">=</span> res4.x</span>
+<span id="cb22-24"><a href="#cb22-24"></a></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Optimization terminated successfully    (Exit mode 0)
+            Current function value: 0.01798288803981981
+            Iterations: 20
+            Function evaluations: 220
+            Gradient evaluations: 20
+Optimization terminated successfully    (Exit mode 0)
+            Current function value: -0.059248481306705396
+            Iterations: 13
+            Function evaluations: 143
+            Gradient evaluations: 13
+Optimization terminated successfully    (Exit mode 0)
+            Current function value: -0.12265320544211984
+            Iterations: 10
+            Function evaluations: 110
+            Gradient evaluations: 10</code></pre>
+</div>
+</div>
+<div id="cell-42" class="cell" data-execution_count="28">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1"></a><span class="co"># calculation of min and max target return</span></span>
+<span id="cb24-2"><a href="#cb24-2"></a><span class="kw">def</span> calculate_portfolio_ret(w,means):</span>
+<span id="cb24-3"><a href="#cb24-3"></a>    <span class="co"># function that calculates portfolio risk</span></span>
+<span id="cb24-4"><a href="#cb24-4"></a>    w <span class="op">=</span> np.matrix(w) <span class="co"># w is a row (not column!) vector</span></span>
+<span id="cb24-5"><a href="#cb24-5"></a>    means <span class="op">=</span> np.matrix(means)</span>
+<span id="cb24-6"><a href="#cb24-6"></a>    <span class="cf">return</span> (w<span class="op">*</span>means.T)[<span class="dv">0</span>,<span class="dv">0</span>]</span>
+<span id="cb24-7"><a href="#cb24-7"></a></span>
+<span id="cb24-8"><a href="#cb24-8"></a></span>
+<span id="cb24-9"><a href="#cb24-9"></a><span class="co"># historic</span></span>
+<span id="cb24-10"><a href="#cb24-10"></a>min_hist <span class="op">=</span> calculate_portfolio_ret(Weight_GMV, means)</span>
+<span id="cb24-11"><a href="#cb24-11"></a>max_hist <span class="op">=</span> calculate_portfolio_ret(Weight_MRP_hist, means)</span>
+<span id="cb24-12"><a href="#cb24-12"></a></span>
+<span id="cb24-13"><a href="#cb24-13"></a><span class="co"># BL</span></span>
+<span id="cb24-14"><a href="#cb24-14"></a>min_bl <span class="op">=</span> calculate_portfolio_ret(Weight_GMV, bl_means.T)</span>
+<span id="cb24-15"><a href="#cb24-15"></a>max_bl <span class="op">=</span> calculate_portfolio_ret(Weight_MRP_bl, bl_means.T)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>Berechnung der Effizienzkurven (Code analog zum Kapitel 2 <strong>Absolute Portfoliooptimierung</strong>).</p>
+<div id="cell-44" class="cell" data-execution_count="30">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1"></a><span class="co"># efficient frontier with hist. mean returns</span></span>
+<span id="cb25-2"><a href="#cb25-2"></a>V_Target_hist <span class="op">=</span> np.linspace(min_hist, max_hist, num<span class="op">=</span><span class="dv">45</span>)</span>
+<span id="cb25-3"><a href="#cb25-3"></a>V_Risk_hist <span class="op">=</span> np.zeros(V_Target_hist.shape)</span>
+<span id="cb25-4"><a href="#cb25-4"></a>V_Return_hist <span class="op">=</span> np.zeros(V_Target_hist.shape)</span>
+<span id="cb25-5"><a href="#cb25-5"></a>V_Weight_hist <span class="op">=</span> np.zeros((V_Target_hist.shape[<span class="dv">0</span>], means.shape[<span class="dv">0</span>]))</span>
+<span id="cb25-6"><a href="#cb25-6"></a><span class="cf">for</span> idx, Target_Return <span class="kw">in</span> <span class="bu">enumerate</span>(V_Target_hist):</span>
+<span id="cb25-7"><a href="#cb25-7"></a>    cons <span class="op">=</span> ({<span class="st">'type'</span>: <span class="st">'eq'</span>, <span class="st">'fun'</span>: <span class="kw">lambda</span> x:  np.<span class="bu">sum</span>(x)<span class="op">-</span><span class="fl">1.0</span>},</span>
+<span id="cb25-8"><a href="#cb25-8"></a>            {<span class="st">'type'</span>: <span class="st">'eq'</span>, <span class="st">'fun'</span>: <span class="kw">lambda</span> x:  calculate_portfolio_ret(x,means)<span class="op">-</span>Target_Return})</span>
+<span id="cb25-9"><a href="#cb25-9"></a>    res<span class="op">=</span> minimize(calculate_portfolio_var, Weight_1N, args<span class="op">=</span>Sigma, </span>
+<span id="cb25-10"><a href="#cb25-10"></a>               bounds <span class="op">=</span> bnd, method<span class="op">=</span><span class="st">'SLSQP'</span>,constraints<span class="op">=</span>cons,tol<span class="op">=</span><span class="fl">1e-10</span>)</span>
+<span id="cb25-11"><a href="#cb25-11"></a>    V_Weight_hist[idx, :] <span class="op">=</span> res.x.T</span>
+<span id="cb25-12"><a href="#cb25-12"></a>    V_Return_hist[idx] <span class="op">=</span> calculate_portfolio_ret(res.x,means)</span>
+<span id="cb25-13"><a href="#cb25-13"></a>    V_Risk_hist[idx] <span class="op">=</span> np.sqrt(calculate_portfolio_var(res.x, Sigma))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="cell-45" class="cell" data-execution_count="31">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1"></a><span class="co"># efficient frontier with hist. mean returns</span></span>
+<span id="cb26-2"><a href="#cb26-2"></a>V_Target_bl <span class="op">=</span> np.linspace(min_bl, max_bl, num<span class="op">=</span><span class="dv">45</span>)</span>
+<span id="cb26-3"><a href="#cb26-3"></a>V_Risk_bl <span class="op">=</span> np.zeros(V_Target_bl.shape)</span>
+<span id="cb26-4"><a href="#cb26-4"></a>V_Return_bl <span class="op">=</span> np.zeros(V_Target_bl.shape)</span>
+<span id="cb26-5"><a href="#cb26-5"></a>V_Weight_bl <span class="op">=</span> np.zeros((V_Target_bl.shape[<span class="dv">0</span>], means.shape[<span class="dv">0</span>]))</span>
+<span id="cb26-6"><a href="#cb26-6"></a><span class="cf">for</span> idx, Target_Return <span class="kw">in</span> <span class="bu">enumerate</span>(V_Target_bl):</span>
+<span id="cb26-7"><a href="#cb26-7"></a>    cons <span class="op">=</span> ({<span class="st">'type'</span>: <span class="st">'eq'</span>, <span class="st">'fun'</span>: <span class="kw">lambda</span> x:  np.<span class="bu">sum</span>(x)<span class="op">-</span><span class="fl">1.0</span>},</span>
+<span id="cb26-8"><a href="#cb26-8"></a>            {<span class="st">'type'</span>: <span class="st">'eq'</span>, <span class="st">'fun'</span>: <span class="kw">lambda</span> x:  calculate_portfolio_ret(x,bl_means.T)<span class="op">-</span>Target_Return})</span>
+<span id="cb26-9"><a href="#cb26-9"></a>    res<span class="op">=</span> minimize(calculate_portfolio_var, Weight_1N, args<span class="op">=</span>Sigma, </span>
+<span id="cb26-10"><a href="#cb26-10"></a>               bounds <span class="op">=</span> bnd, method<span class="op">=</span><span class="st">'SLSQP'</span>,constraints<span class="op">=</span>cons,tol<span class="op">=</span><span class="fl">1e-10</span>)</span>
+<span id="cb26-11"><a href="#cb26-11"></a>    V_Weight_bl[idx, :] <span class="op">=</span> res.x.T</span>
+<span id="cb26-12"><a href="#cb26-12"></a>    V_Return_bl[idx] <span class="op">=</span> calculate_portfolio_ret(res.x,bl_means.T)</span>
+<span id="cb26-13"><a href="#cb26-13"></a>    V_Risk_bl[idx] <span class="op">=</span> np.sqrt(calculate_portfolio_var(res.x, Sigma))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>Graphische Darstellung der Kurven (Code analog zum Kapitel 2 <strong>Absolute Portfoliooptimierung</strong>)</p>
+<div id="cell-47" class="cell" data-execution_count="32">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1"></a>fig1 <span class="op">=</span> plt.figure(num<span class="op">=</span><span class="dv">1</span>, facecolor<span class="op">=</span><span class="st">'w'</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">5</span>))</span>
+<span id="cb27-2"><a href="#cb27-2"></a>ax <span class="op">=</span> fig1.add_subplot(<span class="dv">111</span>)</span>
+<span id="cb27-3"><a href="#cb27-3"></a>plt.plot(V_Risk_hist, V_Target_hist, <span class="st">'g:'</span>, label<span class="op">=</span><span class="st">'Hist.-Efficient frontier without short selling'</span>)</span>
+<span id="cb27-4"><a href="#cb27-4"></a>plt.plot(V_Risk_bl, V_Target_bl, <span class="st">'g-'</span>, label<span class="op">=</span><span class="st">'BL-Efficient frontier without short selling'</span>)</span>
+<span id="cb27-5"><a href="#cb27-5"></a>plt.plot(np.sqrt(np.diagonal(Sigma)), means, <span class="st">'rx'</span>, label<span class="op">=</span><span class="st">'Asset'</span>)</span>
+<span id="cb27-6"><a href="#cb27-6"></a><span class="cf">for</span> i, txt <span class="kw">in</span> <span class="bu">enumerate</span>(frame1.columns):</span>
+<span id="cb27-7"><a href="#cb27-7"></a>   ax.annotate(txt, (np.sqrt(np.diagonal(Sigma))[i],means[i]))</span>
+<span id="cb27-8"><a href="#cb27-8"></a>plt.legend(loc<span class="op">=</span><span class="st">'best'</span>,  frameon<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb27-9"><a href="#cb27-9"></a>plt.xlabel(<span class="st">'Standard deviation'</span>)</span>
+<span id="cb27-10"><a href="#cb27-10"></a>plt.ylabel(<span class="st">'Expected return'</span>)</span>
+<span id="cb27-11"><a href="#cb27-11"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="kapitel5_files/figure-html/cell-27-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Es ist erkennbar, dass die Effizienzkurve der Portfolios nach Markowitz wesentlich steiler verläuft als die der Black-Litterman Portfolios. Die Black-Litterman Portfolios sind breiter diversifiziert und dominieren in der Fallstudie die Portfolios nach Markowitz in jedem Punkt, wodurch sie stets ein besseres Rendite-Risiko-Verhältnis liefern.</p>
+<p>Die nachfolgende Abbildung zeigt wie sich die Portfoliogewichte unzureichend diversifizierter Corner-Portfolios (entlang der Effizienzkurve) bei der Markowitz Optimierung mit Leerverkaufsrestriktion (d.h., positive Bestandsgrenzen) zusammensetzen.</p>
+<p>Die optimalen Portfolios setzen sich maximal aus fünf Wertpapieren (mit einem jeweils sehr geringen Anteil für Microsoft) zusammen und schon bei einer Zielrendite von etwas mehr als 5 % besteht das Portfolio faktisch nur noch aus IBM.</p>
+<div id="cell-50" class="cell" data-execution_count="33">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1"></a>fig2 <span class="op">=</span> plt.figure(num<span class="op">=</span><span class="dv">2</span>, facecolor<span class="op">=</span><span class="st">'w'</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">5</span>))</span>
+<span id="cb28-2"><a href="#cb28-2"></a>plt.stackplot(V_Target_hist, V_Weight_hist.T<span class="op">*</span><span class="dv">100</span>)</span>
+<span id="cb28-3"><a href="#cb28-3"></a>plt.axis([min_hist, max_hist, <span class="fl">0.0</span>, <span class="fl">100.0</span>])</span>
+<span id="cb28-4"><a href="#cb28-4"></a>plt.legend(<span class="bu">list</span>(frame1.columns),</span>
+<span id="cb28-5"><a href="#cb28-5"></a>           loc<span class="op">=</span><span class="st">'upper left'</span>, bbox_to_anchor<span class="op">=</span>(<span class="fl">1.0</span>, <span class="fl">1.0</span>), frameon<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb28-6"><a href="#cb28-6"></a>plt.xlabel(<span class="st">'Target expected return'</span>)</span>
+<span id="cb28-7"><a href="#cb28-7"></a>plt.ylabel(<span class="st">'Allocation weight (%)'</span>)</span>
+<span id="cb28-8"><a href="#cb28-8"></a>plt.title(<span class="st">'Markowitz Allocations'</span>)</span>
+<span id="cb28-9"><a href="#cb28-9"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="kapitel5_files/figure-html/cell-28-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Im Gegensatz dazu verhalten sich die Gewichte der Black-Litterman Portfolios entlang der Effizienzkurve deutlich ausgewogener und bilden jeweils wesentlich breiter diversifizierte Portfolios.</p>
+<div id="cell-52" class="cell" data-execution_count="34">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1"></a>fig2 <span class="op">=</span> plt.figure(num<span class="op">=</span><span class="dv">2</span>, facecolor<span class="op">=</span><span class="st">'w'</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">5</span>))</span>
+<span id="cb29-2"><a href="#cb29-2"></a>plt.stackplot(V_Target_bl, V_Weight_bl.T<span class="op">*</span><span class="dv">100</span>)</span>
+<span id="cb29-3"><a href="#cb29-3"></a>plt.axis([min_bl, max_bl, <span class="fl">0.0</span>, <span class="fl">100.0</span>])</span>
+<span id="cb29-4"><a href="#cb29-4"></a>plt.legend(<span class="bu">list</span>(frame1.columns),</span>
+<span id="cb29-5"><a href="#cb29-5"></a>           loc<span class="op">=</span><span class="st">'upper left'</span>, bbox_to_anchor<span class="op">=</span>(<span class="fl">1.0</span>, <span class="fl">1.0</span>), frameon<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb29-6"><a href="#cb29-6"></a>plt.xlabel(<span class="st">'Target expected return'</span>)</span>
+<span id="cb29-7"><a href="#cb29-7"></a>plt.ylabel(<span class="st">'Allocation weight (%)'</span>)</span>
+<span id="cb29-8"><a href="#cb29-8"></a>plt.title(<span class="st">'Black-Litterman Allocations'</span>)</span>
+<span id="cb29-9"><a href="#cb29-9"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="kapitel5_files/figure-html/cell-29-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="literatur" class="level2" data-number="6.7">
+<h2 data-number="6.7" class="anchored" data-anchor-id="literatur"><span class="header-section-number">6.7</span> Literatur</h2>
+<p>Black, F./ Litterman, R. (1991): Global Asset Allocation with Equities, Bonds and Currencies. “Fixed Income Research”, Goldman, Sachs &amp; Company, Oktober.</p>
+<p>Black, F./ Litterman, R. (1992): Global Portfolio Optimization. In: Financial Analysts Journal, September-Oktober, S. 28-43.</p>
+<p>Drobetz, W. (2002): Einsatz des Black-Litterman Verfahrens in der Asset Allocation. In: Dichtl, H./Kleeberg, J. M./Schlenger, C (Hrsg.). Handbuch Asset Allocation: Innovative Konzepte zur systematischen Portfolioplanung, S. 204-239, Bad Soden: Uhlenbruch Verlag.</p>
+<p>Idzorek, T.M. (2004): A Step-by-Step Guide to the Black-Litterman Model, incorporating user-specified confidence levels. Arbeitspapier, Zephyr Associates, Inc.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./kapitel4.html" class="pagination-link" aria-label="Verbesserte Schätzung der Inputparameter: Geschrumpfte Schätzer">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Verbesserte Schätzung der Inputparameter: Geschrumpfte Schätzer</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./kapitel6.html" class="pagination-link" aria-label="Berücksichtigung des Schätzrisikos: Portfolio-Resampling">
+        <span class="nav-page-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Berücksichtigung des Schätzrisikos: Portfolio-Resampling</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+<script src="site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

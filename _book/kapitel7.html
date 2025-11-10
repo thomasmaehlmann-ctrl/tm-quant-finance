@@ -1,0 +1,2662 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.25">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>8&nbsp; Risikogesteuerte Ansätze: Verzicht auf die Schätzung der erwarteten Rendite – Grundlagen des quantitativen Portfoliomanagements mit Python</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./kapitel8.html" rel="next">
+<link href="./kapitel6.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-707d8167ce6003fca903bfe2be84ab7f.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-e0fdce12ac1367d4b47c179a2935dd10.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark-74c88ba48ad0bebf983f0ffd06dd1671.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap-e0fdce12ac1367d4b47c179a2935dd10.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-sidebar floating quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./kapitel7.html"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Risikogesteuerte Ansätze: Verzicht auf die Schätzung der erwarteten Rendite</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+      <a href="./index.html" class="sidebar-logo-link">
+      </a>
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Grundlagen des quantitativen Portfoliomanagements mit Python</a> 
+        <div class="sidebar-tools-main">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Willkommen zu „Grundlagen des quantitativen Portfoliomanagements mit Python“</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./kapitel1.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Grundlagen der klassischen (absoluten) Portfoliooptimierung</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./kapitel2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Relative Portfoliooptimierung</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./kapitel3.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Schätzrisiken in der Portfoliotheorie</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./kapitel4.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Verbesserte Schätzung der Inputparameter: Geschrumpfte Schätzer</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./kapitel5.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Das Black-Litterman Modell</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./kapitel6.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Berücksichtigung des Schätzrisikos: Portfolio-Resampling</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./kapitel7.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Risikogesteuerte Ansätze: Verzicht auf die Schätzung der erwarteten Rendite</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./kapitel8.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Index Tracking</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./projekt.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Abschlußprojekt</span></span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#einleitung" id="toc-einleitung" class="nav-link active" data-scroll-target="#einleitung"><span class="header-section-number">8.1</span> Einleitung</a></li>
+  <li><a href="#der-risk-parity-ansatz" id="toc-der-risk-parity-ansatz" class="nav-link" data-scroll-target="#der-risk-parity-ansatz"><span class="header-section-number">8.2</span> Der Risk Parity-Ansatz</a>
+  <ul class="collapse">
+  <li><a href="#grundlagen" id="toc-grundlagen" class="nav-link" data-scroll-target="#grundlagen"><span class="header-section-number">8.2.1</span> Grundlagen</a></li>
+  <li><a href="#equal-risk-budget--erb--strategie" id="toc-equal-risk-budget--erb--strategie" class="nav-link" data-scroll-target="#equal-risk-budget--erb--strategie"><span class="header-section-number">8.2.2</span> Equal-Risk-Budget- (ERB-) Strategie</a></li>
+  <li><a href="#equal-risk-contribution--erc--strategie" id="toc-equal-risk-contribution--erc--strategie" class="nav-link" data-scroll-target="#equal-risk-contribution--erc--strategie"><span class="header-section-number">8.2.3</span> Equal-Risk-Contribution- (ERC-) Strategie</a></li>
+  </ul></li>
+  <li><a href="#alternative-risikogesteuerte-ansätze" id="toc-alternative-risikogesteuerte-ansätze" class="nav-link" data-scroll-target="#alternative-risikogesteuerte-ansätze"><span class="header-section-number">8.3</span> Alternative risikogesteuerte Ansätze</a>
+  <ul class="collapse">
+  <li><a href="#equally-weighted--ew--ansatz" id="toc-equally-weighted--ew--ansatz" class="nav-link" data-scroll-target="#equally-weighted--ew--ansatz"><span class="header-section-number">8.3.1</span> Equally-Weighted- (EW-) Ansatz</a></li>
+  <li><a href="#global-minimum-varianz--gmv-ansatz" id="toc-global-minimum-varianz--gmv-ansatz" class="nav-link" data-scroll-target="#global-minimum-varianz--gmv-ansatz"><span class="header-section-number">8.3.2</span> Global-Minimum-Varianz- (GMV) Ansatz</a></li>
+  <li><a href="#maximum-diversification--md--ansatz" id="toc-maximum-diversification--md--ansatz" class="nav-link" data-scroll-target="#maximum-diversification--md--ansatz"><span class="header-section-number">8.3.3</span> Maximum-Diversification- (MD-) Ansatz</a></li>
+  </ul></li>
+  <li><a href="#beginn-der-fallstudie" id="toc-beginn-der-fallstudie" class="nav-link" data-scroll-target="#beginn-der-fallstudie"><span class="header-section-number">8.4</span> Beginn der Fallstudie</a>
+  <ul class="collapse">
+  <li><a href="#equal-risk-budget-strategie" id="toc-equal-risk-budget-strategie" class="nav-link" data-scroll-target="#equal-risk-budget-strategie"><span class="header-section-number">8.4.1</span> Equal-Risk-Budget-Strategie</a></li>
+  <li><a href="#equal-risk-contribution-strategie" id="toc-equal-risk-contribution-strategie" class="nav-link" data-scroll-target="#equal-risk-contribution-strategie"><span class="header-section-number">8.4.2</span> Equal-Risk-Contribution-Strategie</a></li>
+  <li><a href="#equally-weighted-strategie" id="toc-equally-weighted-strategie" class="nav-link" data-scroll-target="#equally-weighted-strategie"><span class="header-section-number">8.4.3</span> Equally-Weighted-Strategie</a></li>
+  <li><a href="#global-minimum-varianz-strategie" id="toc-global-minimum-varianz-strategie" class="nav-link" data-scroll-target="#global-minimum-varianz-strategie"><span class="header-section-number">8.4.4</span> Global-Minimum-Varianz-Strategie</a></li>
+  <li><a href="#maximum-diversification-strategie" id="toc-maximum-diversification-strategie" class="nav-link" data-scroll-target="#maximum-diversification-strategie"><span class="header-section-number">8.4.5</span> Maximum-Diversification-Strategie</a></li>
+  <li><a href="#vergleichende-analyse-der-fünf-ausgewählten-ansätze" id="toc-vergleichende-analyse-der-fünf-ausgewählten-ansätze" class="nav-link" data-scroll-target="#vergleichende-analyse-der-fünf-ausgewählten-ansätze"><span class="header-section-number">8.4.6</span> Vergleichende Analyse der fünf ausgewählten Ansätze</a></li>
+  </ul></li>
+  <li><a href="#literatur" id="toc-literatur" class="nav-link" data-scroll-target="#literatur"><span class="header-section-number">8.5</span> Literatur</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Risikogesteuerte Ansätze: Verzicht auf die Schätzung der erwarteten Rendite</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="einleitung" class="level2" data-number="8.1">
+<h2 data-number="8.1" class="anchored" data-anchor-id="einleitung"><span class="header-section-number">8.1</span> Einleitung</h2>
+<p>Wir haben gesehen, dass sich erwartete Renditen mit dem traditionellen Schätzansatz des arithmetischen Mittels nur sehr ungenau schätzen lassen. Zudem führen insbesondere Schätzfehler in den erwarteten Renditen typischerweise zu extremen und suboptimalen Portfoliogewichten. Daneben produziert die reine Anwendung des klassischen Mittelwert-Varianz Ansatzes häufig Portfolios mit extremen Gewichten. Eine Möglichkeit diese Problematik zu mildern besteht darin, ganz auf die Schätzung erwarteter Renditen bei der Portfoliokonstruktion zu verzichten. Dies führt uns zu den sogenannten <strong>risikogesteuerten (oder <em>Riskbalancing</em> basierten) Ansätzen</strong> der Assetallokation. Eine risikogesteuerte Portfoliokonstruktion fokusiert auf den Ausgleich der <em>Risikoallokation</em> zwischen den Assets im Portfolio, nicht auf den optimalen Trade-off zwischen Zielrendite und Risiko des Portfolios.</p>
+<p>Zusätzlich zur Adressierung der Schätzfehlerproblematik scheint eine Assetklassen-Gewichtung entsprechend des eingegangenen Risikos auch vor dem Hintergrund der Erfahrungen aus der Finanzmarktkrise 2008-2009 sinnvoll zu sein. In der Finanzmarktkrise konnten auch bei gut diversifizierten Portfolios z.T. hohe Verluste und Wertschwankungen beobachtet werden. Infolgedessen wird auch die Wirkung der Diversifikation kritischer gesehen, die in Krisenzeiten aufgrund der dann steigenden Korrelationen geringer ausfällt. Ferner erscheint der Diversifikationseffekt bei zunehmender Anzahl an Assetklassen in den Portfolios begrenzt, sofern diese zusätzlichen Assetklassen eine geringe Liquidität und Transparenz aufweisen, denn hierdurch können zusätzliche, unerwünschte Risiken entstehen.</p>
+<p>Vor diesem Hintergrund (und aufgrund der zudem zu beobachtenden unzureichenden Verlässlichkeit langfristiger Renditeprognosen) wurden Steuerungskonzepte entwickelt, die nicht auf der Prognose von erwarteten Renditen, sondern nur auf Volatilitäts- und Korrelationsannahmen basieren. Grundsätzlich orientiert sich dabei die Assetallokation am Risiko. Beispielsweise kann eine Reduzierung des Gewichts einer Assetklasse in den Fällen vorgenommen werden, in denen ihre Volatilität bzw. ihre Korrelation zu einer anderen Assetklasse steigt.</p>
+<p>Als Konzept zum Risikoausgleich wurde u.a. der sogenannte <strong>Risk Parity-Ansatz</strong> entwickelt. Das Ziel besteht dabei, das Risiko der jeweiligen Assetklassen möglichst auszugleichen, so dass nicht eine einzelne Assetklasse (z.B. Aktien) einen Verlust bei einem gesamten Portfolio verursacht. Innerhalb des Risk Parity-Ansatzes lassen sich die beiden Ausprägungen <strong>Equal-Risk-Budget- (ERB-)</strong> Strategie und <strong>Equal-Risk-Contribution- (ERC-)</strong> Strategie unterscheiden. Zu alternativen risikobasierten Assetallokations-Konzepten zählen der <strong>Global-Minimum-Varianz-Ansatz</strong> und der <strong>Maximum-Diversification-Ansatz</strong>. Die beiden letzteren Ansätze zielen allerdings nicht direkt auf gleiche Risikobudgets bzw. Risikobeiträge ab. Eine weitere Möglichkeit zum Risikoausgleich besteht darin, ein “naives” Portfolio zu bilden, bei dem die Assetklassen gleich gewichtet sind (<strong>Equally-Weighted-Ansatz</strong>).</p>
+<p>Nach der Einleitung wird im nächsten Kapitel zunächst auf die Grundlagen des Risk Parity-Ansatzes eingegangen, bevor anschließend die Equal-Risk-Budget- (ERB-) Strategie und die Equal-Risk-Contribution- (ERC-) Strategie vorgestellt werden. Daran schließt sich die Darstellung der alternativen Riskbalancing-Konzepte Equally-Weighted-, Global-Minimum-Varianz- und Maximum-Diversification-Ansatz an. Nach einer Darstellung der jeweiligen Konzepte wird abschließend im Rahmen einer Fallstudie eine vergleichende Analyse der fünf Ansätze durchgeführt.</p>
+</section>
+<section id="der-risk-parity-ansatz" class="level2" data-number="8.2">
+<h2 data-number="8.2" class="anchored" data-anchor-id="der-risk-parity-ansatz"><span class="header-section-number">8.2</span> Der Risk Parity-Ansatz</h2>
+<section id="grundlagen" class="level3" data-number="8.2.1">
+<h3 data-number="8.2.1" class="anchored" data-anchor-id="grundlagen"><span class="header-section-number">8.2.1</span> Grundlagen</h3>
+<p>Eine traditionelle, kapitalbasierte Aufteilung von z.B. 50% Aktienanteil und 50% Anleihenanteil im Portfolio kann dazu führen, dass die Rendite und das Risiko des Portfolios maßgeblich von der Aktienrendite beeinflusst werden, während die Anleihen keinen besonderen Einfluss haben. Somit liegt tatsächlich keine wirkliche Diversifizierung des Portfolios vor. Beim Risk Parity-Ansatz wird dagegen im Vergleich zur traditionellen Assetallokation deutlich weniger in Aktien und mehr in andere Assetklassen investiert. Sollen bei einem Aktien-/Anleihenportfolio beide Assetklassen gleichermaßen zum Gesamtrisiko beitragen (Balanced Risk Portfolio), so müssten Aktien entsprechend einen geringeren Anteil zugunsten der Anleihen im Portfolio enthalten. Somit kann das Risikobudget des Portfolios breiter über andere Anlagen gestreut werden. Entsprechend können Portfoliorenditen erwartet werden, die geringere Volatilitäten aufweisen.</p>
+<p>Anders als z.B. die Assetallokation gemäß Portfoliotheorie benötigt der Risk Parity-Ansatz grundsätzlich keine Prognosen bezüglich der erwarteten Renditen. Allerdings müssen ebenfalls Risikokennzahlen und - je nach gewähltem Ansatz - Korrelationen geschätzt werden. Letzteres gilt nicht für die Equal-Risk-Budget- (ERB-) Strategie als erste Ausprägung des Risk Parity-Ansatzes, da die Gewichtung der einzelnen Anlagen im Portfolio in Abhängigkeit von ihrer inversen Volatilität vorgenommen wird. Dagegen sind Korrelationsschätzungen im Rahmen der zweiten Ausprägung erforderlich. Hierbei handelt es sich um die Equal-Risk-Contribution- (ERC-) Strategie.</p>
+<p>Wir starten mit der folgenden Definition.</p>
+<p><em>Definition</em>: Ein Portfolio das die Bedingung</p>
+<p><span class="math display">\[\begin{equation*}
+w_1\partial_1\sigma_p = \cdots = w_N\partial_N\sigma_p,\quad
+\sigma_p=\sqrt{w\Sigma w^{T}},\quad
+\partial_n\sigma_p = \frac{\partial\sigma_p}{\partial w_n},
+\end{equation*}\]</span> erfüllt, wird als <font color="red">Risk Parity Portfolio</font> bezeichnet.</p>
+<p>Die zugrundeliegende Idee besteht darin, eine gleiche (oder allgemeiner: eine spezifische Ziel-) Risikobudgetierung über alle Portfolioanlagen hinweg zu erreichen. Es können verschiedene Risikomaße verwendet werden, wir beschränken uns hier auf die Standardabweichung <span class="math inline">\(\sigma\)</span>. Bei der Risikoparität geht es darum, dass jeder Vermögenswert in gleicher Weise zur Gesamtvolatilität des Portfolios beiträgt. Dies wird erreicht, indem eine Identität des <strong>Risikobeitrags (RB)</strong> aller Assets gefordert wird. Der Ausdruck <span class="math inline">\(\frac{\partial\sigma_p}{\partial w_n}\)</span> bezeichnet dabei den <strong>marginalen Risikobeitrag (MRB)</strong> des n-ten Assets. Der MRB kennzeichnet das zusätzliche Portfoliorisiko, das durch eine infinitesimal kleine Erhöhung des Anteils des n-ten Assets im Portfolio entsteht und ist formal definiert als die Ableitung der Standardabweichung der Portfoliorendite <span class="math inline">\(\sigma_p\)</span> nach dem Anteil <span class="math inline">\(w_n\)</span>. Der RB wiederum ergibt sich als das Produkt von Anteilsgewicht und MRB. Es gelten somit die folgenden Beziehungen:</p>
+<p>Die Standardabweichung der Portfoliorendite <span class="math inline">\(r_p\)</span> ist bekanntermaßen gegeben durch (Beachten Sie: <span class="math inline">\(w\)</span> ist ein Zeilenvektor):</p>
+<p><span class="math display">\[ \sigma_p=\sqrt{w \Sigma w^{T}} \]</span></p>
+<p>Der Risikobeitrag des n-ten Assets errechnet sich als:</p>
+<p><span class="math display">\[ (1) \quad RB_n= w_n \cdot MRB_n \
+= w_n \cdot \partial_{n}\sigma_p\]</span></p>
+<p>Für den MRB gilt:</p>
+<p><span class="math display">\[  MRB_n= \frac{(\Sigma w^{T})_{n}}{\sigma_p} \]</span></p>
+<p>D.h., der MRB berechnet sich indem die Varianz-Kovarianzmatrix der Assetrenditen mit dem Anteilsvektor zeilenweise multipliziert und aufsummiert wird. Das n-te Element des (Nx1)-Vektors <span class="math inline">\(\Sigma w^{T}\)</span> skaliert mit der Portfoliostandardabweichung ergibt dann den marginalen Risikobeitag des n-ten Assets.</p>
+<p><span class="math display">\[ (2) \quad MRB_n=\frac{\Sigma^N_{j=1}w_j \cdot Cov(r_n,r_j)}{\sigma_p}=\frac{Cov(r_n,r_p)}{\sigma_p} \]</span></p>
+<p>Es lässt sich zeigen, dass die Summe der N Risikobeiträge der Portfoliostandardabweichung entspricht:</p>
+<p><span class="math display">\[ \sigma_p=\sum_{n=1}^{N} RB_{n} \]</span></p>
+<p>Bezieht man den (absoluten) Risikobeitrag RB auf das Gesamtrisiko dess Portfolios <span class="math inline">\((\sigma_p)\)</span>, so erhält man den relativen Beitrag zum Gesamtrisiko (rRB):</p>
+<p><span class="math display">\[ (3) \quad rRB_n =\frac{RB_n}{\sigma_p}=w_n \cdot \frac{Cov(r_n,r_p)}{\sigma^2_p}=w_n \cdot \beta_n, \]</span></p>
+<p>mit <span class="math inline">\(\beta_n=\)</span> Betafaktor des n-ten Assets bezogen auf die Portfoliorendite.</p>
+</section>
+<section id="equal-risk-budget--erb--strategie" class="level3" data-number="8.2.2">
+<h3 data-number="8.2.2" class="anchored" data-anchor-id="equal-risk-budget--erb--strategie"><span class="header-section-number">8.2.2</span> Equal-Risk-Budget- (ERB-) Strategie</h3>
+<p>Das Ziel dieser Strategie ist, dass die <strong>Risikobudgets</strong> für alle Anlagen im Portfolio identisch sind. Es handelt sich hierbei um eine Vereinfachung der oben eingeführten allgemeinen Definition einer Risk Parity Strategie. Unter der Annahme, dass die Standardabweichung das Risikomaß darstellt, werden Risikobudgets der jeweiligen Anlagen als Produkt aus Standardabweichung und Portfolioanteil definiert. Anders als bei den Risikobeiträgen werden somit die Korrelationen zwischen den einzelnen Anlagen nicht mit einbezogen, bzw. es wird angenommen, dass die Korrelationen sämtlicher Assetrenditen mit der Portfoliorendite identisch sind. Für den ERB-Ansatz gilt somit in leichter Abkehr der oben eingeführten Definition die folgende Zielsetzung für alle Anlagen 1 bis N in einem Portfolio (Beachten Sie: das Risikobudget - das Produkt aus Standardabweichung und Portfolioanteil - kann als Risikobeitrag bei perfekter Korrelation interpretiert werden):</p>
+<p><span class="math display">\[ w_1\cdot \sigma_1=w_2 \cdot \sigma_2=...=w_N \cdot \sigma_N \]</span></p>
+<p>Für ein Asset n ergibt sich der Anteil <span class="math inline">\(w_n\)</span> im ERB-Portfolio in allgemeiner Form:</p>
+<p><span class="math display">\[ w^{ERB}_n=\frac{1/\sigma_n}{\Sigma^N_{j=1}1/\sigma_j} \]</span></p>
+<p>Bei der ERB-Strategie werden die Gewichte der Assets somit umgekehrt proportional zu ihren Volatilitäten verteilt.</p>
+</section>
+<section id="equal-risk-contribution--erc--strategie" class="level3" data-number="8.2.3">
+<h3 data-number="8.2.3" class="anchored" data-anchor-id="equal-risk-contribution--erc--strategie"><span class="header-section-number">8.2.3</span> Equal-Risk-Contribution- (ERC-) Strategie</h3>
+<p>Ziel der Equal-Risk-Contribution- (ERC-) Strategie ist die Gleichheit der Risikobeiträge der einzelnen Assets zum Gesamtrisiko <span class="math inline">\((\sigma_p)\)</span> des Portfolios. Dies entspricht genau der im Abschnitt Grundlagen eingeführten Definition einer Risk Parity Strategie. Wie bereits oben gezeigt, lässt sich der absolute Risikobeitrag eines Assets n zum Gesamtrisiko wie folgt bestimmen:</p>
+<p><span class="math display">\[  MRB_n= \frac{(\Sigma w^{T})_{n}}{\sigma_p} \]</span></p>
+<p>Der Vektor der marginalen Risikobeiträge <span class="math inline">\(\partial_{n}\sigma_p\)</span> über alle Assets ergibt sich folglich durch:</p>
+<p><span class="math display">\[ (4) \quad c(w)=\frac{\Sigma w^{T}}{\sigma_p} \]</span></p>
+<p>Zudem wurde bereits erwähnt, dass die Summe der RBs dem Gesamtrisiko <span class="math inline">\((\sigma_p)\)</span> gleicht, und der RB eines Assets n den mit dem Anteil <span class="math inline">\(w_n\)</span> gewichteten MRB entspricht. Sollen daher alle RBs identisch sein, muss folglich gelten:</p>
+<p><span class="math display">\[ \frac{\sigma_p}{N}=w_n \cdot MRB_n \quad \text{für} \quad n=1, ..., N. \]</span></p>
+<p>Somit können die optimalen Anteile <span class="math inline">\(w^{ERC}_n\)</span> im ERC-Portfolio durch die numerische Minimierung der folgenden Zielfunktion bestimmt werden:</p>
+<p><span class="math display">\[ \underset{w}{\operatorname{min}} \sum_{n=1}^{N} [\frac{\sigma_p}{N} −  w_{n}⋅c(w)_{n}]^{2} \]</span></p>
+<p><span class="math display">\[ \textrm{u. d. Nb.} \quad \sum_{n=1}^{N} w_{n} = 1 \quad \textrm{und} \quad 1 \geq w_{n} \geq 0, \]</span></p>
+<p>wobei <span class="math inline">\(c(w)_{n}\)</span> das n-te Element des Vektors <span class="math inline">\(c(w)\)</span> bezeichnet.</p>
+<p>Im verallgemeinerten Fall einer gewünschten, nicht unbedingt gleichen Zielrisikoallokation <span class="math inline">\(w_{target_{n}}\)</span> lautet die zu minimierende Funktion:</p>
+<p><span class="math display">\[ (5) \quad \underset{w}{\operatorname{argmin}} \sum_{n=1}^{N} [w_{target_{n}}\cdot \sigma_p - w_{n}⋅c(w)_{n}]^{2} \]</span></p>
+<p>Da im ERC-Portfolio die absoluten Risikobeiträge identisch sind, gilt dies natürlich auch für die relativen Risikobeiträge <span class="math inline">\((RB/\sigma_p)\)</span> der N einzelnen Assets. Es folgt (siehe Gleichung (3) oben):</p>
+<p><span class="math display">\[ \textrm{Relativer Risikobeitrag im ERC-Portfolio} = w^{ERC}_n \cdot \frac{Cov(r_n,r_p)}{\sigma^2_p}=w^{ERC}_n \cdot \beta^{ERC}_n=\frac{1}{N},\]</span></p>
+<p>mit <span class="math inline">\(\beta^{ERC}_n=\)</span> Betafaktor des Assets n in Bezug auf das ERC-Portfolio. Das Anteilsgewicht <span class="math inline">\(w^{ERC}_n\)</span> kann dann auch wie folgt ausgedrückt werden:</p>
+<p><span class="math display">\[ w^{ERC}_n=\frac{1}{N \cdot \beta^{ERC}_n}, \quad \text{wobei für ein ERC-Portfolio gilt:} \quad \Sigma^N_{n=1}w^{ERC}_n=1. \]</span></p>
+<p>Somit ist der Anteil eines Assets umgekehrt proportional zu seinem Betafaktor. Je höher das Beta, desto geringer die Gewichtung im Portfolio und umgekehrt. Entsprechend werden Assets mit einer hohen (geringen) Standardabweichung oder einer hohen (geringen) Korrelation mit der Portfoliorendite geringer (höher) gewichtet.</p>
+</section>
+</section>
+<section id="alternative-risikogesteuerte-ansätze" class="level2" data-number="8.3">
+<h2 data-number="8.3" class="anchored" data-anchor-id="alternative-risikogesteuerte-ansätze"><span class="header-section-number">8.3</span> Alternative risikogesteuerte Ansätze</h2>
+<p>Abzugrenzen ist der Risk Parity-Ansatz von weiteren Verfahren, die zur Assetallokation ebenfalls auf die Ermittlung von Renditen verzichten. Dazu zählt insbesondere der Global-Minimum-Varianz-Ansatz, mit dem die risikominimale Kombination der zur Verfügung stehenden Anlagen ermittelt werden kann. Darüber hinaus zählt auch der Maximum-Diversification-Ansatz zu den risikobasierten Assetallokations-Konzepten. Schließlich wird noch die als “naiver” Ansatz zu bezeichnende Equally-Weighted-Strategie als Vergleichsmaßstab herangezogen.</p>
+<section id="equally-weighted--ew--ansatz" class="level3" data-number="8.3.1">
+<h3 data-number="8.3.1" class="anchored" data-anchor-id="equally-weighted--ew--ansatz"><span class="header-section-number">8.3.1</span> Equally-Weighted- (EW-) Ansatz</h3>
+<p>Der Equally-Weighted-Ansatz kann als einfachste Form der Diversifikation eines Portfolios bezeichnet werden, weil die Gewichtung jedes der N Assets in einem Portfolio auf die folgende Weise bestimmt wird:</p>
+<p><span class="math display">\[ w^{EW}_n=\frac{1}{N} \]</span></p>
+<p>Bei diesem Ansatz spielt die Art der Anlage bzw. welche Assetklassen in das Portfolio aufgenommen werden, keine Rolle. Gleiches gilt auch für die Rendite- und Risikokennzahlen der einbezogenen Assets. Daher ist zu empfehlen, diese Strategie allenfalls als Benchmark zur Beurteilung der Performance von Assetallokations-Strategien heranzuziehen. Wie oben bereits erwähnt, würde z.B. der ERC-Ansatz nur in dem Extremfall identischer Korrelationen zwischen den in das Portfolio einbezogenen Assets sowie gleicher Standardabweichungen der Assets zu einer gleichgewichteten Assetallokation führen. Sind die Risiken in einem Portfolio jedoch unterschiedlich verteilt, führt der Equally-Weighted-Ansatz letztlich zu einer Risikokonzentration, denn alle Assets erhalten das gleiche Gewicht, d.h., sowohl das Asset mit dem höchsten als auch das mit dem geringsten Risiko.</p>
+</section>
+<section id="global-minimum-varianz--gmv-ansatz" class="level3" data-number="8.3.2">
+<h3 data-number="8.3.2" class="anchored" data-anchor-id="global-minimum-varianz--gmv-ansatz"><span class="header-section-number">8.3.2</span> Global-Minimum-Varianz- (GMV) Ansatz</h3>
+<p>Der Global-Minimum-Varianz-Ansatz resultiert aus portfoliotheoretischen Überlegungen, wobei dasjenige effiziente Portfolio gesucht wird, das das minimale Risiko aufweist. Entsprechend kann dieses sog. <font color="red">Global-Minimum-Varianz-Portfolio</font> durch partielle Ableitung der Funktion der Portfoliovarianz nach den Gewichten der einzelnen Assets n im Portfolio <span class="math inline">\((w_n)\)</span> und anschließende Nullsetzung ermittelt werden: <span class="math inline">\(\frac{\partial{\sigma^2_p}}{\partial{w_n}}\)</span></p>
+<ul>
+<li><strong>Fall 1: geschlossene Lösung</strong></li>
+</ul>
+<p>Die Gewichte des GMVP lassen sich analytisch bestimmen sofern es keine Nebenbedingungen in Form von Ungleichungen wie dem Leerverkaufsverbot oder Bestandsgrenzen gibt. Die Gewichte des GMVP resultieren dann als Lösung des folgenden Minimierungsproblems:</p>
+<p><span class="math display">\[\begin{align*}
+\min_{w} &amp;\quad w^{T}\Sigma w \\
+\text{u. d. Nb.} &amp;\quad w^{T}\iota = 1,
+\end{align*}\]</span></p>
+<p>wobei <span class="math inline">\(\iota\)</span> den Einheitsvektor bezeichnet. Als geschlossene Lösung ergibt sich:</p>
+<p><span class="math display">\[\begin{equation*}
+(6) \quad w^{GMV} = \frac1{\iota^{T}\Sigma^{-1}\iota}\Sigma^{-1}\iota.
+\end{equation*}\]</span></p>
+<p>Beachten Sie, dass <span class="math inline">\(w^{GMV}\)</span> nicht vom Vektor der erwarteten Renditen <span class="math inline">\(\mu\)</span> abhängt, d.h., das GMVP kann ohne Kenntnis von <span class="math inline">\(\mu\)</span> ermittelt werden.</p>
+<ul>
+<li><strong>Fall 2: numerische Lösung</strong></li>
+</ul>
+<p>In der Realität ist es vielen institutionellen Investoren aufgrund von Anlagerestriktionen häufig nicht möglich, Leerverkäufe (Short Positionen) einzugehen. Um diesen Umstand zu berücksichtigen, muss die <em>Nichtnegativitätsbedingung</em> der Gewichte zum Optimierungsproblem hinzugefügt werden. Eine geschlossene Lösung ist dann nicht mehr möglich.</p>
+<p><span class="math display">\[\begin{align*}
+\min_{w} &amp;\quad w^{T}\Sigma w \\
+\text{u. d. Nb.} &amp;\quad w^{T}\iota = 1 \quad \textrm{und} \quad 1 \geq w_{n} \geq 0
+\end{align*}\]</span></p>
+<p>Grafisch kann das GMV-Portfolio wie in der folgenden Abbildung dargestellt bestimmt werden.</p>
+<p><img src="figure71.png" class="img-fluid"></p>
+<p>Die Grafik zeigt, dass unter Risiko- und Renditegesichtspunkten Portfolios auf der Kapitalmarktlinie effizienter sind als das GMVP. Soll z.B. das gesamte Portfoliorisiko dem des GMVP entsprechen, so lässt sich dieses auch durch eine Kombination des Marktportfolios <strong>M</strong> mit der risikolosen Anlage <strong><span class="math inline">\(r_f\)</span></strong> erreichen, wobei aber hier die erwartete Rendite höher ausfällt.</p>
+</section>
+<section id="maximum-diversification--md--ansatz" class="level3" data-number="8.3.3">
+<h3 data-number="8.3.3" class="anchored" data-anchor-id="maximum-diversification--md--ansatz"><span class="header-section-number">8.3.3</span> Maximum-Diversification- (MD-) Ansatz</h3>
+<p>Zur Maximierung des Diversifikationseffektes in einem Portfolio kann der sogenannte <strong>Maximum-Diversification-Ansatz</strong> herangezogen werden, der auch als “Most-Diversified-Ansatz” bezeichnet werden kann. Dabei wird der Diversifikationseffekt mit Hilfe der Diversification Ratio (DR) ermittelt (siehe Choueifaty et al., 2013):</p>
+<p><span class="math display">\[\begin{equation*}
+DR=\frac{\sigma^{T}w}{\sqrt{w^{T}\Sigma w}}.
+\end{equation*}\]</span></p>
+<p>Im Zähler der Diversification Ratio steht somit der gewichtete Durchschnitt der Standardabweichungen der einzelnen Assets im Portfolio, während im Nenner die Standardabweichung des Portfolios angegeben wird. Wird ein Portfolio ohne Leerverkaufsmöglichkeiten (“Long-only”) betrachtet und ist für mindestens 1 Anlage im Portfolio <span class="math inline">\(\sigma_n&gt;0\)</span>, so gilt: <span class="math inline">\(DR\geq 1.\)</span> Falls sämtliche Korrelationen zwischen den Anlagen jeweils 1 betragen, würden sich Zähler und Nenner der Diversification Ratio entsprechen. Andernfalls ergibt sich aufgrund des Diversifikationseffektes im Nenner ein geringerer Wert als im Zähler. Somit misst die Diversification Ratio den Diversifikationserfolg von Anlagen, die nicht perfekt miteinander korreliert sind. Letztlich wird damit der Abstand zwischen zwei Volatilitätsmaßen desselben Portfolios maximiert. Im Zähler wird das Portfoliorisiko für den Fall ohne Diversifikation und im Nenner das (tatsächliche) Risiko mit Diversifikation angegeben.</p>
+<p>Das Maximum-Diversification-Portfolio (MD) stellt dasjenige Portfolio dar, das die Diversification Ratio maximiert:</p>
+<p><span class="math display">\[\begin{equation*}
+\max_{w} \quad \frac{\sigma^{T}w}{\sqrt{w^{T}\Sigma w}}.
+\end{equation*}\]</span></p>
+<p>Mit der Budgetrestriktion <span class="math inline">\((\Sigma^N_{n=1}w_n=1)\)</span> als alleinige Nebenbedingung erhält man die geschlossene Lösung:</p>
+<p><span class="math display">\[\begin{equation*}
+w^{MD} = \frac1{\iota^{T}\Sigma^{-1}\sigma}\Sigma^{-1}\sigma.
+\end{equation*}\]</span></p>
+<p>Hinzufügen weiterer Nebenbedingungen (z.B. Bestandsgrenzen, Leerverkaufsverbot) erfordert eine numerische Optimierung.</p>
+<p>Für das resultierende Portfolio lässt sich zeigen, dass sämtliche Anlagen im Portfolio mit einem Anteil von <span class="math inline">\(w_n&gt;0\)</span> eine identische (positive) Korrelation mit dem MD-Portfolio aufweisen. Grundsätzlich kann in diesem Fall die Korrelation für ein Portfolio P mit dem MD-Portfolio als Quotient der jeweiligen Diversification Ratios ausgedrückt werden (Choueifaty und Coignard, 2008, S. 42):</p>
+<p><span class="math display">\[ Corr(r_p, r_{MD})=\frac{DR_p}{DR_{MD}}, \]</span></p>
+<p>mit</p>
+<p><span class="math display">\[DR_p=\textrm{Diversification Ratio des Portfolios P} \]</span> <span class="math display">\[DR_{MD}=\textrm{Diversification Ratio des Maximum-Diversification-Portfolios} \]</span></p>
+<p>Besteht ein Portfolio aus nur einer Anlage n, so ergibt sich hierfür eine Diversification Ratio von 1, so dass in diesem Fall für alle Portfolios (bzw. Anlagen n) im Maximum-Diversification-Portfolio jeweils gilt:</p>
+<p><span class="math display">\[ Corr(r_n,r_{MD})=\frac{1}{DR_{MD}}, \quad \textrm{falls} \quad w_n&gt;0 \]</span></p>
+<p>Sofern <span class="math inline">\(w_n=0\)</span>, gilt:</p>
+<p><span class="math display">\[ Corr(r_n,r_{MD})\geq\frac{1}{DR_{MD}}. \]</span></p>
+<p>Wie oben gezeigt wurde, kann die Korrelation zwischen einer Anlage n und einem Portfolio P auch wie folgt ausgdrückt werden:</p>
+<p><span class="math display">\[ MRB_n=Corr(r_n,r_p)\cdot \sigma_n \iff Corr(r_n,r_p)=\frac{MRB_n}{\sigma_n}=\frac{1}{\sigma_n}\cdot \frac{\partial{\sigma_p}}{\partial w_n}\]</span></p>
+<p>Somit gilt für alle Anlagen i und j im MD-Portfolio:</p>
+<p><span class="math display">\[ \frac{1}{\sigma_i}\cdot \frac{\partial{\sigma_{MD}}}{\partial w_i}=
+\frac{1}{\sigma_j}\cdot \frac{\partial{\sigma_{MD}}}{\partial w_j}\]</span></p>
+<p>Der Quotient aus <span class="math inline">\(MRB_n\)</span> und <span class="math inline">\(\sigma_n\)</span> kann als “Relative Marginal Volatility” oder “Scaled Marginal Volatility” interpretiert werden (vgl. Demey et al., 2010, S. 14 sowie Roncalli, 2014, S. 173).</p>
+</section>
+</section>
+<section id="beginn-der-fallstudie" class="level2" data-number="8.4">
+<h2 data-number="8.4" class="anchored" data-anchor-id="beginn-der-fallstudie"><span class="header-section-number">8.4</span> Beginn der Fallstudie</h2>
+<p>Die vorgestellten Strategien sollen anhand eines aus den 4 Assets A, B, C und D bestehenden Beispielportfolios näher beleuchtet werden. Für die Standardabweichungen und die Korrelationen zwischen den Renditen der einzelnen Assets werden die folgenden Beispieldaten <code>Stdev</code> und <code>CorrMatrix</code> zugrunde gelegt:</p>
+<div id="cell-6" class="cell" data-execution_count="1">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="im">import</span> numpy.linalg <span class="im">as</span> la</span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="im">from</span> scipy.optimize <span class="im">import</span> minimize</span>
+<span id="cb1-5"><a href="#cb1-5"></a>TOLERANCE <span class="op">=</span> <span class="fl">1e-15</span></span>
+<span id="cb1-6"><a href="#cb1-6"></a></span>
+<span id="cb1-7"><a href="#cb1-7"></a><span class="im">import</span> warnings</span>
+<span id="cb1-8"><a href="#cb1-8"></a><span class="co"># Ignore all warnings</span></span>
+<span id="cb1-9"><a href="#cb1-9"></a>warnings.filterwarnings(<span class="st">"ignore"</span>)</span>
+<span id="cb1-10"><a href="#cb1-10"></a></span>
+<span id="cb1-11"><a href="#cb1-11"></a>Stdev <span class="op">=</span> np.array([<span class="fl">0.18</span>, <span class="fl">0.11</span>, <span class="fl">0.16</span>, <span class="fl">0.24</span>])</span>
+<span id="cb1-12"><a href="#cb1-12"></a>CorrMatrix <span class="op">=</span> np.array([[<span class="fl">1.00</span>, <span class="fl">0.40</span>, <span class="op">-</span><span class="fl">0.10</span>, <span class="fl">0.30</span>],</span>
+<span id="cb1-13"><a href="#cb1-13"></a>                       [<span class="fl">0.40</span>, <span class="fl">1.00</span>, <span class="fl">0.10</span>, <span class="fl">0.20</span>],</span>
+<span id="cb1-14"><a href="#cb1-14"></a>                       [<span class="op">-</span><span class="fl">0.10</span>, <span class="fl">0.10</span>, <span class="fl">1.00</span>, <span class="op">-</span><span class="fl">0.15</span>],</span>
+<span id="cb1-15"><a href="#cb1-15"></a>                       [<span class="fl">0.30</span>, <span class="fl">0.20</span>, <span class="op">-</span><span class="fl">0.15</span>, <span class="fl">1.00</span>]])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>Hieraus lassen sich die folgenden Kovarianzen ableiten.</p>
+<div id="cell-8" class="cell" data-execution_count="2">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a>Sigma <span class="op">=</span> np.diag(Stdev) <span class="op">@</span> CorrMatrix <span class="op">@</span> np.diag(Stdev)</span>
+<span id="cb2-2"><a href="#cb2-2"></a>Sigma</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="2">
+<pre><code>array([[ 0.0324 ,  0.00792, -0.00288,  0.01296],
+       [ 0.00792,  0.0121 ,  0.00176,  0.00528],
+       [-0.00288,  0.00176,  0.0256 , -0.00576],
+       [ 0.01296,  0.00528, -0.00576,  0.0576 ]])</code></pre>
+</div>
+</div>
+<section id="equal-risk-budget-strategie" class="level3" data-number="8.4.1">
+<h3 data-number="8.4.1" class="anchored" data-anchor-id="equal-risk-budget-strategie"><span class="header-section-number">8.4.1</span> Equal-Risk-Budget-Strategie</h3>
+<p>Wir beginnen mit der <strong>Equal-Risk-Budget-Strategie</strong>. Die Anteilsgewichte ergeben sich umgekehrt proportional zu den Asset-Volatilitäten: <span class="math inline">\(w^{ERB}_n=\frac{1/\sigma_n}{\Sigma^N_{j=1}1/\sigma_j}\)</span> und das Risikobudget ist definiert als Produkt von Assetrendite-Standardabweichung und Anteilsgewicht. Die Bestimmung der jeweiligen Anteile <span class="math inline">\(w_n\)</span> der einzelnen Assets am ERB-Portfolio kann mit Hilfe der nachfolgenden Tabelle gezeigt werden.</p>
+<div id="cell-10" class="cell" data-execution_count="3">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a>(<span class="dv">1</span><span class="op">/</span>Stdev)<span class="op">/</span>np.<span class="bu">sum</span>(<span class="dv">1</span><span class="op">/</span>Stdev)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="3">
+<pre><code>array([0.22166247, 0.3627204 , 0.24937028, 0.16624685])</code></pre>
+</div>
+</div>
+<div id="cell-11" class="cell" data-execution_count="4">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1"></a>Assets<span class="op">=</span>[<span class="st">'A'</span>, <span class="st">'B'</span>, <span class="st">'C'</span>, <span class="st">'D'</span>]</span>
+<span id="cb6-2"><a href="#cb6-2"></a>df<span class="op">=</span>pd.DataFrame({<span class="st">'Sigma'</span>: Stdev, <span class="st">'1/Sigma'</span>: <span class="dv">1</span><span class="op">/</span>Stdev,<span class="op">\</span></span>
+<span id="cb6-3"><a href="#cb6-3"></a>              <span class="st">'Anteil'</span>: (<span class="dv">1</span><span class="op">/</span>Stdev)<span class="op">/</span>np.<span class="bu">sum</span>(<span class="dv">1</span><span class="op">/</span>Stdev), <span class="op">\</span></span>
+<span id="cb6-4"><a href="#cb6-4"></a>              <span class="st">'Risikobudget'</span>: Stdev<span class="op">*</span>(<span class="dv">1</span><span class="op">/</span>Stdev)<span class="op">/</span>np.<span class="bu">sum</span>(<span class="dv">1</span><span class="op">/</span>Stdev)},<span class="op">\</span></span>
+<span id="cb6-5"><a href="#cb6-5"></a>             index<span class="op">=</span>Assets) </span>
+<span id="cb6-6"><a href="#cb6-6"></a>df.loc[<span class="st">'Summe'</span>,<span class="dv">1</span>:]<span class="op">=</span> df.<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb6-7"><a href="#cb6-7"></a>df</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="4">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Sigma</th>
+<th data-quarto-table-cell-role="th">1/Sigma</th>
+<th data-quarto-table-cell-role="th">Anteil</th>
+<th data-quarto-table-cell-role="th">Risikobudget</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">A</th>
+<td>0.18</td>
+<td>5.555556</td>
+<td>0.221662</td>
+<td>0.039899</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">B</th>
+<td>0.11</td>
+<td>9.090909</td>
+<td>0.362720</td>
+<td>0.039899</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">C</th>
+<td>0.16</td>
+<td>6.250000</td>
+<td>0.249370</td>
+<td>0.039899</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">D</th>
+<td>0.24</td>
+<td>4.166667</td>
+<td>0.166247</td>
+<td>0.039899</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">Summe</th>
+<td>NaN</td>
+<td>25.063131</td>
+<td>1.000000</td>
+<td>0.159597</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Somit ergeben sich gemäß ERB-Strategie für die vier Anlagen die folgenden Gewichte im Portfolio:</p>
+<p><span class="math display">\[ w^{ERB}_A=22,1662\%, \quad w^{ERB}_B=36,2720\%, \quad w^{ERB}_C=24,9370\%, \quad w^{ERB}_D=16,6247\%.\]</span></p>
+<p>Erkenbar ist an diesen Werten, dass offensichtlich Assets mit einem höheren (geringeren) Risiko untergewichtet (übergewichtet) werden. Insofern wird eher in risikoärmere Assets investiert, wobei diese Assets gleichzeitig dazu tendieren ein relativ geringes Beta auzuweisen.</p>
+<p>Das Risikobudget als die mit den Portfolioanteilen gewichtete Standardabweichung beträgt somit für jede Anlage 3,9899%. Unter Berücksichtigung dieser Werte lässt sich die gewichtete Varianz-Kovarianz-Matrix (<span class="math inline">\(w^{T}\Sigma w\)</span>) bestimmen.</p>
+<div id="cell-13" class="cell" data-execution_count="5">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1"></a>gewicht_erb<span class="op">=</span>(<span class="dv">1</span><span class="op">/</span>Stdev)<span class="op">/</span>np.<span class="bu">sum</span>(<span class="dv">1</span><span class="op">/</span>Stdev)</span>
+<span id="cb7-2"><a href="#cb7-2"></a>wSigma<span class="op">=</span>pd.DataFrame({<span class="st">'A'</span>: (Sigma[:,<span class="dv">0</span>]<span class="op">*</span>gewicht_erb[<span class="dv">0</span>]<span class="op">*</span>gewicht_erb),<span class="op">\</span></span>
+<span id="cb7-3"><a href="#cb7-3"></a>                     <span class="st">'B'</span>: (Sigma[:,<span class="dv">1</span>]<span class="op">*</span>gewicht_erb[<span class="dv">1</span>]<span class="op">*</span>gewicht_erb),<span class="op">\</span></span>
+<span id="cb7-4"><a href="#cb7-4"></a>                     <span class="st">'C'</span>: (Sigma[:,<span class="dv">2</span>]<span class="op">*</span>gewicht_erb[<span class="dv">2</span>]<span class="op">*</span>gewicht_erb),<span class="op">\</span></span>
+<span id="cb7-5"><a href="#cb7-5"></a>                     <span class="st">'D'</span>: (Sigma[:,<span class="dv">3</span>]<span class="op">*</span>gewicht_erb[<span class="dv">3</span>]<span class="op">*</span>gewicht_erb)},<span class="op">\</span></span>
+<span id="cb7-6"><a href="#cb7-6"></a>                    index<span class="op">=</span>Assets, columns<span class="op">=</span>Assets) </span>
+<span id="cb7-7"><a href="#cb7-7"></a>wSigma.columns.name<span class="op">=</span><span class="st">'Gewichtete Kovarianzen'</span> </span>
+<span id="cb7-8"><a href="#cb7-8"></a>wSigma.loc[<span class="st">'Summe'</span>,:]<span class="op">=</span> wSigma.<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb7-9"><a href="#cb7-9"></a>wSigma.loc[:,<span class="st">'Summe'</span>]<span class="op">=</span> wSigma.<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb7-10"><a href="#cb7-10"></a>wSigma</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="5">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">Gewichtete Kovarianzen</th>
+<th data-quarto-table-cell-role="th">A</th>
+<th data-quarto-table-cell-role="th">B</th>
+<th data-quarto-table-cell-role="th">C</th>
+<th data-quarto-table-cell-role="th">D</th>
+<th data-quarto-table-cell-role="th">Summe</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">A</th>
+<td>0.001592</td>
+<td>0.000637</td>
+<td>-0.000159</td>
+<td>0.000478</td>
+<td>0.002547</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">B</th>
+<td>0.000637</td>
+<td>0.001592</td>
+<td>0.000159</td>
+<td>0.000318</td>
+<td>0.002706</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">C</th>
+<td>-0.000159</td>
+<td>0.000159</td>
+<td>0.001592</td>
+<td>-0.000239</td>
+<td>0.001353</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">D</th>
+<td>0.000478</td>
+<td>0.000318</td>
+<td>-0.000239</td>
+<td>0.001592</td>
+<td>0.002149</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">Summe</th>
+<td>0.002547</td>
+<td>0.002706</td>
+<td>0.001353</td>
+<td>0.002149</td>
+<td>0.008756</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Aus der Tabelle kann die Varianz des ERB-Portfolios abgelesen werden. Sie beträgt in diesem Beispiel 0,0087557. Entsprechend beläuft sich die Standardabweichung des ERB-Portfolios auf 9,3572%:</p>
+<p><span class="math display">\[ \sigma_{ERB}=\sqrt{0,0087557}=9,35720\%.\]</span></p>
+<p>In der nachfolgenden Tabelle werden die absoluten Risikobeiträge (RB), die relativen Risikobeiträge (rRB), die Kovarianzen der einzelnen Assetrenditen mit der Portfoliorendite, die auf das ERB-Portfolio bezogenen Betafaktoren und die marginalen Risikobeiträge (MRB) dargestellt (die Berechnung erfolgt anhand der Formeln (1)-(3) aus dem Grundlagen Abschnitt):</p>
+<div id="cell-15" class="cell" data-execution_count="6">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1"></a><span class="co"># Berechnung der absoluten Risikobeitrags: Formel (1) und (2)</span></span>
+<span id="cb8-2"><a href="#cb8-2"></a>rb<span class="op">=</span>np.zeros(<span class="dv">4</span>)</span>
+<span id="cb8-3"><a href="#cb8-3"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb8-4"><a href="#cb8-4"></a>    rb[i]<span class="op">=</span>(gewicht_erb[i]<span class="op">*</span>Sigma[i,:]<span class="op">*</span>np.asmatrix(gewicht_erb).T)<span class="op">/</span><span class="fl">0.093572</span></span>
+<span id="cb8-5"><a href="#cb8-5"></a></span>
+<span id="cb8-6"><a href="#cb8-6"></a><span class="co"># Berechnung der relativen Risikobeitrags</span></span>
+<span id="cb8-7"><a href="#cb8-7"></a>rrb<span class="op">=</span>np.zeros(<span class="dv">4</span>)</span>
+<span id="cb8-8"><a href="#cb8-8"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb8-9"><a href="#cb8-9"></a>    rrb[i]<span class="op">=</span>rb[i]<span class="op">/</span>np.<span class="bu">sum</span>(rb)</span>
+<span id="cb8-10"><a href="#cb8-10"></a>    </span>
+<span id="cb8-11"><a href="#cb8-11"></a><span class="co"># Berechnung der Kovarianz der Assetrendite mit der Portfoliorendite: Formel (3)</span></span>
+<span id="cb8-12"><a href="#cb8-12"></a>cov_ri_rp<span class="op">=</span>np.zeros(<span class="dv">4</span>)</span>
+<span id="cb8-13"><a href="#cb8-13"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb8-14"><a href="#cb8-14"></a>       cov_ri_rp[i]<span class="op">=</span>Sigma[i,:]<span class="op">*</span>np.asmatrix(gewicht_erb).T</span>
+<span id="cb8-15"><a href="#cb8-15"></a></span>
+<span id="cb8-16"><a href="#cb8-16"></a><span class="co"># Berechnung des Betas der Assetrendite mit der Portfoliorendite</span></span>
+<span id="cb8-17"><a href="#cb8-17"></a>beta_ri<span class="op">=</span>np.zeros(<span class="dv">4</span>)</span>
+<span id="cb8-18"><a href="#cb8-18"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb8-19"><a href="#cb8-19"></a>        beta_ri[i]<span class="op">=</span>cov_ri_rp[i]<span class="op">/</span><span class="fl">0.093572</span><span class="op">**</span><span class="dv">2</span></span>
+<span id="cb8-20"><a href="#cb8-20"></a></span>
+<span id="cb8-21"><a href="#cb8-21"></a><span class="co"># und nun noch der marginale Risikobeitrag</span></span>
+<span id="cb8-22"><a href="#cb8-22"></a>mrb<span class="op">=</span>np.zeros(<span class="dv">4</span>)</span>
+<span id="cb8-23"><a href="#cb8-23"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb8-24"><a href="#cb8-24"></a>        mrb[i]<span class="op">=</span>rb[i]<span class="op">/</span>gewicht_erb[i]</span>
+<span id="cb8-25"><a href="#cb8-25"></a>        </span>
+<span id="cb8-26"><a href="#cb8-26"></a><span class="co"># Abschließend stellen wir die Ergebnisse zur ERB-Strategie </span></span>
+<span id="cb8-27"><a href="#cb8-27"></a><span class="co"># übersichtlich in einer Tabelle dar</span></span>
+<span id="cb8-28"><a href="#cb8-28"></a></span>
+<span id="cb8-29"><a href="#cb8-29"></a>ergebnisse_erb<span class="op">=</span>pd.DataFrame({<span class="st">'absoluter RB (%)'</span>: np.<span class="bu">round</span>(rb<span class="op">*</span><span class="dv">100</span>,<span class="dv">4</span>), <span class="op">\</span></span>
+<span id="cb8-30"><a href="#cb8-30"></a>                             <span class="st">'relativer RB (%)'</span>: np.<span class="bu">round</span>(rrb<span class="op">*</span><span class="dv">100</span>,<span class="dv">4</span>),</span>
+<span id="cb8-31"><a href="#cb8-31"></a>                             <span class="st">'Cov(r_i,r_p)'</span>:np.<span class="bu">round</span>(cov_ri_rp,<span class="dv">4</span>),</span>
+<span id="cb8-32"><a href="#cb8-32"></a>                             <span class="st">'Beta'</span>: np.<span class="bu">round</span>(beta_ri,<span class="dv">4</span>),</span>
+<span id="cb8-33"><a href="#cb8-33"></a>                             <span class="st">'MRB (%)'</span>: np.<span class="bu">round</span>(mrb<span class="op">*</span><span class="dv">100</span>,<span class="dv">4</span>)},index<span class="op">=</span>Assets) </span>
+<span id="cb8-34"><a href="#cb8-34"></a>ergebnisse_erb.loc[<span class="st">'Summe'</span>,:<span class="dv">2</span>]<span class="op">=</span> ergebnisse_erb.<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb8-35"><a href="#cb8-35"></a>ergebnisse_erb</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="6">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">absoluter RB (%)</th>
+<th data-quarto-table-cell-role="th">relativer RB (%)</th>
+<th data-quarto-table-cell-role="th">Cov(r_i,r_p)</th>
+<th data-quarto-table-cell-role="th">Beta</th>
+<th data-quarto-table-cell-role="th">MRB (%)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">A</th>
+<td>2.7221</td>
+<td>29.0909</td>
+<td>0.0115</td>
+<td>1.3124</td>
+<td>12.2804</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">B</th>
+<td>2.8922</td>
+<td>30.9091</td>
+<td>0.0075</td>
+<td>0.8521</td>
+<td>7.9737</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">C</th>
+<td>1.4461</td>
+<td>15.4545</td>
+<td>0.0054</td>
+<td>0.6197</td>
+<td>5.7991</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">D</th>
+<td>2.2968</td>
+<td>24.5455</td>
+<td>0.0129</td>
+<td>1.4764</td>
+<td>13.8154</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">Summe</th>
+<td>9.3572</td>
+<td>100.0000</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Aus den Ergebnissen der Tabelle ist erkennbar, dass für die einzelnen Assets unterschiedliche Risikobeiträge ermittelt werden können. Diese Unterschiede sind darauf zurückzuführen, dass bei der Ermittlung der Anteile der jeweiligen Assets am Portfolio die Korrelationen zwischen den Renditen der sich im Portfolio befindenden Assets nicht berücksichtigt werden. Somit spielen dabei Diversifikationseffekte offenbar keine Rolle. Dennoch kommen diese Effekte bei den Ergebnissen in der Tabelle zum Tragen.</p>
+<p>Die jeweils gewichteten Betafaktoren ergeben in der Summe den Wert 1:</p>
+<p><span class="math display">\[ \beta^{ERB}_p= \Sigma^N_{n=1} w^{ERB}_n \cdot \beta^{ERB}_n \]</span></p>
+<p><span class="math display">\[ = 22,1662\% \cdot 1,3124 + 36,2720\% \cdot 0,8522 + 24,9370\% \cdot 0,6197 + 16,6247\% \cdot 1,4765 \]</span></p>
+<p><span class="math display">\[ = 0,2909 + 0,3091 + 0,1546 + 0,2455 = 1,0000 \]</span></p>
+<p>Diese Rechnung zeigt, dass die einzelnen gewichteten Betas den relativen Risikobeiträgen entsprechen.</p>
+</section>
+<section id="equal-risk-contribution-strategie" class="level3" data-number="8.4.2">
+<h3 data-number="8.4.2" class="anchored" data-anchor-id="equal-risk-contribution-strategie"><span class="header-section-number">8.4.2</span> Equal-Risk-Contribution-Strategie</h3>
+<p>Nun implementieren wir die ERC-Strategie für die Beispieldaten. Zur numerischen Bestimmung der optimalen Gewichte des ERC-Portfolios über <code>scipy.optimize</code> definieren wir drei Funktionen: - <code>calulate_portfolio_var</code> berechnet die Varianz der Portfoliorendite <span class="math inline">\(\sigma^2_p\)</span> - <code>calculate_risk_contribution</code> berechnet den Vektor der Risikobeiträge gemäß <span class="math inline">\(w_n\frac{(\Sigma w^{T})_n}{\sigma_p} \quad \text{für}\quad n=1, ..., N\)</span> - <code>risk_contribution_objective</code> implementiert schließlich die Zielfunktion des allgemein formulierten Minimierungsproblems in Gleichung (5)</p>
+<p>Die berücksichtigten Nebenbedingungen sind die Budget-Restriktion und das Verbot von Leerverkäufen, d.h., die Gewichte müssen zwischen 0 und 1 liegen und sich auf 1 summieren.</p>
+<div id="cell-18" class="cell" data-execution_count="7">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1"></a><span class="co"># ERC Optimierung: Definition benötigter Funktionen</span></span>
+<span id="cb9-2"><a href="#cb9-2"></a><span class="kw">def</span> calculate_portfolio_var(w,Sigma):</span>
+<span id="cb9-3"><a href="#cb9-3"></a>    <span class="co"># Funktion zur Berechnung der Portfoliorenditevarianz</span></span>
+<span id="cb9-4"><a href="#cb9-4"></a>    w <span class="op">=</span> np.matrix(w) <span class="co"># w ist ein Zeilenvektor! </span></span>
+<span id="cb9-5"><a href="#cb9-5"></a>    <span class="cf">return</span> (w<span class="op">*</span>Sigma<span class="op">*</span>w.T)[<span class="dv">0</span>,<span class="dv">0</span>]</span>
+<span id="cb9-6"><a href="#cb9-6"></a></span>
+<span id="cb9-7"><a href="#cb9-7"></a></span>
+<span id="cb9-8"><a href="#cb9-8"></a><span class="kw">def</span> calculate_risk_contribution(w,Sigma):</span>
+<span id="cb9-9"><a href="#cb9-9"></a>    <span class="co"># Funktion zur Berechnung des Risikobeitrags</span></span>
+<span id="cb9-10"><a href="#cb9-10"></a>    w <span class="op">=</span> np.matrix(w)</span>
+<span id="cb9-11"><a href="#cb9-11"></a>    sigma_p <span class="op">=</span> np.sqrt(calculate_portfolio_var(w,Sigma))</span>
+<span id="cb9-12"><a href="#cb9-12"></a>    <span class="co"># Marginaler Risikobeitrag</span></span>
+<span id="cb9-13"><a href="#cb9-13"></a>    MRB <span class="op">=</span> Sigma<span class="op">*</span>w.T</span>
+<span id="cb9-14"><a href="#cb9-14"></a>    <span class="co"># Risikobeitrag</span></span>
+<span id="cb9-15"><a href="#cb9-15"></a>    RB <span class="op">=</span> np.multiply(MRB,w.T)<span class="op">/</span>sigma_p</span>
+<span id="cb9-16"><a href="#cb9-16"></a>    <span class="cf">return</span> RB</span>
+<span id="cb9-17"><a href="#cb9-17"></a></span>
+<span id="cb9-18"><a href="#cb9-18"></a><span class="kw">def</span> risk_contribution_objective(x,pars):</span>
+<span id="cb9-19"><a href="#cb9-19"></a>    <span class="co"># x bezeichnet den Vektor der gesuchten Portfoliogewichte</span></span>
+<span id="cb9-20"><a href="#cb9-20"></a>    <span class="co"># die Varianz-Kovarianzmarix ist der erste Bestandteil des Arrays der gegebenen Parameter</span></span>
+<span id="cb9-21"><a href="#cb9-21"></a>    Sigma <span class="op">=</span> pars[<span class="dv">0</span>]</span>
+<span id="cb9-22"><a href="#cb9-22"></a>    <span class="co"># der zweite Bestandteil enthält die Zielrisikoallokation</span></span>
+<span id="cb9-23"><a href="#cb9-23"></a>    x_t <span class="op">=</span> pars[<span class="dv">1</span>] </span>
+<span id="cb9-24"><a href="#cb9-24"></a>    </span>
+<span id="cb9-25"><a href="#cb9-25"></a>    sig_p <span class="op">=</span>  np.sqrt(calculate_portfolio_var(x,Sigma)) <span class="co"># Portfoliorisiko</span></span>
+<span id="cb9-26"><a href="#cb9-26"></a>    risk_target <span class="op">=</span> np.asmatrix(np.multiply(sig_p,x_t))</span>
+<span id="cb9-27"><a href="#cb9-27"></a>    asset_RC <span class="op">=</span> calculate_risk_contribution(x,Sigma)</span>
+<span id="cb9-28"><a href="#cb9-28"></a>    J <span class="op">=</span> <span class="bu">sum</span>(np.square(asset_RC<span class="op">-</span>risk_target.T))[<span class="dv">0</span>,<span class="dv">0</span>] <span class="co"># Summe der quadrierten Fehler</span></span>
+<span id="cb9-29"><a href="#cb9-29"></a>    <span class="cf">return</span> J</span>
+<span id="cb9-30"><a href="#cb9-30"></a></span>
+<span id="cb9-31"><a href="#cb9-31"></a><span class="kw">def</span> total_weight_constraint(x):</span>
+<span id="cb9-32"><a href="#cb9-32"></a>    <span class="cf">return</span> np.<span class="bu">sum</span>(x)<span class="op">-</span><span class="fl">1.0</span></span>
+<span id="cb9-33"><a href="#cb9-33"></a></span>
+<span id="cb9-34"><a href="#cb9-34"></a><span class="kw">def</span> long_only_constraint(x):</span>
+<span id="cb9-35"><a href="#cb9-35"></a>    <span class="cf">return</span> x</span>
+<span id="cb9-36"><a href="#cb9-36"></a></span>
+<span id="cb9-37"><a href="#cb9-37"></a>x_t <span class="op">=</span> [<span class="fl">0.25</span>, <span class="fl">0.25</span>, <span class="fl">0.25</span>, <span class="fl">0.25</span>] <span class="co"># Zielrisikoallokation als Prozentsatz des Gesamtrisikos</span></span>
+<span id="cb9-38"><a href="#cb9-38"></a>gewicht_ew <span class="op">=</span> np.tile(<span class="fl">1.0</span><span class="op">/</span><span class="dv">4</span>, <span class="dv">4</span>) <span class="co"># Gleichgewichtung als Startvektor </span></span>
+<span id="cb9-39"><a href="#cb9-39"></a></span>
+<span id="cb9-40"><a href="#cb9-40"></a><span class="co"># Nebenbedingungen der Optimierung</span></span>
+<span id="cb9-41"><a href="#cb9-41"></a>cons <span class="op">=</span> ({<span class="st">'type'</span>: <span class="st">'eq'</span>, <span class="st">'fun'</span>: total_weight_constraint},</span>
+<span id="cb9-42"><a href="#cb9-42"></a>{<span class="st">'type'</span>: <span class="st">'ineq'</span>, <span class="st">'fun'</span>: long_only_constraint})</span>
+<span id="cb9-43"><a href="#cb9-43"></a></span>
+<span id="cb9-44"><a href="#cb9-44"></a><span class="co"># Optimierung</span></span>
+<span id="cb9-45"><a href="#cb9-45"></a>res<span class="op">=</span> minimize(risk_contribution_objective, gewicht_ew, args<span class="op">=</span>[Sigma,x_t], method<span class="op">=</span><span class="st">'SLSQP'</span>,tol<span class="op">=</span>TOLERANCE,constraints<span class="op">=</span>cons, options<span class="op">=</span>{<span class="st">'disp'</span>: <span class="va">False</span>})</span>
+<span id="cb9-46"><a href="#cb9-46"></a>gewicht_erc <span class="op">=</span> np.array(res.x)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="cell-19" class="cell" data-execution_count="8">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1"></a>gewicht_erc</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="8">
+<pre><code>array([0.20500842, 0.31247095, 0.31024402, 0.17227661])</code></pre>
+</div>
+</div>
+<p>Wir können alles auch in eine sehr elegante Funktion “packen”:</p>
+<div id="cell-21" class="cell" data-execution_count="9">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1"></a><span class="co">#### Eine elegante Funktion für den gesamten Optimierungsprozess:</span></span>
+<span id="cb12-2"><a href="#cb12-2"></a></span>
+<span id="cb12-3"><a href="#cb12-3"></a><span class="kw">def</span> get_risk_parity_weights(covariances, assets_risk_budget, initial_weights):</span>
+<span id="cb12-4"><a href="#cb12-4"></a></span>
+<span id="cb12-5"><a href="#cb12-5"></a>    <span class="co"># Nebenbedingungen der Optimierung: nur Long-Positionen, die in der</span></span>
+<span id="cb12-6"><a href="#cb12-6"></a>    <span class="co"># Summe 100% ergeben</span></span>
+<span id="cb12-7"><a href="#cb12-7"></a>    constraints <span class="op">=</span> ({<span class="st">'type'</span>: <span class="st">'eq'</span>, <span class="st">'fun'</span>: <span class="kw">lambda</span> x: np.<span class="bu">sum</span>(x) <span class="op">-</span> <span class="fl">1.0</span>},</span>
+<span id="cb12-8"><a href="#cb12-8"></a>                   {<span class="st">'type'</span>: <span class="st">'ineq'</span>, <span class="st">'fun'</span>: <span class="kw">lambda</span> x: x})</span>
+<span id="cb12-9"><a href="#cb12-9"></a></span>
+<span id="cb12-10"><a href="#cb12-10"></a>    <span class="co"># Optimierung mit scipy</span></span>
+<span id="cb12-11"><a href="#cb12-11"></a>    optimize_result <span class="op">=</span> minimize(fun<span class="op">=</span>risk_contribution_objective,</span>
+<span id="cb12-12"><a href="#cb12-12"></a>                               x0<span class="op">=</span>initial_weights,</span>
+<span id="cb12-13"><a href="#cb12-13"></a>                               args<span class="op">=</span>[covariances, assets_risk_budget],</span>
+<span id="cb12-14"><a href="#cb12-14"></a>                               method<span class="op">=</span><span class="st">'SLSQP'</span>,</span>
+<span id="cb12-15"><a href="#cb12-15"></a>                               constraints<span class="op">=</span>constraints,</span>
+<span id="cb12-16"><a href="#cb12-16"></a>                               tol<span class="op">=</span>TOLERANCE,</span>
+<span id="cb12-17"><a href="#cb12-17"></a>                               options<span class="op">=</span>{<span class="st">'disp'</span>: <span class="va">False</span>})</span>
+<span id="cb12-18"><a href="#cb12-18"></a></span>
+<span id="cb12-19"><a href="#cb12-19"></a>    <span class="co"># Extrahieren der Gewichte aus dem Output der Optimierung</span></span>
+<span id="cb12-20"><a href="#cb12-20"></a>    weights <span class="op">=</span> optimize_result.x</span>
+<span id="cb12-21"><a href="#cb12-21"></a></span>
+<span id="cb12-22"><a href="#cb12-22"></a>    <span class="co"># die Funktion gibt die gesuchten optimalen Gewichte zurück</span></span>
+<span id="cb12-23"><a href="#cb12-23"></a>    <span class="cf">return</span> weights</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>Als Lösung ergeben sich die folgenden Gewichte im ERC-Portfolio:</p>
+<div id="cell-23" class="cell" data-execution_count="10">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1"></a>gewicht_erc<span class="op">=</span>get_risk_parity_weights(Sigma, x_t, gewicht_ew)</span>
+<span id="cb13-2"><a href="#cb13-2"></a>pd.DataFrame({<span class="st">'Gewichte ERC'</span>: gewicht_erc}, index<span class="op">=</span>Assets)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="10">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Gewichte ERC</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">A</th>
+<td>0.205008</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">B</th>
+<td>0.312471</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">C</th>
+<td>0.310244</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">D</th>
+<td>0.172277</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Wir können leicht sehen, dass das Ziel eines einheitlichen Risikobeitrags erreicht wurde!</p>
+<div id="cell-25" class="cell" data-execution_count="11">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1"></a>pd.DataFrame(calculate_risk_contribution(gewicht_erc,Sigma), index<span class="op">=</span>Assets).plot.<span class="op">\</span></span>
+<span id="cb14-2"><a href="#cb14-2"></a>                bar(title<span class="op">=</span><span class="st">'Risikobeitrag (ERC-Portfolio)'</span>,</span>
+<span id="cb14-3"><a href="#cb14-3"></a>                    figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="dv">5</span>), legend<span class="op">=</span><span class="va">False</span>)<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="kapitel7_files/figure-html/cell-12-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Erkennbar ist auch am ERC-Portfolio, dass tendenziell Anlagen mit einem höheren (geringeren) Risiko eher untergewichtet (eher übergewichtet) werden (wobei aber zu beachten ist, dass dies nicht generell gilt, weil gleichzeitig auch die Korrelationen untereinander noch zu berücksichtigen sind). Insofern kann davon ausgegangen werden, dass auch bei der ERC-Strategie tendenziell meist eher in risikoärmere Anlagen investiert wird. Für dieses Beispiel ergibt sich die nachfolgende gewichtete Varianz-Kovarianzmatrix.</p>
+<div id="cell-27" class="cell" data-execution_count="12">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1"></a>wSigma<span class="op">=</span>pd.DataFrame({<span class="st">'A'</span>: (Sigma[:,<span class="dv">0</span>]<span class="op">*</span>gewicht_erc[<span class="dv">0</span>]<span class="op">*</span>gewicht_erc),<span class="op">\</span></span>
+<span id="cb15-2"><a href="#cb15-2"></a>                     <span class="st">'B'</span>: (Sigma[:,<span class="dv">1</span>]<span class="op">*</span>gewicht_erc[<span class="dv">1</span>]<span class="op">*</span>gewicht_erc),<span class="op">\</span></span>
+<span id="cb15-3"><a href="#cb15-3"></a>                     <span class="st">'C'</span>: (Sigma[:,<span class="dv">2</span>]<span class="op">*</span>gewicht_erc[<span class="dv">2</span>]<span class="op">*</span>gewicht_erc),<span class="op">\</span></span>
+<span id="cb15-4"><a href="#cb15-4"></a>                     <span class="st">'D'</span>: (Sigma[:,<span class="dv">3</span>]<span class="op">*</span>gewicht_erc[<span class="dv">3</span>]<span class="op">*</span>gewicht_erc)},<span class="op">\</span></span>
+<span id="cb15-5"><a href="#cb15-5"></a>                    index<span class="op">=</span>Assets, columns<span class="op">=</span>Assets) </span>
+<span id="cb15-6"><a href="#cb15-6"></a>wSigma.columns.name<span class="op">=</span><span class="st">'Gewichtete Kovarianzen'</span> </span>
+<span id="cb15-7"><a href="#cb15-7"></a>wSigma.loc[<span class="st">'Summe'</span>,:]<span class="op">=</span> wSigma.<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb15-8"><a href="#cb15-8"></a>wSigma.loc[:,<span class="st">'Summe'</span>]<span class="op">=</span> wSigma.<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb15-9"><a href="#cb15-9"></a>wSigma</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="12">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">Gewichtete Kovarianzen</th>
+<th data-quarto-table-cell-role="th">A</th>
+<th data-quarto-table-cell-role="th">B</th>
+<th data-quarto-table-cell-role="th">C</th>
+<th data-quarto-table-cell-role="th">D</th>
+<th data-quarto-table-cell-role="th">Summe</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">A</th>
+<td>0.001362</td>
+<td>0.000507</td>
+<td>-0.000183</td>
+<td>0.000458</td>
+<td>0.002144</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">B</th>
+<td>0.000507</td>
+<td>0.001181</td>
+<td>0.000171</td>
+<td>0.000284</td>
+<td>0.002144</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">C</th>
+<td>-0.000183</td>
+<td>0.000171</td>
+<td>0.002464</td>
+<td>-0.000308</td>
+<td>0.002144</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">D</th>
+<td>0.000458</td>
+<td>0.000284</td>
+<td>-0.000308</td>
+<td>0.001710</td>
+<td>0.002144</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">Summe</th>
+<td>0.002144</td>
+<td>0.002144</td>
+<td>0.002144</td>
+<td>0.002144</td>
+<td>0.008574</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Die gewichtete Varianz-Kovarianzmatrix führt somit zu einer Varianz des ERC-Portfolios von 0,0085744, was einer Standardabweichung des Portfolios von 9,25984% entspricht: <span class="math inline">\(\sigma_p=\sqrt{0,0085744}=9,25984\%\)</span>.</p>
+<p>Wie bei der ERB-Strategie können auch für die ERC-Strategie die absoluten Risikobeiträge (RB), die relativen Risikobeiträge, die Kovarianzen der einzelnen Anlagerenditen mit der Portfoliorendite, die auf das ERC-Portfolio bezogenen Betafaktoren und die marginalen Risikobeiträge in einer Tabelle dargestellt werden:</p>
+<div id="cell-29" class="cell" data-execution_count="13">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1"></a><span class="co"># Berechnung der absoluten Risikobeitrags: Formel (1) und (2)</span></span>
+<span id="cb16-2"><a href="#cb16-2"></a>rb<span class="op">=</span>np.zeros(<span class="dv">4</span>)</span>
+<span id="cb16-3"><a href="#cb16-3"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb16-4"><a href="#cb16-4"></a>    rb[i]<span class="op">=</span>(gewicht_erc[i]<span class="op">*</span>Sigma[i,:]<span class="op">*</span>np.asmatrix(gewicht_erc).T)<span class="op">/</span><span class="fl">0.0925984</span></span>
+<span id="cb16-5"><a href="#cb16-5"></a></span>
+<span id="cb16-6"><a href="#cb16-6"></a><span class="co"># Berechnung der relativen Risikobeitrags</span></span>
+<span id="cb16-7"><a href="#cb16-7"></a>rrb<span class="op">=</span>np.zeros(<span class="dv">4</span>)</span>
+<span id="cb16-8"><a href="#cb16-8"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb16-9"><a href="#cb16-9"></a>    rrb[i]<span class="op">=</span>rb[i]<span class="op">/</span>np.<span class="bu">sum</span>(rb)</span>
+<span id="cb16-10"><a href="#cb16-10"></a>    </span>
+<span id="cb16-11"><a href="#cb16-11"></a><span class="co"># Berechnung der Kovarianz der Assetrendite mit der Portfoliorendite: Formel (3)</span></span>
+<span id="cb16-12"><a href="#cb16-12"></a>cov_ri_rp<span class="op">=</span>np.zeros(<span class="dv">4</span>)</span>
+<span id="cb16-13"><a href="#cb16-13"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb16-14"><a href="#cb16-14"></a>       cov_ri_rp[i]<span class="op">=</span>Sigma[i,:]<span class="op">*</span>np.asmatrix(gewicht_erc).T</span>
+<span id="cb16-15"><a href="#cb16-15"></a></span>
+<span id="cb16-16"><a href="#cb16-16"></a><span class="co"># Berechnung des Betas der Assetrendite mit der Portfoliorendite</span></span>
+<span id="cb16-17"><a href="#cb16-17"></a>beta_ri<span class="op">=</span>np.zeros(<span class="dv">4</span>)</span>
+<span id="cb16-18"><a href="#cb16-18"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb16-19"><a href="#cb16-19"></a>        beta_ri[i]<span class="op">=</span>cov_ri_rp[i]<span class="op">/</span><span class="fl">0.0925984</span><span class="op">**</span><span class="dv">2</span></span>
+<span id="cb16-20"><a href="#cb16-20"></a></span>
+<span id="cb16-21"><a href="#cb16-21"></a><span class="co"># und nun noch der marginale Risikobeitrag</span></span>
+<span id="cb16-22"><a href="#cb16-22"></a>mrb<span class="op">=</span>np.zeros(<span class="dv">4</span>)</span>
+<span id="cb16-23"><a href="#cb16-23"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb16-24"><a href="#cb16-24"></a>        mrb[i]<span class="op">=</span>rb[i]<span class="op">/</span>gewicht_erc[i]</span>
+<span id="cb16-25"><a href="#cb16-25"></a>        </span>
+<span id="cb16-26"><a href="#cb16-26"></a><span class="co"># Abschließend stellen wir die Ergebnisse zur ERC-Strategie </span></span>
+<span id="cb16-27"><a href="#cb16-27"></a><span class="co"># übersichtlich in einer Tabelle dar</span></span>
+<span id="cb16-28"><a href="#cb16-28"></a></span>
+<span id="cb16-29"><a href="#cb16-29"></a>ergebnisse_erc<span class="op">=</span>pd.DataFrame({<span class="st">'absoluter RB (%)'</span>: np.<span class="bu">round</span>(rb<span class="op">*</span><span class="dv">100</span>,<span class="dv">4</span>), <span class="op">\</span></span>
+<span id="cb16-30"><a href="#cb16-30"></a>                             <span class="st">'relativer RB (%)'</span>: np.<span class="bu">round</span>(rrb<span class="op">*</span><span class="dv">100</span>,<span class="dv">4</span>),</span>
+<span id="cb16-31"><a href="#cb16-31"></a>                             <span class="st">'Cov(r_i,r_p)'</span>:np.<span class="bu">round</span>(cov_ri_rp,<span class="dv">4</span>),</span>
+<span id="cb16-32"><a href="#cb16-32"></a>                             <span class="st">'Beta'</span>: np.<span class="bu">round</span>(beta_ri,<span class="dv">4</span>),</span>
+<span id="cb16-33"><a href="#cb16-33"></a>                             <span class="st">'MRB (%)'</span>: np.<span class="bu">round</span>(mrb<span class="op">*</span><span class="dv">100</span>,<span class="dv">4</span>)},index<span class="op">=</span>Assets) </span>
+<span id="cb16-34"><a href="#cb16-34"></a>ergebnisse_erc.loc[<span class="st">'Summe'</span>,:<span class="dv">2</span>]<span class="op">=</span> ergebnisse_erc.<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb16-35"><a href="#cb16-35"></a>ergebnisse_erc</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="13">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">absoluter RB (%)</th>
+<th data-quarto-table-cell-role="th">relativer RB (%)</th>
+<th data-quarto-table-cell-role="th">Cov(r_i,r_p)</th>
+<th data-quarto-table-cell-role="th">Beta</th>
+<th data-quarto-table-cell-role="th">MRB (%)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">A</th>
+<td>2.315</td>
+<td>25.0</td>
+<td>0.0105</td>
+<td>1.2195</td>
+<td>11.2920</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">B</th>
+<td>2.315</td>
+<td>25.0</td>
+<td>0.0069</td>
+<td>0.8001</td>
+<td>7.4086</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">C</th>
+<td>2.315</td>
+<td>25.0</td>
+<td>0.0069</td>
+<td>0.8058</td>
+<td>7.4617</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">D</th>
+<td>2.315</td>
+<td>25.0</td>
+<td>0.0124</td>
+<td>1.4512</td>
+<td>13.4375</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">Summe</th>
+<td>9.260</td>
+<td>100.0</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Die Ergebnisse in der Tabelle zeigen, dass für die einzelnen Assets jeweils die gleichen Risikobeiträge ermittelt werden können, was dem Ziel der ERC-Strategie entspricht.</p>
+<p>Die jeweils gewichteten Betafaktoren ergeben in der Summe den Wert 1:</p>
+<p><span class="math display">\[ \beta^{ERC}_p= \Sigma^N_{n=1} w^{ERC}_n \cdot \beta^{ERC}_n \]</span></p>
+<p><span class="math display">\[ = 20,5008\% \cdot 1,2195 + 31,2471\% \cdot 0,8001 + 31,0244\% \cdot 0,8058 + 17,2277\% \cdot 1,4512 \]</span></p>
+<p><span class="math display">\[ = 0,2500 + 0,2500 + 0,2500 + 0,2500 = 1,0000 \]</span></p>
+<p>Dieses Ergebnis kann auch direkt aus der Umstellung der obigen Formel abgeleitet werden:</p>
+<p><span class="math display">\[ w^{ERC}_n=\frac{1}{N \cdot \beta^{ERC}_n} \iff w^{ERC}_n \cdot \beta^{ERC}_n =\frac{1}{N}.  \]</span></p>
+<p>Bei dem Beispiel wird deutlich, dass sich die jeweiligen Betafaktoren der einzelnen Anlagen von den Betafaktoren des ERB-Portfolios unterscheiden. Dies ist auf die Unterschiede von ERB- und ERC-Portfolio zurückzuführen, welche sich dadurch ergeben, dass bei der Ermittlung der Gewichtungen der jeweiligen Anlagen im ERB-Portfolio die Korrelationen zwischen den Renditen der sich im Portfolio befindenden Assets nicht berücksichtigt werden.</p>
+<p>Das Beispiel zeigt zudem, dass alle gewichteten Betafaktoren im ERC-Portfolio gleich sind. Somit gilt:</p>
+<p><span class="math display">\[ w^{ERC}_1 \cdot \beta^{ERC}_1=w^{ERC}_2 \cdot \beta^{ERC}_2=...=w^{ERC}_N \cdot \beta^{ERC}_N \]</span></p>
+<p>Hieraus resultiert der folgende Zusammenhang:</p>
+<p><span class="math display">\[ w^{ERC}_n=\frac{1/\beta^{ERC}_n}{\Sigma^N_{n=1}1/\beta^{ERC}_n}=\frac{1}{N \cdot \beta^{ERC}_n} \]</span></p>
+<p>Vor diesem Hintergrund kann das ERC-Portfolio auch als <strong>Beta Parity-Portfolio</strong> bezeichnet werden, während das ERB-Portfolio auch <strong>Volatility Parity-Portfolio</strong> genannt werden kann.</p>
+<p><strong>Beziehungen zwischen dem ERB und dem ERC Portfolio</strong></p>
+<ul>
+<li>Im Fall identischer Korrelationen zwischen allen Asset-Klassen sowie im Fall zweier Asset-Klassen reduziert sich der Equal-Risk-Contribution Ansatz auf den Equal-Risk-Budget Ansatz (vgl. Maillard et al., 2009).</li>
+</ul>
+<p>Würde man beispielsweise unterstellen, dass in dem obigen Beispiel sämtliche Korrelationen zwischen den Anlagen den Wert 0,2 annehmen, würde dies zu folgenden Ergebnissen führen:</p>
+<div id="cell-31" class="cell" data-execution_count="14">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1"></a>CorrMatrix_equal <span class="op">=</span> np.array([[<span class="fl">1.00</span>, <span class="fl">0.20</span>, <span class="fl">0.20</span>, <span class="fl">0.20</span>],</span>
+<span id="cb17-2"><a href="#cb17-2"></a>                            [<span class="fl">0.20</span>, <span class="fl">1.00</span>, <span class="fl">0.20</span>, <span class="fl">0.20</span>],</span>
+<span id="cb17-3"><a href="#cb17-3"></a>                           [<span class="fl">0.20</span>, <span class="fl">0.20</span>, <span class="fl">1.00</span>, <span class="fl">0.20</span>],</span>
+<span id="cb17-4"><a href="#cb17-4"></a>                           [<span class="fl">0.20</span>, <span class="fl">0.20</span>, <span class="fl">0.20</span>, <span class="fl">1.00</span>]])</span>
+<span id="cb17-5"><a href="#cb17-5"></a>Sigma_equal <span class="op">=</span> np.diag(Stdev) <span class="op">@</span> CorrMatrix_equal <span class="op">@</span> np.diag(Stdev)</span>
+<span id="cb17-6"><a href="#cb17-6"></a>Sigma_equal</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="14">
+<pre><code>array([[0.0324 , 0.00396, 0.00576, 0.00864],
+       [0.00396, 0.0121 , 0.00352, 0.00528],
+       [0.00576, 0.00352, 0.0256 , 0.00768],
+       [0.00864, 0.00528, 0.00768, 0.0576 ]])</code></pre>
+</div>
+</div>
+<div id="cell-32" class="cell" data-execution_count="15">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1"></a>gewicht_erc_equal<span class="op">=</span>get_risk_parity_weights(Sigma_equal, x_t, gewicht_ew)</span>
+<span id="cb19-2"><a href="#cb19-2"></a>pd.DataFrame({<span class="st">'Gewichte ERC'</span>: gewicht_erc_equal}, index<span class="op">=</span>Assets)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="15">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Gewichte ERC</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">A</th>
+<td>0.221662</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">B</th>
+<td>0.362720</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">C</th>
+<td>0.249370</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">D</th>
+<td>0.166247</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Diese Gewichtungen entsprechen den Werten des ERB-Ansatzes. Zu beachten ist, dass die veränderten Korrelationen zu einer anderen Standardabweichung der Portfoliorendite (10,0938%) gegenüber dem obigen ERB-Wert im Grundbeispiel führen. Sie ist aber in dem Fall der identischen Korrelationen für beide Portfolios (ERB und ERC) gleich.</p>
+<ul>
+<li>Wird darüber hinaus unterstellt, dass die Volatilitäten sämtlicher Assets im Portfolio identisch sind, so resultiert daraus für beide Ansätze ein gleichgewichtetes Portfolio.</li>
+</ul>
+</section>
+<section id="equally-weighted-strategie" class="level3" data-number="8.4.3">
+<h3 data-number="8.4.3" class="anchored" data-anchor-id="equally-weighted-strategie"><span class="header-section-number">8.4.3</span> Equally-Weighted-Strategie</h3>
+<p>In unserem Beispiel mit vier Assets betragen die Anteile <span class="math inline">\(w^{EW}_n\)</span> jeweils 25%. Für diese Werte ergibt sich die in der folgenden Tabelle dargestellte gewichtete Varianz-Kovarianmatrix.</p>
+<div id="cell-35" class="cell" data-execution_count="16">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1"></a>wSigma<span class="op">=</span>pd.DataFrame({<span class="st">'A'</span>: (Sigma[:,<span class="dv">0</span>]<span class="op">*</span>gewicht_ew[<span class="dv">0</span>]<span class="op">*</span>gewicht_ew),<span class="op">\</span></span>
+<span id="cb20-2"><a href="#cb20-2"></a>                     <span class="st">'B'</span>: (Sigma[:,<span class="dv">1</span>]<span class="op">*</span>gewicht_ew[<span class="dv">1</span>]<span class="op">*</span>gewicht_ew),<span class="op">\</span></span>
+<span id="cb20-3"><a href="#cb20-3"></a>                     <span class="st">'C'</span>: (Sigma[:,<span class="dv">2</span>]<span class="op">*</span>gewicht_ew[<span class="dv">2</span>]<span class="op">*</span>gewicht_ew),<span class="op">\</span></span>
+<span id="cb20-4"><a href="#cb20-4"></a>                     <span class="st">'D'</span>: (Sigma[:,<span class="dv">3</span>]<span class="op">*</span>gewicht_ew[<span class="dv">3</span>]<span class="op">*</span>gewicht_ew)},<span class="op">\</span></span>
+<span id="cb20-5"><a href="#cb20-5"></a>                    index<span class="op">=</span>Assets, columns<span class="op">=</span>Assets) </span>
+<span id="cb20-6"><a href="#cb20-6"></a>wSigma.columns.name<span class="op">=</span><span class="st">'Gewichtete Kovarianzen'</span> </span>
+<span id="cb20-7"><a href="#cb20-7"></a>wSigma.loc[<span class="st">'Summe'</span>,:]<span class="op">=</span> wSigma.<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb20-8"><a href="#cb20-8"></a>wSigma.loc[:,<span class="st">'Summe'</span>]<span class="op">=</span> wSigma.<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb20-9"><a href="#cb20-9"></a>wSigma</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="16">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">Gewichtete Kovarianzen</th>
+<th data-quarto-table-cell-role="th">A</th>
+<th data-quarto-table-cell-role="th">B</th>
+<th data-quarto-table-cell-role="th">C</th>
+<th data-quarto-table-cell-role="th">D</th>
+<th data-quarto-table-cell-role="th">Summe</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">A</th>
+<td>0.002025</td>
+<td>0.000495</td>
+<td>-0.00018</td>
+<td>0.00081</td>
+<td>0.003150</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">B</th>
+<td>0.000495</td>
+<td>0.000756</td>
+<td>0.00011</td>
+<td>0.00033</td>
+<td>0.001691</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">C</th>
+<td>-0.000180</td>
+<td>0.000110</td>
+<td>0.00160</td>
+<td>-0.00036</td>
+<td>0.001170</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">D</th>
+<td>0.000810</td>
+<td>0.000330</td>
+<td>-0.00036</td>
+<td>0.00360</td>
+<td>0.004380</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">Summe</th>
+<td>0.003150</td>
+<td>0.001691</td>
+<td>0.00117</td>
+<td>0.00438</td>
+<td>0.010391</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Die gewichtete Varianz-Kovarianzmatrix führt somit zu einer Varianz des EW-Portfolios von 0,0103913, was einer Standardabweichung des Portfolios von 10,19375% entspricht: <span class="math inline">\(\sigma_p=\sqrt{0,01039125}=10,19375\%.\)</span></p>
+<p>Identische Gewichte sind augenscheinlich nicht gleichbedeutend mit identischen Risikobeiträgen.</p>
+<div id="cell-38" class="cell" data-execution_count="17">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1"></a>pd.DataFrame(calculate_risk_contribution(gewicht_ew,Sigma),<span class="op">\</span></span>
+<span id="cb21-2"><a href="#cb21-2"></a>             index<span class="op">=</span>Assets).plot.<span class="op">\</span></span>
+<span id="cb21-3"><a href="#cb21-3"></a>                bar(title<span class="op">=</span><span class="st">'Risikobeitrag (EW-Portfolio)'</span>,</span>
+<span id="cb21-4"><a href="#cb21-4"></a>                    figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="dv">5</span>), legend<span class="op">=</span><span class="va">False</span>)<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="kapitel7_files/figure-html/cell-18-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Die absoluten Risikobeiträge (RB), die relativen Risikobeiträge, die Kovarianzen der einzelnen Anlagerenditen mit der Portfoliorendite, die auf das EW-Portfolio bezogenen Betafaktoren und die marginalen Risikobeiträge sind in der nachfolgenden Tabelle dargestellt:</p>
+<div id="cell-40" class="cell" data-execution_count="18">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1"></a><span class="co"># Berechnung der absoluten Risikobeitrags: Formel (1) und (2)</span></span>
+<span id="cb22-2"><a href="#cb22-2"></a>rb<span class="op">=</span>np.zeros(<span class="dv">4</span>)</span>
+<span id="cb22-3"><a href="#cb22-3"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb22-4"><a href="#cb22-4"></a>    rb[i]<span class="op">=</span>(gewicht_ew[i]<span class="op">*</span>Sigma[i,:]<span class="op">*</span>np.asmatrix(gewicht_ew).T)<span class="op">/</span><span class="fl">0.1019375</span></span>
+<span id="cb22-5"><a href="#cb22-5"></a></span>
+<span id="cb22-6"><a href="#cb22-6"></a><span class="co"># Berechnung der relativen Risikobeitrags</span></span>
+<span id="cb22-7"><a href="#cb22-7"></a>rrb<span class="op">=</span>np.zeros(<span class="dv">4</span>)</span>
+<span id="cb22-8"><a href="#cb22-8"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb22-9"><a href="#cb22-9"></a>    rrb[i]<span class="op">=</span>rb[i]<span class="op">/</span>np.<span class="bu">sum</span>(rb)</span>
+<span id="cb22-10"><a href="#cb22-10"></a>    </span>
+<span id="cb22-11"><a href="#cb22-11"></a><span class="co"># Berechnung der Kovarianz der Assetrendite mit der Portfoliorendite: Formel (3)</span></span>
+<span id="cb22-12"><a href="#cb22-12"></a>cov_ri_rp<span class="op">=</span>np.zeros(<span class="dv">4</span>)</span>
+<span id="cb22-13"><a href="#cb22-13"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb22-14"><a href="#cb22-14"></a>       cov_ri_rp[i]<span class="op">=</span>Sigma[i,:]<span class="op">*</span>np.asmatrix(gewicht_ew).T</span>
+<span id="cb22-15"><a href="#cb22-15"></a></span>
+<span id="cb22-16"><a href="#cb22-16"></a><span class="co"># Berechnung des Betas der Assetrendite mit der Portfoliorendite</span></span>
+<span id="cb22-17"><a href="#cb22-17"></a>beta_ri<span class="op">=</span>np.zeros(<span class="dv">4</span>)</span>
+<span id="cb22-18"><a href="#cb22-18"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb22-19"><a href="#cb22-19"></a>        beta_ri[i]<span class="op">=</span>cov_ri_rp[i]<span class="op">/</span><span class="fl">0.1019375</span><span class="op">**</span><span class="dv">2</span></span>
+<span id="cb22-20"><a href="#cb22-20"></a></span>
+<span id="cb22-21"><a href="#cb22-21"></a><span class="co"># und nun noch der marginale Risikobeitrag</span></span>
+<span id="cb22-22"><a href="#cb22-22"></a>mrb<span class="op">=</span>np.zeros(<span class="dv">4</span>)</span>
+<span id="cb22-23"><a href="#cb22-23"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb22-24"><a href="#cb22-24"></a>        mrb[i]<span class="op">=</span>rb[i]<span class="op">/</span>gewicht_ew[i]</span>
+<span id="cb22-25"><a href="#cb22-25"></a>        </span>
+<span id="cb22-26"><a href="#cb22-26"></a><span class="co"># Abschließend stellen wir die Ergebnisse zur EW-Strategie </span></span>
+<span id="cb22-27"><a href="#cb22-27"></a><span class="co"># übersichtlich in einer Tabelle dar</span></span>
+<span id="cb22-28"><a href="#cb22-28"></a></span>
+<span id="cb22-29"><a href="#cb22-29"></a>ergebnisse_ew<span class="op">=</span>pd.DataFrame({<span class="st">'absoluter RB (%)'</span>: np.<span class="bu">round</span>(rb<span class="op">*</span><span class="dv">100</span>,<span class="dv">4</span>), <span class="op">\</span></span>
+<span id="cb22-30"><a href="#cb22-30"></a>                             <span class="st">'relativer RB (%)'</span>: np.<span class="bu">round</span>(rrb<span class="op">*</span><span class="dv">100</span>,<span class="dv">4</span>),</span>
+<span id="cb22-31"><a href="#cb22-31"></a>                             <span class="st">'Cov(r_i,r_p)'</span>:np.<span class="bu">round</span>(cov_ri_rp,<span class="dv">4</span>),</span>
+<span id="cb22-32"><a href="#cb22-32"></a>                             <span class="st">'Beta'</span>: np.<span class="bu">round</span>(beta_ri,<span class="dv">4</span>),</span>
+<span id="cb22-33"><a href="#cb22-33"></a>                             <span class="st">'MRB (%)'</span>: np.<span class="bu">round</span>(mrb<span class="op">*</span><span class="dv">100</span>,<span class="dv">4</span>)},index<span class="op">=</span>Assets) </span>
+<span id="cb22-34"><a href="#cb22-34"></a>ergebnisse_ew.loc[<span class="st">'Summe'</span>,:<span class="dv">2</span>]<span class="op">=</span> ergebnisse_ew.<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb22-35"><a href="#cb22-35"></a>ergebnisse_ew</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="18">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">absoluter RB (%)</th>
+<th data-quarto-table-cell-role="th">relativer RB (%)</th>
+<th data-quarto-table-cell-role="th">Cov(r_i,r_p)</th>
+<th data-quarto-table-cell-role="th">Beta</th>
+<th data-quarto-table-cell-role="th">MRB (%)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">A</th>
+<td>3.0901</td>
+<td>30.3140</td>
+<td>0.0126</td>
+<td>1.2126</td>
+<td>12.3605</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">B</th>
+<td>1.6591</td>
+<td>16.2757</td>
+<td>0.0068</td>
+<td>0.6510</td>
+<td>6.6364</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">C</th>
+<td>1.1478</td>
+<td>11.2595</td>
+<td>0.0047</td>
+<td>0.4504</td>
+<td>4.5910</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">D</th>
+<td>4.2968</td>
+<td>42.1508</td>
+<td>0.0175</td>
+<td>1.6860</td>
+<td>17.1870</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">Summe</th>
+<td>10.1938</td>
+<td>100.0000</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Somit tragen die beiden Assets A und D, die auch jeweils das höchste Risiko aufweisen, über 72% zum Gesamtrisiko bei. Insgesamt ergibt sich ein Portoliorisiko, das höher ausfällt als bei den Risk Parity-Ansätzen.</p>
+</section>
+<section id="global-minimum-varianz-strategie" class="level3" data-number="8.4.4">
+<h3 data-number="8.4.4" class="anchored" data-anchor-id="global-minimum-varianz-strategie"><span class="header-section-number">8.4.4</span> Global-Minimum-Varianz-Strategie</h3>
+<p>Im obigen Beispiel eines aus den Assets A, B, C und D bestehenden Portfolios lassen sich für den Fall ohne Leerverkaufsverbot (oder andere Ungleichungen als Nebenbedingungen) die folgenden GMVP-Gewichte gemäß Formel (6) ermittelt.</p>
+<div id="cell-43" class="cell" data-execution_count="19">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1"></a>iota <span class="op">=</span> np.ones(Sigma.shape[<span class="dv">0</span>]) <span class="co"># erzeugt einen Einheitsvektor der Dimension 4</span></span>
+<span id="cb23-2"><a href="#cb23-2"></a>inv_Sigma <span class="op">=</span> la.inv(Sigma) <span class="co"># Inverse der Varianz-Kovarianzmatrix</span></span>
+<span id="cb23-3"><a href="#cb23-3"></a>gewicht_gmv <span class="op">=</span> inv_Sigma <span class="op">@</span> iota <span class="op">/</span> (iota <span class="op">@</span> inv_Sigma <span class="op">@</span> iota)</span>
+<span id="cb23-4"><a href="#cb23-4"></a>gewicht_gmv</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="19">
+<pre><code>array([0.11072811, 0.48654866, 0.30598742, 0.09673581])</code></pre>
+</div>
+</div>
+<p>Überprüfung der Lösung durch numerische Optimierung:</p>
+<div id="cell-45" class="cell" data-execution_count="20">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1"></a><span class="co"># Verwendung eines gleichgewichteten Portfolios "gewicht_ew" als Startlösung </span></span>
+<span id="cb25-2"><a href="#cb25-2"></a><span class="co"># einzige Nebenbedingung: Budgetrestriktion (sum(w) = 1 )</span></span>
+<span id="cb25-3"><a href="#cb25-3"></a>cons <span class="op">=</span> ({<span class="st">'type'</span>: <span class="st">'eq'</span>, <span class="st">'fun'</span>: <span class="kw">lambda</span> x:  np.<span class="bu">sum</span>(x)<span class="op">-</span><span class="fl">1.0</span>})</span>
+<span id="cb25-4"><a href="#cb25-4"></a>res<span class="op">=</span> minimize(calculate_portfolio_var, gewicht_ew, args<span class="op">=</span>Sigma, <span class="op">\</span></span>
+<span id="cb25-5"><a href="#cb25-5"></a>              tol<span class="op">=</span>TOLERANCE, method<span class="op">=</span><span class="st">'SLSQP'</span>,constraints<span class="op">=</span>cons, options<span class="op">=</span>{<span class="st">'disp'</span>: <span class="va">False</span>})</span>
+<span id="cb25-6"><a href="#cb25-6"></a>gewicht_gmv <span class="op">=</span> res.x</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="cell-46" class="cell" data-execution_count="21">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1"></a>gewicht_gmv</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="21">
+<pre><code>array([0.1107281 , 0.48654867, 0.30598741, 0.09673581])</code></pre>
+</div>
+</div>
+<p>Nun die GMVP Gewichte mit der <strong>Nichtnegativitätsbedingung (Leerverkausverbot)</strong>:</p>
+<div id="cell-48" class="cell" data-execution_count="22">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1"></a><span class="co"># Nichtnegativitätsbedingung</span></span>
+<span id="cb28-2"><a href="#cb28-2"></a>bnd<span class="op">=</span>[(<span class="dv">0</span>, <span class="dv">1</span>),(<span class="dv">0</span>, <span class="dv">1</span>),(<span class="dv">0</span>, <span class="dv">1</span>),(<span class="dv">0</span>, <span class="dv">1</span>)] <span class="co"># nur positive Gewichte</span></span>
+<span id="cb28-3"><a href="#cb28-3"></a></span>
+<span id="cb28-4"><a href="#cb28-4"></a>res2<span class="op">=</span> minimize(calculate_portfolio_var, gewicht_ew, args<span class="op">=</span>Sigma,<span class="op">\</span></span>
+<span id="cb28-5"><a href="#cb28-5"></a>               bounds <span class="op">=</span> bnd, method<span class="op">=</span><span class="st">'SLSQP'</span>,constraints<span class="op">=</span>cons,<span class="op">\</span></span>
+<span id="cb28-6"><a href="#cb28-6"></a>               tol<span class="op">=</span>TOLERANCE, options<span class="op">=</span>{<span class="st">'disp'</span>: <span class="va">False</span>})</span>
+<span id="cb28-7"><a href="#cb28-7"></a>gewicht_gmv_long_only <span class="op">=</span> res2.x</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="cell-49" class="cell" data-execution_count="23">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1"></a>gewicht_gmv_long_only</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="23">
+<pre><code>array([0.1107281 , 0.48654867, 0.30598741, 0.09673581])</code></pre>
+</div>
+</div>
+<p>Offensichtlich ergeben sich für die Beispieldaten keine bedeutsamen Unterschiede zwischen der geschlossenen und der numerischen Lösung. Das Leerverkaufsverbot stellt hier somit keine Einschränkung dar.</p>
+<p>Als weitere Modifikation werden wir nun Bestandsgrenzen für die Assets von [0;0,40] einführen, d.h., kein Asset darf mehr als 40% des Portfolios ausmachen.</p>
+<div id="cell-51" class="cell" data-execution_count="24">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1"></a>bnd<span class="op">=</span>[(<span class="dv">0</span>, <span class="fl">.4</span>),(<span class="dv">0</span>, <span class="fl">.4</span>),(<span class="dv">0</span>, <span class="fl">.4</span>),(<span class="dv">0</span>, <span class="fl">.4</span>)]</span>
+<span id="cb31-2"><a href="#cb31-2"></a>res3<span class="op">=</span> minimize(calculate_portfolio_var, gewicht_ew, args<span class="op">=</span>Sigma, <span class="op">\</span></span>
+<span id="cb31-3"><a href="#cb31-3"></a>               bounds <span class="op">=</span> bnd, method<span class="op">=</span><span class="st">'SLSQP'</span>,constraints<span class="op">=</span>cons, <span class="op">\</span></span>
+<span id="cb31-4"><a href="#cb31-4"></a>               tol<span class="op">=</span>TOLERANCE, options<span class="op">=</span>{<span class="st">'disp'</span>: <span class="va">False</span>})</span>
+<span id="cb31-5"><a href="#cb31-5"></a>gewicht_gmv_long_only_max_40<span class="op">=</span> res3.x</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="cell-52" class="cell" data-execution_count="25">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1"></a>gewicht_gmv_long_only_max_40</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="25">
+<pre><code>array([0.14784903, 0.4       , 0.34204197, 0.110109  ])</code></pre>
+</div>
+</div>
+<p>Stellen wir nun abschließend die Gewichte der drei Versionen des GMVP grafisch dar.</p>
+<div id="cell-54" class="cell" data-execution_count="26">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1"></a>gmvp_weights <span class="op">=</span>pd.DataFrame({<span class="st">'keine Beschränkung'</span>:gewicht_gmv.T, </span>
+<span id="cb34-2"><a href="#cb34-2"></a>                   <span class="st">'Long-only'</span>: gewicht_gmv_long_only.T, </span>
+<span id="cb34-3"><a href="#cb34-3"></a>                    <span class="st">'Long-only, max. 40%'</span>: gewicht_gmv_long_only_max_40.T},</span>
+<span id="cb34-4"><a href="#cb34-4"></a>                  index<span class="op">=</span> Assets)</span>
+<span id="cb34-5"><a href="#cb34-5"></a>                           </span>
+<span id="cb34-6"><a href="#cb34-6"></a>gmvp_weights.plot.bar(title<span class="op">=</span><span class="st">'Verschiedene Global-Minimum-Varianz-Portfolio Gewichte'</span>,</span>
+<span id="cb34-7"><a href="#cb34-7"></a>                            legend<span class="op">=</span><span class="va">True</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">5</span>))<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="kapitel7_files/figure-html/cell-27-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>In diesem Beispiel erhalten die Assets mit zunehmenden Risiko abnehmende Anteile im Portfolio. Somit wird - wie auch beim Risk Parity-Ansatz zu erwarten ist - tendenziell eher in risikoärmere Assets investiert (wobei aber zu beachten ist, dass diese Aussage auch hier nicht generell gilt, weil gleichzeitig auch die Korrelationen untereinander noch zu berücksichtigen sind). Für diese Werte ergibt sich die in der folgenden Tabelle dargestellte gewichtete Varianz-Kovarianzmatrix.</p>
+<div id="cell-56" class="cell" data-execution_count="27">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1"></a>wSigma<span class="op">=</span>pd.DataFrame({<span class="st">'A'</span>: (Sigma[:,<span class="dv">0</span>]<span class="op">*</span>gewicht_gmv[<span class="dv">0</span>]<span class="op">*</span>gewicht_gmv),<span class="op">\</span></span>
+<span id="cb35-2"><a href="#cb35-2"></a>                     <span class="st">'B'</span>: (Sigma[:,<span class="dv">1</span>]<span class="op">*</span>gewicht_gmv[<span class="dv">1</span>]<span class="op">*</span>gewicht_gmv),<span class="op">\</span></span>
+<span id="cb35-3"><a href="#cb35-3"></a>                     <span class="st">'C'</span>: (Sigma[:,<span class="dv">2</span>]<span class="op">*</span>gewicht_gmv[<span class="dv">2</span>]<span class="op">*</span>gewicht_gmv),<span class="op">\</span></span>
+<span id="cb35-4"><a href="#cb35-4"></a>                     <span class="st">'D'</span>: (Sigma[:,<span class="dv">3</span>]<span class="op">*</span>gewicht_gmv[<span class="dv">3</span>]<span class="op">*</span>gewicht_gmv)},<span class="op">\</span></span>
+<span id="cb35-5"><a href="#cb35-5"></a>                    index<span class="op">=</span>Assets, columns<span class="op">=</span>Assets) </span>
+<span id="cb35-6"><a href="#cb35-6"></a>wSigma.columns.name<span class="op">=</span><span class="st">'Gewichtete Kovarianzen'</span> </span>
+<span id="cb35-7"><a href="#cb35-7"></a>wSigma.loc[<span class="st">'Summe'</span>,:]<span class="op">=</span> wSigma.<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb35-8"><a href="#cb35-8"></a>wSigma.loc[:,<span class="st">'Summe'</span>]<span class="op">=</span> wSigma.<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb35-9"><a href="#cb35-9"></a>wSigma</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="27">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">Gewichtete Kovarianzen</th>
+<th data-quarto-table-cell-role="th">A</th>
+<th data-quarto-table-cell-role="th">B</th>
+<th data-quarto-table-cell-role="th">C</th>
+<th data-quarto-table-cell-role="th">D</th>
+<th data-quarto-table-cell-role="th">Summe</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">A</th>
+<td>0.000397</td>
+<td>0.000427</td>
+<td>-0.000098</td>
+<td>0.000139</td>
+<td>0.000865</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">B</th>
+<td>0.000427</td>
+<td>0.002864</td>
+<td>0.000262</td>
+<td>0.000249</td>
+<td>0.003802</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">C</th>
+<td>-0.000098</td>
+<td>0.000262</td>
+<td>0.002397</td>
+<td>-0.000170</td>
+<td>0.002391</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">D</th>
+<td>0.000139</td>
+<td>0.000249</td>
+<td>-0.000170</td>
+<td>0.000539</td>
+<td>0.000756</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">Summe</th>
+<td>0.000865</td>
+<td>0.003802</td>
+<td>0.002391</td>
+<td>0.000756</td>
+<td>0.007814</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Mit Hilfe der gewichteten Varianz-Kovarianmatrix kann somit eine Varianz des GMVP von 0,0078135 ermittelt werden, was einer Standardabweichung des Portfolios von 8,83941%</p>
+<p><span class="math display">\[\sigma_p=\sqrt{0,0078135}=8,83941\%.\]</span></p>
+<p>Wie beim Risk Parity-Ansatz können auch für das GMVP die absoluten Risikobeiträge (RB), die relativen Risikobeiträge, die Kovarianzen der einzelnen Anlagerenditen mit der Portfoliorendite, die auf das GMV-Portfolio bezogenen Betafaktoren und die marginalen Risikobeiträge in einer Tabelle dargestellt werden:</p>
+<div id="cell-58" class="cell" data-scrolled="true" data-execution_count="28">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1"></a><span class="co"># Berechnung der absoluten Risikobeitrags: Formel (1) und (2)</span></span>
+<span id="cb36-2"><a href="#cb36-2"></a>rb<span class="op">=</span>np.zeros(<span class="dv">4</span>)</span>
+<span id="cb36-3"><a href="#cb36-3"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb36-4"><a href="#cb36-4"></a>    rb[i]<span class="op">=</span>(gewicht_gmv[i]<span class="op">*</span>Sigma[i,:]<span class="op">*</span>np.asmatrix(gewicht_gmv).T)<span class="op">/</span><span class="fl">0.0883941</span></span>
+<span id="cb36-5"><a href="#cb36-5"></a></span>
+<span id="cb36-6"><a href="#cb36-6"></a><span class="co"># Berechnung der relativen Risikobeitrags</span></span>
+<span id="cb36-7"><a href="#cb36-7"></a>rrb<span class="op">=</span>np.zeros(<span class="dv">4</span>)</span>
+<span id="cb36-8"><a href="#cb36-8"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb36-9"><a href="#cb36-9"></a>    rrb[i]<span class="op">=</span>rb[i]<span class="op">/</span>np.<span class="bu">sum</span>(rb)</span>
+<span id="cb36-10"><a href="#cb36-10"></a>    </span>
+<span id="cb36-11"><a href="#cb36-11"></a><span class="co"># Berechnung der Kovarianz der Assetrendite mit der Portfoliorendite: Formel (3)</span></span>
+<span id="cb36-12"><a href="#cb36-12"></a>cov_ri_rp<span class="op">=</span>np.zeros(<span class="dv">4</span>)</span>
+<span id="cb36-13"><a href="#cb36-13"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb36-14"><a href="#cb36-14"></a>       cov_ri_rp[i]<span class="op">=</span>Sigma[i,:]<span class="op">*</span>np.asmatrix(gewicht_gmv).T</span>
+<span id="cb36-15"><a href="#cb36-15"></a></span>
+<span id="cb36-16"><a href="#cb36-16"></a><span class="co"># Berechnung des Betas der Assetrendite mit der Portfoliorendite</span></span>
+<span id="cb36-17"><a href="#cb36-17"></a>beta_ri<span class="op">=</span>np.zeros(<span class="dv">4</span>)</span>
+<span id="cb36-18"><a href="#cb36-18"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb36-19"><a href="#cb36-19"></a>        beta_ri[i]<span class="op">=</span>cov_ri_rp[i]<span class="op">/</span><span class="fl">0.0883941</span><span class="op">**</span><span class="dv">2</span></span>
+<span id="cb36-20"><a href="#cb36-20"></a></span>
+<span id="cb36-21"><a href="#cb36-21"></a><span class="co"># und nun noch der marginale Risikobeitrag</span></span>
+<span id="cb36-22"><a href="#cb36-22"></a>mrb<span class="op">=</span>np.zeros(<span class="dv">4</span>)</span>
+<span id="cb36-23"><a href="#cb36-23"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb36-24"><a href="#cb36-24"></a>        mrb[i]<span class="op">=</span>rb[i]<span class="op">/</span>gewicht_gmv[i]</span>
+<span id="cb36-25"><a href="#cb36-25"></a>        </span>
+<span id="cb36-26"><a href="#cb36-26"></a><span class="co"># Abschließend stellen wir die Ergebnisse zur GMV-Strategie </span></span>
+<span id="cb36-27"><a href="#cb36-27"></a><span class="co"># übersichtlich in einer Tabelle dar</span></span>
+<span id="cb36-28"><a href="#cb36-28"></a></span>
+<span id="cb36-29"><a href="#cb36-29"></a>ergebnisse_gmv<span class="op">=</span>pd.DataFrame({<span class="st">'absoluter RB (%)'</span>: np.<span class="bu">round</span>(rb<span class="op">*</span><span class="dv">100</span>,<span class="dv">4</span>), <span class="op">\</span></span>
+<span id="cb36-30"><a href="#cb36-30"></a>                             <span class="st">'relativer RB (%)'</span>: np.<span class="bu">round</span>(rrb<span class="op">*</span><span class="dv">100</span>,<span class="dv">4</span>),</span>
+<span id="cb36-31"><a href="#cb36-31"></a>                             <span class="st">'Cov(r_i,r_p)'</span>:np.<span class="bu">round</span>(cov_ri_rp,<span class="dv">4</span>),</span>
+<span id="cb36-32"><a href="#cb36-32"></a>                             <span class="st">'Beta'</span>: np.<span class="bu">round</span>(beta_ri,<span class="dv">4</span>),</span>
+<span id="cb36-33"><a href="#cb36-33"></a>                             <span class="st">'MRB (%)'</span>: np.<span class="bu">round</span>(mrb<span class="op">*</span><span class="dv">100</span>,<span class="dv">4</span>)},index<span class="op">=</span>Assets) </span>
+<span id="cb36-34"><a href="#cb36-34"></a>ergebnisse_gmv.loc[<span class="st">'Summe'</span>,:<span class="dv">2</span>]<span class="op">=</span> ergebnisse_gmv.<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb36-35"><a href="#cb36-35"></a>ergebnisse_gmv</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="28">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">absoluter RB (%)</th>
+<th data-quarto-table-cell-role="th">relativer RB (%)</th>
+<th data-quarto-table-cell-role="th">Cov(r_i,r_p)</th>
+<th data-quarto-table-cell-role="th">Beta</th>
+<th data-quarto-table-cell-role="th">MRB (%)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">A</th>
+<td>0.9788</td>
+<td>11.0728</td>
+<td>0.0078</td>
+<td>1.0</td>
+<td>8.8394</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">B</th>
+<td>4.3008</td>
+<td>48.6549</td>
+<td>0.0078</td>
+<td>1.0</td>
+<td>8.8394</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">C</th>
+<td>2.7047</td>
+<td>30.5987</td>
+<td>0.0078</td>
+<td>1.0</td>
+<td>8.8394</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">D</th>
+<td>0.8551</td>
+<td>9.6736</td>
+<td>0.0078</td>
+<td>1.0</td>
+<td>8.8394</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">Summe</th>
+<td>8.8394</td>
+<td>100.0000</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Auffällig ist in der Tabelle zunächst, dass die Kovarianzen der Renditen sämtlicher Assets mit den Renditen des GMVP identisch sind. Dies lässt sich auch analytisch zeigen. Für eine beliebige Anlage Z ergibt sich die Varianz des aus dem GMVP und Z bestehenden Portfolios wie folgt:</p>
+<p><span class="math display">\[ \sigma^2_p=w^2_{GMV} \cdot \sigma^2_{GMV}+(1-w_{GMV})^2 \cdot \sigma^2_Z + 2 \cdot w_{GMV} \cdot (1-w_{GMV})\cdot Cov(r_{GMV},r_Z) \]</span></p>
+<p>Zur Bestimmung des sich hieraus ergebenden Portfolios mit der minimalen Varianz wird diese Gleichung nach <span class="math inline">\(w_{GMV}\)</span> abgeleitet und die Ableitung anschließend mit Null gleichgesetzt:</p>
+<p><span class="math display">\[ \frac{\partial{\sigma^2_p}}{\partial{w_{GMV}}}=2 \cdot \sigma^2_{GMV}\cdot w_{GMV}-2 \cdot (1-w_{GMV})\cdot \sigma^2_Z+ (2-4\cdot w_{GMV}) \cdot Cov(r_{GMV},r_Z)=0 \]</span></p>
+<p>Da die Veränderung der Gewichte <span class="math inline">\(w_n\)</span> zu einer höheren Varianz des Portfolios führen würde als die Varianz des GMV-Portfolios, ergibt sich direkt, dass <span class="math inline">\(w_{GMV}=100\%\)</span> und <span class="math inline">\(w_Z=0\%\)</span>. Dies wiederum führt zu der folgenden Gleichung (siehe Kleeberg, 1995, S. 17ff.):</p>
+<p><span class="math display">\[ \frac{\partial{\sigma^2_p}}{\partial{w_{GMV}}}=2 \cdot \sigma^2_{GMV}-2 \cdot Cov(r_{GMV},r_Z)=0 \iff \sigma^2_{GMV}=Cov(r_{GMV},r_Z) \]</span></p>
+<p>Somit entspricht die Kovarianz des GMVP mit einer beliebigen Anlage Z seiner Varianz. Sofern allerdings weitere Nebenbedingungen zur GMVP-Bestimmung gelten, wie z.B. eine maximale Gewichtung einzelner Anlagen im Portfolio (siehe oben) oder ein Verbot von Leerverkäufen, kann es möglicherweise vorkommen, dass die Übereinstimmung der Varianz des GMVP mit der Kovarianz des GMVP mit einer beliebigen anderen Anlage Z nicht vorliegt.</p>
+<p>Aufgrund der o.g. Übereinstimmung von Kovarianz und Varianz resultiert für alle Anlagen im Portfolio auch ein Betafaktor (in Bezug zum GMVP) von 1:</p>
+<p><span class="math display">\[ \beta_n=\frac{Cov(r_n,r_{GMV})}{\sigma^2_{GMV}}=\frac{\sigma^2_{GMV}}{\sigma^2_{GMV}}=1 \]</span></p>
+<p>Darüber hinaus ist auch der marginale Risikobeitrag für alle Assets des GMVP identisch und entspricht der Standardabweichung des GMVP, wie sich auf Basis der o.g. formalen Ermittlung des marginalen Risikobeitrags (MRB) ergibt:</p>
+<p><span class="math display">\[ MRB_n=\frac{\partial{\sigma_{GMV}}}{\partial{w_n}}=\frac{Cov(r_n,r_{GMV})}{\sigma_{GMV}}=\beta_n \cdot \sigma_{GMV}=1 \cdot \sigma_{GMV}=\sigma_{GMV} \]</span></p>
+<p>Der absolute Risikobeitrag (RB) für jede Anlage n berechnet sich allgemein wiederum in der folgenden Weise: <span class="math inline">\(RB_n=w_n \cdot MRB_n\)</span>. Da hier gilt, dass <span class="math inline">\(MRB_n=\sigma_{GMV}\)</span>, folgt daraus für den Global-Minimum-Varianz-Ansatz:</p>
+<p><span class="math display">\[ \textrm{relativer Risikobeitrag} = \frac{RB_n}{\sigma_{GMV}}=\frac{RB_n}{MRB_n}=w^{GMV}_n \]</span></p>
+<p>Angemerkt werden kann, dass der Betafaktor des GMVP bzgl. des Gesamtmarktes bzw. Marktportfolios <span class="math inline">\((\beta^M_{GMV})\)</span> kleiner als 1 sein muss. Aufgrund der Identität der Varianz des GMVP und der Kovarianz des GMVP mit einer anderen Anlage lässt sich folgender Ausdruck ableiten, wobei unterstellt wird, dass keine Nebenbedingungen zur Ermittlung des GMVP berücksichtigt werden müssen:</p>
+<p><span class="math display">\[ \sigma^2_{GMVP}&lt;\sigma^2_M \rightarrow \beta^M_{GMV}=\frac{Cov(r_{GMV}, r_M)}{\sigma^2_M}=\frac{\sigma^2_{GMV}}{\sigma^2_M}&lt;1 \]</span></p>
+<p>In mehreren bisherigen empirischen Untersuchungen zum Erfolg des GMVP konnte mehrfach ein geringeres Risiko bei einer gleichzeitig höheren Rendite als bei Verwendung der entsprechenden Marktindizes festgestellt werden (siehe Kleeberg, 1995, 2002; Clarke et al., 2006, 2011).</p>
+</section>
+<section id="maximum-diversification-strategie" class="level3" data-number="8.4.5">
+<h3 data-number="8.4.5" class="anchored" data-anchor-id="maximum-diversification-strategie"><span class="header-section-number">8.4.5</span> Maximum-Diversification-Strategie</h3>
+<p>Für das obige Beispiel eines aus den Anlagen A, B, C und D bestehenden Portfolios lassen sich die nachfolgenden Anteile bestimmen. Zunächst als geschlossene Lösung gemäß Formel (7) für den Fall mit nur der Budgetrestriktion als Nebenbedingung.</p>
+<div id="cell-61" class="cell" data-execution_count="29">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1"></a>gewicht_md <span class="op">=</span> inv_Sigma <span class="op">@</span> Stdev <span class="op">/</span> (iota <span class="op">@</span> inv_Sigma <span class="op">@</span> Stdev)</span>
+<span id="cb37-2"><a href="#cb37-2"></a>gewicht_md</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="29">
+<pre><code>array([0.20140626, 0.2133736 , 0.38775895, 0.19746119])</code></pre>
+</div>
+</div>
+<p>Und nun über die numerische Optimierung als Long-only Portfolio.</p>
+<div id="cell-63" class="cell" data-execution_count="30">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1"></a><span class="co"># Implementierung der numerischen Optimierung:</span></span>
+<span id="cb39-2"><a href="#cb39-2"></a></span>
+<span id="cb39-3"><a href="#cb39-3"></a><span class="kw">def</span> calc_diversification_ratio(w, Sigma):</span>
+<span id="cb39-4"><a href="#cb39-4"></a>    <span class="co"># mit den Portfolioanteilen gewichtete durchschnittliche Vola</span></span>
+<span id="cb39-5"><a href="#cb39-5"></a>    w_vol <span class="op">=</span> np.dot(np.sqrt(np.diag(Sigma)), w.T)</span>
+<span id="cb39-6"><a href="#cb39-6"></a>    <span class="co"># Portfolio vol</span></span>
+<span id="cb39-7"><a href="#cb39-7"></a>    port_vol <span class="op">=</span> np.sqrt(calculate_portfolio_var(w, Sigma))</span>
+<span id="cb39-8"><a href="#cb39-8"></a>    diversification_ratio <span class="op">=</span> w_vol<span class="op">/</span>port_vol</span>
+<span id="cb39-9"><a href="#cb39-9"></a>    <span class="co"># Rückgabe negativ da Minimierungsproblem (maximize = minimize -)</span></span>
+<span id="cb39-10"><a href="#cb39-10"></a>    <span class="cf">return</span> <span class="op">-</span>diversification_ratio</span>
+<span id="cb39-11"><a href="#cb39-11"></a></span>
+<span id="cb39-12"><a href="#cb39-12"></a></span>
+<span id="cb39-13"><a href="#cb39-13"></a><span class="kw">def</span> max_div_port(w0, Sigma, bnd<span class="op">=</span><span class="va">None</span>, long_only<span class="op">=</span><span class="va">True</span>):</span>
+<span id="cb39-14"><a href="#cb39-14"></a>    <span class="co"># w0: Vektor der Startgewichte</span></span>
+<span id="cb39-15"><a href="#cb39-15"></a>    <span class="co"># Sigma: Varianz-Kovarianzmatrix</span></span>
+<span id="cb39-16"><a href="#cb39-16"></a>    <span class="co"># bnd: individuelle Bestandsgrenzen</span></span>
+<span id="cb39-17"><a href="#cb39-17"></a>    <span class="co"># long only: long-only Nebenbedingung</span></span>
+<span id="cb39-18"><a href="#cb39-18"></a>    cons <span class="op">=</span> ({<span class="st">'type'</span>: <span class="st">'eq'</span>, <span class="st">'fun'</span>: total_weight_constraint},)</span>
+<span id="cb39-19"><a href="#cb39-19"></a>    <span class="cf">if</span> long_only: <span class="co"># Hinzufügen der Nichtnegativitätsbedingung</span></span>
+<span id="cb39-20"><a href="#cb39-20"></a>        cons <span class="op">=</span> cons <span class="op">+</span> ({<span class="st">'type'</span>: <span class="st">'ineq'</span>, <span class="st">'fun'</span>:  long_only_constraint},)</span>
+<span id="cb39-21"><a href="#cb39-21"></a>    res <span class="op">=</span> minimize(calc_diversification_ratio, w0, bounds<span class="op">=</span>bnd,<span class="op">\</span></span>
+<span id="cb39-22"><a href="#cb39-22"></a>                   args<span class="op">=</span>Sigma, method<span class="op">=</span><span class="st">'SLSQP'</span>, constraints<span class="op">=</span>cons, tol<span class="op">=</span>TOLERANCE)</span>
+<span id="cb39-23"><a href="#cb39-23"></a>    <span class="cf">return</span> res.x</span>
+<span id="cb39-24"><a href="#cb39-24"></a></span>
+<span id="cb39-25"><a href="#cb39-25"></a>max_div_port(gewicht_ew, Sigma)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="30">
+<pre><code>array([0.20140626, 0.21337361, 0.38775895, 0.19746118])</code></pre>
+</div>
+</div>
+<p>Der Vergleich zeigt - wie im Fall des GMVP -, dass das Hinzufügen der Nichtnegativitätsbedingung im Beispiel keinen Einfluss auf die optimale Lösung hat.</p>
+<div id="cell-65" class="cell" data-execution_count="31">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1"></a>pd.DataFrame(max_div_port(gewicht_ew, Sigma), index<span class="op">=</span>Assets).<span class="op">\</span></span>
+<span id="cb41-2"><a href="#cb41-2"></a>             plot.bar(title<span class="op">=</span><span class="st">'Max Diversification Gewichte'</span>,</span>
+<span id="cb41-3"><a href="#cb41-3"></a>             legend<span class="op">=</span><span class="va">False</span>, figsize<span class="op">=</span>(<span class="dv">9</span>, <span class="dv">4</span>))<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="kapitel7_files/figure-html/cell-32-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Auffällig ist - im Vergleich zu den o.g. Stratgien -, dass beim MD-Ansatz in das Asset C erheblich mehr als in Asset B investiert wird, obwohl das Risiko von C deutlich höher ausfällt. Dies hängt mit den geringen Korrelationen zwischen C und den übrigen Anlagen zusammen.</p>
+<p>Für diese Werte ergibt sich die in der folgenden Tabelle dargestellte gewichtete Varianz-Kovarianmatrix.</p>
+<div id="cell-67" class="cell" data-execution_count="32">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1"></a>wSigma<span class="op">=</span>pd.DataFrame({<span class="st">'A'</span>: (Sigma[:,<span class="dv">0</span>]<span class="op">*</span>gewicht_md[<span class="dv">0</span>]<span class="op">*</span>gewicht_md),<span class="op">\</span></span>
+<span id="cb42-2"><a href="#cb42-2"></a>                     <span class="st">'B'</span>: (Sigma[:,<span class="dv">1</span>]<span class="op">*</span>gewicht_md[<span class="dv">1</span>]<span class="op">*</span>gewicht_md),<span class="op">\</span></span>
+<span id="cb42-3"><a href="#cb42-3"></a>                     <span class="st">'C'</span>: (Sigma[:,<span class="dv">2</span>]<span class="op">*</span>gewicht_md[<span class="dv">2</span>]<span class="op">*</span>gewicht_md),<span class="op">\</span></span>
+<span id="cb42-4"><a href="#cb42-4"></a>                     <span class="st">'D'</span>: (Sigma[:,<span class="dv">3</span>]<span class="op">*</span>gewicht_md[<span class="dv">3</span>]<span class="op">*</span>gewicht_md)},<span class="op">\</span></span>
+<span id="cb42-5"><a href="#cb42-5"></a>                    index<span class="op">=</span>Assets, columns<span class="op">=</span>Assets) </span>
+<span id="cb42-6"><a href="#cb42-6"></a>wSigma.columns.name<span class="op">=</span><span class="st">'Gewichtete Kovarianzen'</span> </span>
+<span id="cb42-7"><a href="#cb42-7"></a>wSigma.loc[<span class="st">'Summe'</span>,:]<span class="op">=</span> wSigma.<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb42-8"><a href="#cb42-8"></a>wSigma.loc[:,<span class="st">'Summe'</span>]<span class="op">=</span> wSigma.<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb42-9"><a href="#cb42-9"></a>wSigma</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="32">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">Gewichtete Kovarianzen</th>
+<th data-quarto-table-cell-role="th">A</th>
+<th data-quarto-table-cell-role="th">B</th>
+<th data-quarto-table-cell-role="th">C</th>
+<th data-quarto-table-cell-role="th">D</th>
+<th data-quarto-table-cell-role="th">Summe</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">A</th>
+<td>0.001314</td>
+<td>0.000340</td>
+<td>-0.000225</td>
+<td>0.000515</td>
+<td>0.001945</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">B</th>
+<td>0.000340</td>
+<td>0.000551</td>
+<td>0.000146</td>
+<td>0.000222</td>
+<td>0.001259</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">C</th>
+<td>-0.000225</td>
+<td>0.000146</td>
+<td>0.003849</td>
+<td>-0.000441</td>
+<td>0.003329</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">D</th>
+<td>0.000515</td>
+<td>0.000222</td>
+<td>-0.000441</td>
+<td>0.002246</td>
+<td>0.002543</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">Summe</th>
+<td>0.001945</td>
+<td>0.001259</td>
+<td>0.003329</td>
+<td>0.002543</td>
+<td>0.009076</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Mit Hilfe der gewichteten Varianz-Kovarianzmatrix kann somit eine Varianz des MD-Portfolios von 0,009076 ermittelt werden, was einer Standardabweichung der Portfoliorendite von 9,52681% entspricht:</p>
+<p><span class="math display">\[\sigma_p=\sqrt{0,009076}=9,52681\%.\]</span></p>
+<p>Wie beim Risk Parity-Ansatz können auch für das Maximum-Diversification-Portfolio die absoluten Risikobeiträge (RB), die relativen Risikobeiträge, die Kovarianzen der einzelnen Anlagerenditen mit der Portfoliorendite, die auf das MD-Portfolio bezogenen Betafaktoren und die marginalen Risikobeiträge in einer Tabelle dargestellt werden:</p>
+<div id="cell-69" class="cell" data-execution_count="33">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1"></a><span class="co"># Berechnung der absoluten Risikobeitrags: Formel (1) und (2)</span></span>
+<span id="cb43-2"><a href="#cb43-2"></a>rb<span class="op">=</span>np.zeros(<span class="dv">4</span>)</span>
+<span id="cb43-3"><a href="#cb43-3"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb43-4"><a href="#cb43-4"></a>    rb[i]<span class="op">=</span>(gewicht_md[i]<span class="op">*</span>Sigma[i,:]<span class="op">*</span>np.asmatrix(gewicht_md).T)<span class="op">/</span><span class="fl">0.0952681</span></span>
+<span id="cb43-5"><a href="#cb43-5"></a></span>
+<span id="cb43-6"><a href="#cb43-6"></a><span class="co"># Berechnung der relativen Risikobeitrags</span></span>
+<span id="cb43-7"><a href="#cb43-7"></a>rrb<span class="op">=</span>np.zeros(<span class="dv">4</span>)</span>
+<span id="cb43-8"><a href="#cb43-8"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb43-9"><a href="#cb43-9"></a>    rrb[i]<span class="op">=</span>rb[i]<span class="op">/</span>np.<span class="bu">sum</span>(rb)</span>
+<span id="cb43-10"><a href="#cb43-10"></a>    </span>
+<span id="cb43-11"><a href="#cb43-11"></a><span class="co"># Berechnung der Kovarianz der Assetrendite mit der Portfoliorendite: Formel (3)</span></span>
+<span id="cb43-12"><a href="#cb43-12"></a>cov_ri_rp<span class="op">=</span>np.zeros(<span class="dv">4</span>)</span>
+<span id="cb43-13"><a href="#cb43-13"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb43-14"><a href="#cb43-14"></a>       cov_ri_rp[i]<span class="op">=</span>Sigma[i,:]<span class="op">*</span>np.asmatrix(gewicht_md).T</span>
+<span id="cb43-15"><a href="#cb43-15"></a></span>
+<span id="cb43-16"><a href="#cb43-16"></a><span class="co"># Berechnung des Betas der Assetrendite mit der Portfoliorendite</span></span>
+<span id="cb43-17"><a href="#cb43-17"></a>beta_ri<span class="op">=</span>np.zeros(<span class="dv">4</span>)</span>
+<span id="cb43-18"><a href="#cb43-18"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb43-19"><a href="#cb43-19"></a>        beta_ri[i]<span class="op">=</span>cov_ri_rp[i]<span class="op">/</span><span class="fl">0.0952681</span><span class="op">**</span><span class="dv">2</span></span>
+<span id="cb43-20"><a href="#cb43-20"></a></span>
+<span id="cb43-21"><a href="#cb43-21"></a><span class="co"># und nun noch der marginale Risikobeitrag</span></span>
+<span id="cb43-22"><a href="#cb43-22"></a>mrb<span class="op">=</span>np.zeros(<span class="dv">4</span>)</span>
+<span id="cb43-23"><a href="#cb43-23"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb43-24"><a href="#cb43-24"></a>        mrb[i]<span class="op">=</span>rb[i]<span class="op">/</span>gewicht_md[i]</span>
+<span id="cb43-25"><a href="#cb43-25"></a>        </span>
+<span id="cb43-26"><a href="#cb43-26"></a><span class="co"># Abschließend stellen wir die Ergebnisse zur MD-Strategie </span></span>
+<span id="cb43-27"><a href="#cb43-27"></a><span class="co"># übersichtlich in einer Tabelle dar</span></span>
+<span id="cb43-28"><a href="#cb43-28"></a></span>
+<span id="cb43-29"><a href="#cb43-29"></a>ergebnisse_md<span class="op">=</span>pd.DataFrame({<span class="st">'absoluter RB (%)'</span>: np.<span class="bu">round</span>(rb<span class="op">*</span><span class="dv">100</span>,<span class="dv">4</span>), <span class="op">\</span></span>
+<span id="cb43-30"><a href="#cb43-30"></a>                             <span class="st">'relativer RB (%)'</span>: np.<span class="bu">round</span>(rrb<span class="op">*</span><span class="dv">100</span>,<span class="dv">4</span>),</span>
+<span id="cb43-31"><a href="#cb43-31"></a>                             <span class="st">'Cov(r_i,r_p)'</span>:np.<span class="bu">round</span>(cov_ri_rp,<span class="dv">4</span>),</span>
+<span id="cb43-32"><a href="#cb43-32"></a>                             <span class="st">'Beta'</span>: np.<span class="bu">round</span>(beta_ri,<span class="dv">4</span>),</span>
+<span id="cb43-33"><a href="#cb43-33"></a>                             <span class="st">'MRB (%)'</span>: np.<span class="bu">round</span>(mrb<span class="op">*</span><span class="dv">100</span>,<span class="dv">4</span>)},index<span class="op">=</span>Assets) </span>
+<span id="cb43-34"><a href="#cb43-34"></a>ergebnisse_md.loc[<span class="st">'Summe'</span>,:<span class="dv">2</span>]<span class="op">=</span> ergebnisse_md.<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb43-35"><a href="#cb43-35"></a>ergebnisse_md</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="33">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">absoluter RB (%)</th>
+<th data-quarto-table-cell-role="th">relativer RB (%)</th>
+<th data-quarto-table-cell-role="th">Cov(r_i,r_p)</th>
+<th data-quarto-table-cell-role="th">Beta</th>
+<th data-quarto-table-cell-role="th">MRB (%)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">A</th>
+<td>2.0418</td>
+<td>21.4317</td>
+<td>0.0097</td>
+<td>1.0641</td>
+<td>10.1375</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">B</th>
+<td>1.3219</td>
+<td>13.8754</td>
+<td>0.0059</td>
+<td>0.6503</td>
+<td>6.1952</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">C</th>
+<td>3.4941</td>
+<td>36.6770</td>
+<td>0.0086</td>
+<td>0.9459</td>
+<td>9.0111</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">D</th>
+<td>2.6690</td>
+<td>28.0159</td>
+<td>0.0129</td>
+<td>1.4188</td>
+<td>13.5167</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">Summe</th>
+<td>9.5268</td>
+<td>100.0000</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Für das MD-Portfolio ergibt sich eine Diversification Ratio von:</p>
+<p><span class="math display">\[ DR=\frac{\Sigma^N_{n=1}w_n \cdot \sigma_n}{\sigma_p}=\frac{20,1406\%\cdot0,18 + 21,3375\%\cdot0,11+38,7758\%\cdot0,16+19,7461\%\cdot0,24}{9,52681\%} \]</span></p>
+<p><span class="math display">\[=\frac{16,91562\%}{9,52681\%}=1,77558.\]</span></p>
+<p>Aus den Werten für dieses Beispiel lassen sich die Korrelationen der einzelnen Anlagen mit dem MD-Portfolio bestimmen:</p>
+<p><span class="math display">\[ Corr(r_A,r_{MD})=\frac{Cov(r_A,r_{MD})}{\sigma_A\cdot\sigma_{MD}}=\frac{0,96578\%}{18\% \cdot 9,52681\%}=0,5632 \]</span></p>
+<p><span class="math display">\[ Corr(r_B,r_{MD})=\frac{Cov(r_B,r_{MD})}{\sigma_B\cdot\sigma_{MD}}=\frac{0,59020\%}{11\% \cdot 9,52681\%}=0,5632 \]</span></p>
+<p><span class="math display">\[ Corr(r_C,r_{MD})=\frac{Cov(r_C,r_{MD})}{\sigma_C\cdot\sigma_{MD}}=\frac{0,85847\%}{16\% \cdot 9,52681\%}=0,5632 \]</span></p>
+<p><span class="math display">\[ Corr(r_D,r_{MD})=\frac{Cov(r_D,r_{MD})}{\sigma_D\cdot\sigma_{MD}}=\frac{1,28771\%}{18\% \cdot 9,52681\%}=0,5632 \]</span></p>
+<p>Die jeweiligen Korrelationswerte entsprechen in diesem Fall - wie oben analytisch gezeigt - dem Kehrwert der Diversifiction Ratio:</p>
+<p><span class="math display">\[ Corr(r_n,r_{MD})=\frac{1}{DR_{MD}}=\frac{1}{1,77558}=0,5632 \]</span></p>
+<p>Zur Maximierung der Diversification Ratio kann sowohl beim Zähler als auch beim Nenner angesetzt werden. Werden mehr risikoreiche Anlagen in das Portfolio aufgenommen, erhöht sich der Wert des Zählers. Werden Anlagen so mit anderen Anlagen kombiniert, dass das Gesamtrisiko möglichst gering ausfällt, verringert sich der Nenner. Entscheidend ist der Unterschied zwischen der Summe der Einzelrisiken und dem kombinierten Gesamtrisiko, der zu maximieren ist, wobei die Korrelationen der Anlagen untereinander eine wesentliche Rolle einnehmen. Allerdings kann der Name “Maximum-Diversification-Portfolio” auch irreführend sein, weil sich mit den gleichen Anlagen möglicherweise auch andere Portfolios zusammenstellen lassen, die ein geringeres Gesamtrisiko aufweisen.</p>
+<p>Falls sich die Standardabweichungen sämtlicher Anlagen im MD-Portfolio entsprechen, so gilt für den Zähler der Diversification Ratio:</p>
+<p><span class="math display">\[ \Sigma^N_{n=1}w_n\cdot \sigma_n=\sigma_n \quad \textrm{(wobei für alle Anlagen i und j im Portfolio gilt:} \quad \sigma_i=\sigma_j). \]</span></p>
+<p>In diesem Fall wird die DR dann maximiert, wenn <span class="math inline">\(\sigma_p\)</span> minimiert wird. Aus diesem Grund entsprechen sich in diesem speziellen Fall das MD- und das GMV-Portfolio.</p>
+<p>Darüber hinaus gilt für den weiteren Spezialfall, dass sämtliche Korrelationen zwischen den jeweiligen Anlagen im Portfolio identisch sind, die Übereinstimmung des MD- mit dem ERC- und mit dem ERB-Portfolio.</p>
+</section>
+<section id="vergleichende-analyse-der-fünf-ausgewählten-ansätze" class="level3" data-number="8.4.6">
+<h3 data-number="8.4.6" class="anchored" data-anchor-id="vergleichende-analyse-der-fünf-ausgewählten-ansätze"><span class="header-section-number">8.4.6</span> Vergleichende Analyse der fünf ausgewählten Ansätze</h3>
+<p>Wir beginnen mit einer zusammenfassenden Darstellung der fünf oben ermittelten Gewichtsvektoren, als Tabelle</p>
+<div id="cell-73" class="cell" data-execution_count="34">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1"></a>pd.DataFrame({<span class="st">'ERB'</span>: gewicht_erb, <span class="st">'ERC'</span>:gewicht_erc,<span class="op">\</span></span>
+<span id="cb44-2"><a href="#cb44-2"></a>                         <span class="st">'EW'</span>: gewicht_ew, <span class="st">'GMV'</span>: gewicht_gmv,<span class="op">\</span></span>
+<span id="cb44-3"><a href="#cb44-3"></a>                         <span class="st">'MD'</span>: gewicht_md}, index<span class="op">=</span>Assets)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="34">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">ERB</th>
+<th data-quarto-table-cell-role="th">ERC</th>
+<th data-quarto-table-cell-role="th">EW</th>
+<th data-quarto-table-cell-role="th">GMV</th>
+<th data-quarto-table-cell-role="th">MD</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">A</th>
+<td>0.221662</td>
+<td>0.205008</td>
+<td>0.25</td>
+<td>0.110728</td>
+<td>0.201406</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">B</th>
+<td>0.362720</td>
+<td>0.312471</td>
+<td>0.25</td>
+<td>0.486549</td>
+<td>0.213374</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">C</th>
+<td>0.249370</td>
+<td>0.310244</td>
+<td>0.25</td>
+<td>0.305987</td>
+<td>0.387759</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">D</th>
+<td>0.166247</td>
+<td>0.172277</td>
+<td>0.25</td>
+<td>0.096736</td>
+<td>0.197461</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>und grafisch:</p>
+<div id="cell-75" class="cell" data-execution_count="35">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1"></a>pd.DataFrame((np.vstack((gewicht_erb, gewicht_erc, gewicht_ew, gewicht_gmv,<span class="op">\</span></span>
+<span id="cb45-2"><a href="#cb45-2"></a>                        gewicht_md))<span class="op">*</span><span class="dv">100</span>).T, index<span class="op">=</span>Assets,<span class="op">\</span></span>
+<span id="cb45-3"><a href="#cb45-3"></a>columns <span class="op">=</span> [<span class="st">'Equal-Risk-Budget'</span>,<span class="st">'Equal-Risk-Cont.'</span>,<span class="st">'Equally-Weighted'</span>,<span class="op">\</span></span>
+<span id="cb45-4"><a href="#cb45-4"></a>           <span class="st">'Global-Minimum-Var.'</span>, <span class="st">'Max. Diversification'</span>]). <span class="op">\</span></span>
+<span id="cb45-5"><a href="#cb45-5"></a>                    plot.bar(title<span class="op">=</span><span class="st">'Portfoliogewichte verschiedener Ansätze einer risikogesteuerten Assetallokation (%)'</span>,</span>
+<span id="cb45-6"><a href="#cb45-6"></a>                            legend<span class="op">=</span><span class="va">True</span>, figsize<span class="op">=</span>(<span class="dv">9</span>, <span class="dv">4</span>))<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="kapitel7_files/figure-html/cell-36-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<ul>
+<li><strong>Equally-Weighted-Ansatz (EW-Ansatz)</strong></li>
+</ul>
+<p>Beim EW-Ansatz erfolgt die Ermittung der Gewichte der Assets im Portfolio unabhängig von erwarteten bzw. statistischen Größen. Vielmehr hängt die Portfoliostruktur lediglich von der Anzahl der Anlagen im Portfolio ab, wobei alle Anlagen das gleiche Gewicht erhalten. Werden in einem Portfolio z.B. in regelmäßigen Abständen die Gewichtungen wieder auf <span class="math inline">\(1/N\)</span> gesetzt, so würde ein Anlagetitel, der seit der letzten Portfolioanpassung eine vergleichsweise positive Entwicklung erfahren hat, wieder auf den Anteil <span class="math inline">\(1/N\)</span> heruntergefahren. Entsprechend wird der Erfolg zu diesem Zeitpunkt realisiert.</p>
+<p>Im Hinblick auf die Gewichtungen führt der EW-Ansatz zu dem am geringsten konzentrierten Portfolio. Sofern aber die Risiken der jeweiligen Anlagen sehr unterschiedlich sind, ist aufgrund der höheren Risikokonzentration im EW-Portfolio der Diversifikationserfolg entsprechend gering. Bei der rigorosen Annahme gleicher erwarteter Renditen und Standardabweichungen sowie einheitlicher Korrelationen zwischen den Anlagen ist das EW-Portfolio allerdings ein gemäß Portfoliotheorie effizientes Portfolio (vgl. Maillard et al., 2009, S. 2; Demey et al., 2010, S. 12).</p>
+<ul>
+<li><strong>Global-Minimum-Varianz-Ansatz (GMV-Ansatz)</strong></li>
+</ul>
+<p>Beim GMV-Ansatz handelt es sich grundsätzlich um das einzige, sich auf der Effizienzlinie gemäß Portfoliotheorie befindende Portfolio, dessen Zusammensetzung nicht von erwarteten Renditen abhängt. Genau wie der EW-Ansatz ist der GMV-Ansatz leicht nachzuvollziehen. Ein weiterer Vorteil ist die geringe Standardabweichung - zumindest auf Ex-ante Basis. Allerdings weist das GMV-Portfolio das Problem auf, dass zwar eine Diversifikation bzgl. der Standardabweichung, nicht aber bzgl. der Gewichtungen der einzelnen Anlagen vorgenommen wird. Infolgedessen kann es häufig vorkommen, dass dieses Portfolio auf nur relativ wenige Anlagen konzentriert ist (vgl. Demey et al., 2010, S. 12).</p>
+<p>Wie gezeigt, führt der GMV-Ansatz zu für alle Anlagen des Portfolios identischen Werten für den marginalen Risikobeitrag. Somit würde - zumindest auf Ex-ante Basis - eine infinitesimal kleine Erhöhung des Anteils einer Anlage im GMV-Portfolio bei allen Anlagen zur gleichen Erhöhung des Gesamtportfoliorisikos führen.</p>
+<ul>
+<li><strong>Maximum-Diversification-Ansatz (MD-Ansatz)</strong></li>
+</ul>
+<p>Im Rahmen des MD-Ansatzes wird das Portfolio mit der maximalen Diversification Ratio (DR) ermittelt. Zur Bestimmung dieses Portfolios ist - wie auch bei den anderen, in dieser Analyse behandelten Ansätzen - die Ermittlung der erwarteten Rendite nicht erforderlich. Bei diesem Ansatz geht es darum, den Quotienten aus Portfoliorisiko ohne Diversifikation und dem (tatsächlichen) Portfoliorisiko mit Diversifikation zu maximieren. Für das in den vorherigen Abschnitten herangezogene Beispielportfolio ergeben sich für die jeweiligen Ansätze die folgenden Diversification Ratios:</p>
+<p><span class="math display">\[DR_{EW}=1,69221368\]</span></p>
+<p><span class="math display">\[DR_{ERB}=1,70560573\]</span></p>
+<p><span class="math display">\[DR_{ERC}=1,75228375\]</span></p>
+<p><span class="math display">\[DR_{GMV}=1,64746376\]</span></p>
+<p><span class="math display">\[DR_{MD}=1,77558125\]</span></p>
+<ul>
+<li><strong>Risk Parity-Ansatz</strong></li>
+</ul>
+<p>Im Vergleich dazu ist es das Ziel des Risk Parity-Ansatzes, das Risikobudget (ERB-Ansatz) bzw. den Risikobeitrag (ERC-Ansatz) zum Portfoliorisiko für alle Anlagen des Portfolios gleich zu gestalten. Dabei wird im Rahmen der vorliegenden Analyse auf die Standardabweichung als Risikomaß zurückgegriffen. (Der ERC-Ansatz kann auch auf andere Risikomaße übertragen werden, siehe Maillard et al., 2009, S. 3). Der ERB-Ansatz berücksichtigt dabei nicht die Korrelationen zwischen den jeweiligen Anlagen bzw. es werden identische Korrelationen zwischen allen jeweiligen Anlagen im Portfolio unterstellt. Dabei kann Folgendes festgestellt werden: Je niedriger (höher) die Standardabweichung einer Anlage ist, desto höher (niedriger) fällt ihre Gewichtung im ERB-Portfolio aus. Hingegen ist der Anteil beim ERC-Ansatz umgekehrt proportional zu dem Betafaktor der Anlage in Bezug zum ERC-Portfolio. Je niedriger (höher) dieses Beta, desto höher (niedriger) der Anteil. Infolgedessen werden Anlagen mit einer relativ geringen Standardabweichung und einer relativ geringen Korrelation mit dem ERC-Portfolio tendenziell bevorzugt.</p>
+<p>Formal können die in den vorherigen Kapiteln vorgenommenen grundlegenden Überlegungen der einzelnen Ansätze wie folgt zusammengefasst werden:</p>
+<p><span class="math display">\[ \textrm{EW-Ansatz}: \quad w_i=w_j \]</span></p>
+<p><span class="math display">\[ \textrm{ERB-Ansatz}: \quad w_i\cdot \sigma_i=w_j \cdot \sigma_j\]</span></p>
+<p><span class="math display">\[ \textrm{ERC-Ansatz}: \quad RB_i=RB_j \quad \textrm{bzw.} \quad w_i\cdot \frac{\partial{\sigma_{ERC}}}{\partial{w_i}}=w_j\cdot \frac{\partial{\sigma_{ERC}}}{\partial{w_j}}\]</span></p>
+<p><span class="math display">\[ \textrm{GMV-Ansatz}: \quad MRB_i=MRB_j \quad \textrm{bzw.} \quad \frac{\partial{\sigma_{GMV}}}{\partial{w_i}}= \frac{\partial{\sigma_{GMV}}}{\partial{w_j}}\]</span></p>
+<p><span class="math display">\[ \textrm{MD-Ansatz}: \quad \frac{MRB_i}{\sigma_i}=\frac{MRB_j}{\sigma_j} \quad \textrm{bzw.} \quad \frac{1}{\sigma_i}\cdot \frac{\partial{\sigma_{MD}}}{\partial{w_i}}=\frac{1}{\sigma_j}\cdot  \frac{\partial{\sigma_{MD}}}{\partial{w_j}}\]</span></p>
+<p>mit:</p>
+<p><span class="math display">\[ \sigma_{ERC}, \sigma_{GMV}, \sigma_{MD}=\textrm{Standardabweichung des ERC-, GMV- bzw. MD-Portfolios.} \]</span></p>
+<p>Die Gewichtungen der einzelnen Anlagen im Portfolio ergeben sich dann wie folgt, wobei jeweils gilt: <span class="math inline">\(\Sigma^N_{n=1} w_n=1\)</span>:</p>
+<p><span class="math display">\[ \textrm{EW-Ansatz}: \quad w^{EW}_n=\frac{1}{N} \]</span></p>
+<p><span class="math display">\[ \textrm{ERB-Ansatz}: \quad w^{ERB}_n=\frac{1/\sigma_n}{\Sigma^N_{i=1}1/\sigma_i} \]</span></p>
+<p><span class="math display">\[ \textrm{GMV-Ansatz}: \quad w^{GMV}_n=\frac{RB_n}{\sigma_{GMV}}=\frac{RB_n}{MRB_n} \]</span></p>
+<p><span class="math display">\[ \textrm{ERC-Ansatz}: \quad w^{ERC}_n=\frac{1}{N\cdot\beta^{ERC}_n} \]</span></p>
+<p><span class="math display">\[ \textrm{MD-Ansatz}: \quad w^{MD}_n=\underset{w}{\operatorname{max}} DR(w) \]</span></p>
+<p>Zu beachten ist dabei beim GMV- und beim ERC-Ansatz, dass zur Ermittlung der Gewichtung <span class="math inline">\(w_n\)</span> gemäß den hier dargestellten Formeln das zu erstellende Portfolio bereits bekannt sein muss.</p>
+<p>Es lässt sich zeigen, dass die sich ergebenden Standardabweichungen der Portfolios ex ante wie folgt zusammenhängen (vgl. Roncalli, 2014, S. 174): <span class="math inline">\(\sigma_{GMV}\leq \sigma_{ERB} \leq \sigma_{EW}\)</span> bzw. <span class="math inline">\(\sigma_{GMV}\leq \sigma_{ERC} \leq \sigma_{EW}.\)</span> Ein Vergleich zwischen ERB- und ERC-Portfolio führt nicht zu eindeutigen Ergebnissen. So kann <span class="math inline">\(\sigma_{ERB}\)</span> größer, gleich oder kleiner als <span class="math inline">\(\sigma_{ERC}\)</span> sein. Für das Maximum-Diversification-Portfolio gilt zwar ebenfalls, dass <span class="math inline">\(\sigma_{GMV}\leq \sigma_{MD}\)</span>, aber ein Vergleich mit den Standardabweichungen der ERC- und ERB-Portfolios führt nicht zu eindeutigen Ergebnissen.</p>
+<p>Darüber hinaus kann festgestellt werden, dass beim EW-, ERB- und beim ERC-Ansatz (Long-only) alle Anlagen im Portfolio repräsentiert sind, d.h., <span class="math inline">\(w_n&gt;0\)</span>. Hingegen kann es sowohl beim GMV-Ansatz als auch beim MD-Ansatz vorkommen, dass einzelne Anlagen nicht im Portfolio enthalten sind, d.h., <span class="math inline">\(w_n\)</span> kann Null werden, wobei hier von einer Long-only-Strategie ausgegangen wird, so dass negative Anteile (Leerverkäufe) ausgeschlossen sind.</p>
+<p>Sofern die Korrelationen der einzelnen Anlagen untereinander und damit auch zwischen den einzelnen Anlagen und dem Portfolio jeweils identisch sind, würden sich beim ERC-Ansatz die gleichen Gewichtungen wie beim ERB-Ansatz und beim MD-Ansatz ergeben. Darüber hinaus stimmen das MD-Portfolio und das GMV-Portfolio bei gleichen Standardabweichungen aller Anlagen n überein (vgl. Roncalli, 2014, S. 174; Choueifaty und Coignard, 2008, S. 43). In diesem Fall entsprechen sich auch die Gewichtungen des EW-Portfolios und des ERB-Portfolios.</p>
+<p>ERC- und GMV-Portfolio entsprechen sich dann, wenn die Korrelationen zwischen den Anlagen gleich sind und sich zudem dem folgenden (Grenz-) Wert annähern (vgl. Maillard et al., 2009, S. 8 und S. 21):</p>
+<p><span class="math display">\[ Corr(r_i, r_j)=\frac{-1}{N-1}.\]</span></p>
+<p>Würden die Korrelationen zwischen den Anlagen genau diesen Wet annehmen, dann würde die Varianz des Portfolios gemäß der gewichteten Varianz-Kovarianzmatrix den geringstmöglichen Wert aufweisen (Null). Dieser Wert entspricht auch dem minimal möglichen Varianzwert, d.h., dem Wert des GMV-Portfolios. Daher sind die Gewichtungen des GMV-Portfolios und des ERC-Portfolios bei dem o.g. speziellen Korrelationswert dieselben.</p>
+<p>Im Hinblick auf das zu erwartende Rendite-Risikoverhältnis ist aus portfoliotheoretischer Sicht nur eine Kombination aus risikoloser Anlage und dem in der obigen Abbildung (aus dem Abschnitt zum GMVP) dargestellten Marktportfolio sinnvoll, da alle anderen Portfolios eine geringere Effizienz aufweisen. Diese Kombination bedeutet gleichzeitig die (ex ante) maximale Steigung der Kapitalmarktlinie und damit die (ex ante) maximale Sharpe-Ratio. Entsprechend kann unter Berücksichtigung von Risiko und Rendite die Maximierung der Sharpe-Ratio als Ziel der Assetallokation formuliert werden:</p>
+<p><span class="math display">\[\underset{w}{\operatorname{max}} SR=\frac{E(r_p)-r_f}{\sigma_p}, \quad \textrm{wobei} \quad \Sigma^{N}_{n=1}w_n=1. \]</span></p>
+<p>Es lässt sich zeigen, dass das ERC-Portfolio dem Portfolio mit der maximalen Sharpe-Ratio entspricht, wenn identische Korrelationen zwischen den Anlagen und identische Sharpe-Ratios für alle Anlagen im Portfolio unterstellt werden (vgl. Roncalli, 2014, S. 123 ff.). Ferner gilt für den MD-Ansatz, dass in dem Fall einer identischen Sharpe-Ratio für alle Anlagen des Portfolios die Diversification Ratio proportional zur Sharpe-Ratio ist. Dies bedeutet gleichermaßen, dass dann eine Maximierung der Diversification Ratio äquivalent mit der Maximierung der Sharpe-Ratio ist. In diesem speziellen Fall entsprechen sich somit das Maximum Sharpe-Ratio Portfolio bzw. das Marktportfolio der Kapitalmarkttheorie und das MD-Portfolio (vgl. Choueifaty und Coignard, 2008, S. 41; Roncalli, 2014, S. 171). Somit weist das MD-Portfolio nur in dem speziellen Fall identischer Sharpe-Ratios aller einbezogenen Anlagen die höchste Sharpe-Ratio auf. Allerdings spielt die Sharpe-Ratio bei der Ermittlung der Gewichtungen der einzelnen Anlagen im Portfolio keine Rolle, weil das Risiko-Rendite-Profil nicht in die Betrachtung einbezogen wird.</p>
+<p>Grundsätzlich ist bei allen vorgestellten Ansätzen zu beachten, dass es sich bei den in die Ermittlung der Anlagengewichtungen eingehenden Volatilitäten und Korrelationen um Prognosewerte für die künftigen Perioden handelt. Sofern diese Werte aus Vergangenheitsdaten abgeleitet werden, müssen sie somit nicht mit den tatsächlichen Werten in den künftigen Perioden übereinstimmen.</p>
+</section>
+</section>
+<section id="literatur" class="level2" data-number="8.5">
+<h2 data-number="8.5" class="anchored" data-anchor-id="literatur"><span class="header-section-number">8.5</span> Literatur</h2>
+<p>Choueifaty, Y., Coignard, Y. (2008). Toward maximum diversification. Journal of Portfolio Management (Fall 2008), S. 40–51.</p>
+<p>Choueifaty, Y., Froidure, T., Reynier, J. (2013). Properties of the most diversified portfolio. Journal of Investment Strategies 2 (Spring 2013), S. 49-70.</p>
+<p>Clarke, R., de Silva, H., Thorley, S. (2006). Minimum-variance portfolios in the U.S. equity market. Journal of Portfolio Management (Fall 2006), S. 1-14.</p>
+<p>Clarke, R., de Silva, H., Thorley, S. (2011). Minimum-variance portfolio composition. Journal of Portfolio Management (Winter 2011), S. 31-45.</p>
+<p>Demey, P., Maillard, S., Roncalli, T. (2010). Risk-based indexation. Working paper.</p>
+<p>Kleeberg, J.M. (1995). Der Anlageerfolg des Minimum-Varianz-Portfolios, Bad Soden.</p>
+<p>Kleeberg, J.M. (2002). Internationale Minimum-Varianz-Strategien. In: Kleeberg, J.M. &amp; Rehkugler, H. (Hrsg.): Handbuch Portfoliomanagement, 2. Auflage, Bad Soden/Ts., S. 361-382.</p>
+<p>Maillard, S., Roncalli, T., Teiletche, J. (2009). On the properties of equally-weighted risk contributions portfolios. Working paper, Mai 2009.</p>
+<p>Roncalli, T. (2014). Introduction to risk parity and budgeting, Boca Ration, Florida.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./kapitel6.html" class="pagination-link" aria-label="Berücksichtigung des Schätzrisikos: Portfolio-Resampling">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Berücksichtigung des Schätzrisikos: Portfolio-Resampling</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./kapitel8.html" class="pagination-link" aria-label="Index Tracking">
+        <span class="nav-page-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Index Tracking</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+<script src="site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>
