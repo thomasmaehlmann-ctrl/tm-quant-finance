@@ -7,14 +7,14 @@ book:
   date: "2025-11-08"
   chapters:
     - index.ipynb
-    - kapitel1.ipynb
-    - kapitel2.ipynb
-    - kapitel3.ipynb
-    - kapitel4.ipynb
-    - kapitel5.ipynb
-    - kapitel6.ipynb
-    - kapitel7.ipynb
-    - kapitel8.ipynb
+    - kapitel1a.ipynb
+    - kapitel2a.ipynb
+    - kapitel3a.ipynb
+    - kapitel4a.ipynb
+    - kapitel5a.ipynb
+    - kapitel6a.ipynb
+    - kapitel7a.ipynb
+    - kapitel8a.ipynb
     - projekt.ipynb
 
   sidebar:
