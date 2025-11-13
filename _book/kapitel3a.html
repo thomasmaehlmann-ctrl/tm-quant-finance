@@ -1,0 +1,1494 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.25">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>4&nbsp; Schätzrisiken in der Portfoliotheorie – Grundlagen des quantitativen Portfoliomanagements mit Python</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./kapitel4a.html" rel="next">
+<link href="./kapitel2a.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark-707d8167ce6003fca903bfe2be84ab7f.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-e0fdce12ac1367d4b47c179a2935dd10.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark-74c88ba48ad0bebf983f0ffd06dd1671.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="site_libs/bootstrap/bootstrap-e0fdce12ac1367d4b47c179a2935dd10.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-sidebar floating quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./kapitel3a.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Schätzrisiken in der Portfoliotheorie</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+      <a href="./index.html" class="sidebar-logo-link">
+      </a>
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Grundlagen des quantitativen Portfoliomanagements mit Python</a> 
+        <div class="sidebar-tools-main">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Willkommen zu „Grundlagen des quantitativen Portfoliomanagements mit Python“</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./kapitel1a.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Grundlagen der klassischen (absoluten) Portfoliooptimierung</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./kapitel2a.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Relative Portfoliooptimierung</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./kapitel3a.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Schätzrisiken in der Portfoliotheorie</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./kapitel4a.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Verbesserte Schätzung der Inputparameter: Geschrumpfte Schätzer</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./kapitel5a.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Das Black-Litterman Modell</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./kapitel6a.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Berücksichtigung des Schätzrisikos: Portfolio-Resampling</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./kapitel7a.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Risikogesteuerte Ansätze: Verzicht auf die Schätzung der erwarteten Rendite</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./kapitel8a.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Index Tracking</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./projekt.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Abschlußprojekt</span></span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#einleitung" id="toc-einleitung" class="nav-link active" data-scroll-target="#einleitung"><span class="header-section-number">4.1</span> Einleitung</a></li>
+  <li><a href="#einfluß-des-schätzfehlers-auf-die-portfoliozusammensetzung" id="toc-einfluß-des-schätzfehlers-auf-die-portfoliozusammensetzung" class="nav-link" data-scroll-target="#einfluß-des-schätzfehlers-auf-die-portfoliozusammensetzung"><span class="header-section-number">4.2</span> Einfluß des Schätzfehlers auf die Portfoliozusammensetzung</a></li>
+  <li><a href="#komponenten-des-schätzfehlers" id="toc-komponenten-des-schätzfehlers" class="nav-link" data-scroll-target="#komponenten-des-schätzfehlers"><span class="header-section-number">4.3</span> Komponenten des Schätzfehlers</a>
+  <ul class="collapse">
+  <li><a href="#sensitivitat-des-optimalen-portfolios-bezüglich-schätzfehlern-in-den-verschiedenen-parametern" id="toc-sensitivitat-des-optimalen-portfolios-bezüglich-schätzfehlern-in-den-verschiedenen-parametern" class="nav-link" data-scroll-target="#sensitivitat-des-optimalen-portfolios-bezüglich-schätzfehlern-in-den-verschiedenen-parametern"><span class="header-section-number">4.3.1</span> Sensitivitat des optimalen Portfolios bezüglich Schätzfehlern in den verschiedenen Parametern</a></li>
+  <li><a href="#größe-der-schätzfehler-für-die-verschiedenen-parameter" id="toc-größe-der-schätzfehler-für-die-verschiedenen-parameter" class="nav-link" data-scroll-target="#größe-der-schätzfehler-für-die-verschiedenen-parameter"><span class="header-section-number">4.3.2</span> Größe der Schätzfehler für die verschiedenen Parameter</a></li>
+  </ul></li>
+  <li><a href="#lösungsansätze-für-das-schätzproblem" id="toc-lösungsansätze-für-das-schätzproblem" class="nav-link" data-scroll-target="#lösungsansätze-für-das-schätzproblem"><span class="header-section-number">4.4</span> Lösungsansätze für das Schätzproblem</a></li>
+  <li><a href="#lernvideos" id="toc-lernvideos" class="nav-link" data-scroll-target="#lernvideos"><span class="header-section-number">4.5</span> Lernvideos</a>
+  <ul class="collapse">
+  <li><a href="#video-teil-1" id="toc-video-teil-1" class="nav-link" data-scroll-target="#video-teil-1"><span class="header-section-number">4.5.1</span> Video Teil 1</a></li>
+  <li><a href="#video-teil-2" id="toc-video-teil-2" class="nav-link" data-scroll-target="#video-teil-2"><span class="header-section-number">4.5.2</span> Video Teil 2</a></li>
+  </ul></li>
+  <li><a href="#literatur" id="toc-literatur" class="nav-link" data-scroll-target="#literatur"><span class="header-section-number">4.6</span> Literatur</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Schätzrisiken in der Portfoliotheorie</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>Die folgende Darstellung ist angelehnt an:</p>
+<ul>
+<li>Kempf, A./Memmel, C. <em>Schätzrisiken in der Portfoliotheorie</em>. In: Kleeberg, J.M. &amp; Rehkugler, H. (Hrsg.): Handbuch Portfoliomanagement, 2. Auflage, Bad Soden/Ts. 2002, S. 895-919.</li>
+<li>Memmel, C. <em>Schätzrisiken in der Portfoliotheorie: Auswirkungen und Möglichkeiten der Reduktion,</em> Eul Verlag, Lohmar, 2004.</li>
+</ul>
+<section id="einleitung" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="einleitung"><span class="header-section-number">4.1</span> Einleitung</h2>
+<p>In seinem bahnbrechenden <em>Journal of Finance</em> Artikel “Portfolio Selection” aus dem Jahr 1952 legt <strong>Harry Markowitz</strong> dar, dass risikoaverse Investoren sich bei ihrer Anlageentscheidung an Erwartungswert und Varianz der Rendite ihres Gesamtportfolios orientieren sollten. Der Anleger strebt danach, eine vorgegebene erwartete Portfoliorendite mit dem geringsten Risiko zu erreichen. Die mathematische Formalisierung dieser Idee führt zu einem quadratischen Optimierungsproblem mit N-1 Entscheidungsparametern, wobei N die Anzahl der zulässigen Anlageinstrumente darstellt.</p>
+<p>Die praktische Implementierung des Portfolioansatzes von Markowitz ist mit einem zentralen Problem verbunden. Der Anleger kennt die Parameter der Renditeverteilungen (Erwartungswerte, Varianzen, Kovarianzen) nicht. Diese Parameter können beispielsweise aus den fundamentalen Unternehmensdaten ermittelt werden oder - und darauf werden wir uns konzentrieren - aus historischen Zeitreihen geschätzt werden. Diese Schätzung stellt für große Wertpapierportfolios zunächst in quantitativer Hinsicht eine Hausforderung dar, da N erwartete Renditen und Varianzen bzw. 0,5 · N · (N-1) Kovarianzen zu schätzen sind. Selbst wenn das Anlageuniversum eines Investors nur aus 500 Aktien besteht, sind bereits 125.750 Parameter zu schätzen. Neben diesem reinen Mengenproblem besteht allerdings ein zweites gravierenderes Problem, das im Zentrum der folgenden Ausführungen stehen wird. Jede Schätzung ist mit einem Schätzrisiko verbunden, d.h., der geschätzte Parameter wird im allgemeinen nicht dem (unbeobachtbaren) wahren Parameter der Renditeverteilung entsprechen. Dies kann zu suboptimalen Portfoliozusammensetzungen und damit zu mangelndem Anlageerfolg führen. Das Ziel dieses Notebooks besteht darin, die Bedeutung des Schätzrisikos für die Portfoliozusammensetzung aufzuzeigen und anschließend Wege darzustellen, wie der Einfluss des Schätzrisikos auf die Portfoliozusammensetzung verringert werden kann.</p>
+</section>
+<section id="einfluß-des-schätzfehlers-auf-die-portfoliozusammensetzung" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="einfluß-des-schätzfehlers-auf-die-portfoliozusammensetzung"><span class="header-section-number">4.2</span> Einfluß des Schätzfehlers auf die Portfoliozusammensetzung</h2>
+<p>Zunächst werden wir in einer kleinen Simulationsstudie aufzeigen, wie stark das Schätzrisiko die Portfoliozusammensetzung beeinflusst. Hierzu simulieren wir für vier Aktien unabhängig identisch normalverteilte Wochenrenditen über einen Zeitraum von zwei Jahren. Für jede Aktie unterstellen wir einen Erwartungswert der Rendite von 11% p.a. und eine Standardabweichung von 25% p.a. Außerdem nehmen wir an, dass die Renditen der verschiedenen Aktien paarweise eine Korrelation von 0,3 aufweisen. Daneben unterstellen wir, dass es ein risikoloses Instrument mit einer Rendite <span class="math inline">\(r_f\)</span> = 6% p.a. gibt. Dieses risikolose Instrument berücksichtigen wir, damit die optimale Zusammensetzung des Aktienportfolios unabhangig vom Ausmaß der Risikoaversion des Anlegers ist (Tobin-Separation). Tobin (1958) hat gezeigt, dass alle Anleger in diesem Fall unabhängig von dem Ausmaß ihrer Risikoaversion das gleiche Aktienportfolio halten, das sogenannte Tangentialportfolio.</p>
+<p>Um die Größenordnung der Schätzrisiken zu verdeutlichen, analysieren wir die optimale Zusammensetzung des Tangentialportfolios eines Anlegers in zwei Fällen. Im ersten Fall kennt der Anleger die obigen Verteilungsparameter, während er sie im zweiten Fall aus den simulierten Renditerealisationen schätzen muss. Kennt der Anleger die Verteilungsparameter, so ist es für ihn optimal, sein in Aktien anzulegendes Vermögen gleichmäßig auf die vier Aktien zu verteilen. Diese Gleichverteilungsstrategie führt zu einer erwarteten Aktienportfoliorendite von 11% p.a. bei einer Standardabweichung von 17,23% p.a. Betrachten wir nun den Fall, dass der Anleger die Verteilungsparameter aus den realisierten Renditen schätzt.</p>
+<div id="cell-3" class="cell" data-execution_count="1">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="co"># import of necessary libaries</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="im">from</span> scipy.optimize <span class="im">import</span> minimize</span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p><strong>Ausgangssituation für die Simulation</strong>:</p>
+<ul>
+<li><p>wahre Parameter (annualisiert): <span class="math inline">\(\mu_i=0,11, \sigma_i=0,25, \rho_{ij}=0,3\)</span>, für <span class="math inline">\(i,j =1,..., 4,\)</span> und <span class="math inline">\(i \neq j\)</span>.</p></li>
+<li><p>Die Varianz auf Wochenebene beträgt: <span class="math inline">\(0,25^{2}/52=0,00120192\)</span>.</p></li>
+<li><p>Für die wöchentliche erwartete Rendite gilt: <span class="math inline">\(0,11/52=0,00211538\)</span>.</p></li>
+<li><p>Der konstante Korrelationskoeffizient ist 0,3. Damit folgt für die wöchentliche Kovarianz: <span class="math inline">\(0,25^{2}/52 * 0,3=0,00036058\)</span>.</p></li>
+</ul>
+<div id="cell-5" class="cell" data-execution_count="2">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># Die wöchentliche Varianz-Kovarianzmatrix nennen wir *Sigma_true*:</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a>Sigma_true<span class="op">=</span>[[<span class="fl">0.00120192</span>, <span class="fl">0.00036058</span>, <span class="fl">0.00036058</span>, <span class="fl">0.00036058</span>],<span class="op">\</span></span>
+<span id="cb2-3"><a href="#cb2-3"></a>            [<span class="fl">0.00036058</span>, <span class="fl">0.00120192</span>, <span class="fl">0.00036058</span>, <span class="fl">0.00036058</span>],<span class="op">\</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a>            [<span class="fl">0.00036058</span>, <span class="fl">0.00036058</span>, <span class="fl">0.00120192</span>, <span class="fl">0.00036058</span>],<span class="op">\</span></span>
+<span id="cb2-5"><a href="#cb2-5"></a>            [<span class="fl">0.00036058</span>, <span class="fl">0.00036058</span>, <span class="fl">0.00036058</span>, <span class="fl">0.00120192</span>]]</span>
+<span id="cb2-6"><a href="#cb2-6"></a></span>
+<span id="cb2-7"><a href="#cb2-7"></a><span class="co"># Der Vektor der erwarteten, wöchentlichen Renditen:</span></span>
+<span id="cb2-8"><a href="#cb2-8"></a>means_true<span class="op">=</span>[<span class="fl">0.00211538</span>, <span class="fl">0.00211538</span>, <span class="fl">0.00211538</span>, <span class="fl">0.00211538</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="cell-6" class="cell" data-execution_count="3">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a><span class="co"># eine Monte Carlo Ziehung mit jeweils einer 2-jährigen Zeitreihe </span></span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="co"># (104 Wochen) für jede Aktie</span></span>
+<span id="cb3-3"><a href="#cb3-3"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb3-4"><a href="#cb3-4"></a>df <span class="op">=</span> pd.DataFrame(np.asarray(np.random.multivariate_normal(means_true,<span class="op">\</span></span>
+<span id="cb3-5"><a href="#cb3-5"></a>                Sigma_true, size <span class="op">=</span> <span class="dv">104</span>)), columns<span class="op">=</span>[<span class="st">'A1'</span>, <span class="st">'A2'</span>, <span class="st">'A3'</span>, <span class="st">'A4'</span>])</span>
+<span id="cb3-6"><a href="#cb3-6"></a>means_est <span class="op">=</span> df.mean().values <span class="op">*</span> <span class="dv">52</span> <span class="co"># annualsiert</span></span>
+<span id="cb3-7"><a href="#cb3-7"></a>Sigma_est <span class="op">=</span> df.cov().values <span class="op">*</span> <span class="dv">52</span> <span class="co"># annualisiert</span></span>
+<span id="cb3-8"><a href="#cb3-8"></a>std_est<span class="op">=</span>np.sqrt(np.diag(Sigma_est))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>In den folgenden zwei Tabellen sind die geschätzten Parameter eines exemplarischen Zufallspfades der Simulation sowie die wahren Werte angegeben. Zunächst ein Vergleich der wahren und geschätzen erwarteten Renditen:</p>
+<div id="cell-8" class="cell" data-execution_count="4">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a>pd.DataFrame({<span class="st">'wahr'</span>: <span class="fl">0.11</span>, <span class="st">'geschätzt'</span>: means_est, <span class="op">\</span></span>
+<span id="cb4-2"><a href="#cb4-2"></a>              <span class="st">'Schätzfehler (%)'</span>: (<span class="fl">0.11</span><span class="op">-</span>means_est)<span class="op">*</span><span class="dv">100</span>}, index<span class="op">=</span>df.columns)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="4">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">wahr</th>
+<th data-quarto-table-cell-role="th">geschätzt</th>
+<th data-quarto-table-cell-role="th">Schätzfehler (%)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">A1</th>
+<td>0.11</td>
+<td>0.193280</td>
+<td>-8.328017</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">A2</th>
+<td>0.11</td>
+<td>0.214416</td>
+<td>-10.441623</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">A3</th>
+<td>0.11</td>
+<td>0.099346</td>
+<td>1.065403</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">A4</th>
+<td>0.11</td>
+<td>0.145107</td>
+<td>-3.510683</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Und nun der Vergleich der wahren (0,25) und der geschätzten Standardabweichung:</p>
+<div id="cell-10" class="cell" data-execution_count="5">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1"></a>pd.DataFrame({<span class="st">'wahr'</span>: <span class="fl">0.25</span>, <span class="st">'geschätzt'</span>: std_est, <span class="op">\</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a>              <span class="st">'Schätzfehler (%)'</span>: (<span class="fl">0.25</span><span class="op">-</span>std_est)<span class="op">*</span><span class="dv">100</span>}<span class="op">\</span></span>
+<span id="cb5-3"><a href="#cb5-3"></a>             , index<span class="op">=</span>df.columns)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="5">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">wahr</th>
+<th data-quarto-table-cell-role="th">geschätzt</th>
+<th data-quarto-table-cell-role="th">Schätzfehler (%)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">A1</th>
+<td>0.25</td>
+<td>0.233158</td>
+<td>1.684243</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">A2</th>
+<td>0.25</td>
+<td>0.226982</td>
+<td>2.301796</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">A3</th>
+<td>0.25</td>
+<td>0.236087</td>
+<td>1.391323</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">A4</th>
+<td>0.25</td>
+<td>0.239289</td>
+<td>1.071104</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Berechnen wir nun die optimalen Gewichte für das Tangentialportfolio, d.h., das Portfolio mit der maximalen Sharpe Ratio. Wir setzen als Nebenbedingung nur die Budget-Restriktion: kein Leverage (Fremdkapitalaufnahme), Summe der Portfoliogewichte entspricht 1.</p>
+<div id="cell-12" class="cell" data-execution_count="6">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1"></a><span class="co"># function that implements the Sharpe portfolio optimization</span></span>
+<span id="cb6-2"><a href="#cb6-2"></a><span class="co"># with no short sale constraint!</span></span>
+<span id="cb6-3"><a href="#cb6-3"></a></span>
+<span id="cb6-4"><a href="#cb6-4"></a><span class="co"># definition of target function for maximum Sharpe portfolio</span></span>
+<span id="cb6-5"><a href="#cb6-5"></a><span class="kw">def</span> calc_neg_sharpe(weights, mean_returns, cov, rf):</span>
+<span id="cb6-6"><a href="#cb6-6"></a>    portfolio_return <span class="op">=</span> np.<span class="bu">sum</span>(mean_returns <span class="op">*</span> weights)</span>
+<span id="cb6-7"><a href="#cb6-7"></a>    portfolio_std <span class="op">=</span> np.sqrt(np.dot(weights.T, np.dot(cov, weights)))</span>
+<span id="cb6-8"><a href="#cb6-8"></a>    sharpe_ratio <span class="op">=</span> (portfolio_return <span class="op">-</span> rf) <span class="op">/</span> portfolio_std</span>
+<span id="cb6-9"><a href="#cb6-9"></a>    <span class="cf">return</span> <span class="op">-</span>sharpe_ratio</span>
+<span id="cb6-10"><a href="#cb6-10"></a></span>
+<span id="cb6-11"><a href="#cb6-11"></a><span class="kw">def</span> max_sharpe_ratio(mean_returns, cov, rf):</span>
+<span id="cb6-12"><a href="#cb6-12"></a>    num_assets <span class="op">=</span> <span class="bu">len</span>(mean_returns)</span>
+<span id="cb6-13"><a href="#cb6-13"></a>    args <span class="op">=</span> (mean_returns, cov, rf)</span>
+<span id="cb6-14"><a href="#cb6-14"></a>    constraints <span class="op">=</span> ({<span class="st">'type'</span>: <span class="st">'eq'</span>, <span class="st">'fun'</span>: <span class="kw">lambda</span> x: np.<span class="bu">sum</span>(x) <span class="op">-</span> <span class="dv">1</span>})</span>
+<span id="cb6-15"><a href="#cb6-15"></a>    result <span class="op">=</span> minimize(calc_neg_sharpe, num_assets<span class="op">*</span>[<span class="fl">1.</span><span class="op">/</span>num_assets,], args<span class="op">=</span>args,</span>
+<span id="cb6-16"><a href="#cb6-16"></a>                        method<span class="op">=</span><span class="st">'SLSQP'</span>, constraints<span class="op">=</span>constraints,tol<span class="op">=</span><span class="fl">1e-10</span>)</span>
+<span id="cb6-17"><a href="#cb6-17"></a>    weights<span class="op">=</span>[<span class="bu">round</span>(x,<span class="dv">4</span>) <span class="cf">for</span> x <span class="kw">in</span> result[<span class="st">'x'</span>]]</span>
+<span id="cb6-18"><a href="#cb6-18"></a>    <span class="cf">return</span> weights</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="cell-13" class="cell" data-execution_count="7">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1"></a>weights<span class="op">=</span>max_sharpe_ratio(means_est, Sigma_est, <span class="fl">0.06</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>Graphischer Vergleich der optimalen Portfoliogewichte: tatsächlich (1/N) versus ermittelt auf Basis geschätzter Input-Parameter:</p>
+<div id="cell-15" class="cell" data-execution_count="8">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1"></a>pd.DataFrame({<span class="st">'wahres Gewicht'</span>: <span class="fl">0.25</span>, <span class="st">'geschätztes Gewicht'</span>: weights},index<span class="op">=</span>df.columns). <span class="op">\</span></span>
+<span id="cb8-2"><a href="#cb8-2"></a>plot.bar(stacked<span class="op">=</span><span class="va">False</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, figsize<span class="op">=</span>(<span class="dv">10</span>,<span class="dv">5</span>))<span class="op">;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="kapitel3a_files/figure-html/cell-9-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Zwei Ergebnisse fallen auf. Das erste bemerkenswerte Ergebnis besteht darin, dass sich die optimalen Gewichte auf Basis der geschätzten Parameter sehr stark von den wahren optimalen Werten unterscheiden. Offensichtlich schlagen sich Schätzfehler gravierend in der Portfoliozusammensetzung nieder. Daneben weichen die Schätzwerte für die erwartete Rendite sehr stark von deren wahren Wert ab, während die Schätzwerte der Standardabweichung wesentlich näher am wahren Parameter liegen. Dies ist ein erster Hinweis darauf, dass die Schätzung der erwarteten Rendite die größten Schwierigkeiten verursacht. Diesem Hinweis gehen wir im folgenden Abschnitt weiter nach.</p>
+</section>
+<section id="komponenten-des-schätzfehlers" class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="komponenten-des-schätzfehlers"><span class="header-section-number">4.3</span> Komponenten des Schätzfehlers</h2>
+<p>Bisher haben wir den Einfluss des gesamten Schätzfehlers auf die Portfoliozusammensetzung herausgearbeitet, ohne allerdings der Frage nachzugehen, welche Quelle des Schätzfehlers (Fehlschätzung bei erwarteten Renditen, Fehlschätzung bei Varianzen, Fehlschätzung bei Korrelationen) sich besonders stark auf die Portfoliogewichte durchschlägt. Die Stärke des Einflusses hängt hierbei von zwei Größen ab, der Sensitivität der Portfoliozusammensetzung auf die Fehlschätzung und dem Ausmaß der Fehlschätzung. Im folgenden werden wir zunächst die Sensitivität der Portfoliozusammensetzung für die verschiedenen Komponenten des Schätzfehlers analysieren und anschließend Fragen nach der erreichbaren Schätzgenauigkeit für die verschiedenen Parameter diskutieren.</p>
+<section id="sensitivitat-des-optimalen-portfolios-bezüglich-schätzfehlern-in-den-verschiedenen-parametern" class="level3" data-number="4.3.1">
+<h3 data-number="4.3.1" class="anchored" data-anchor-id="sensitivitat-des-optimalen-portfolios-bezüglich-schätzfehlern-in-den-verschiedenen-parametern"><span class="header-section-number">4.3.1</span> Sensitivitat des optimalen Portfolios bezüglich Schätzfehlern in den verschiedenen Parametern</h3>
+<p>Zur Analyse der Sensitivitat der Portfoliogewichte in bezug auf Fehlschätzungen in den einzelnen Parametern verwenden wir wiederum die vier Aktien des Abschnittes 1 mit den wahren Parametern <span class="math inline">\(\mu_i\)</span> = 11% (erwartete Rendite), <span class="math inline">\(\sigma_i\)</span> = 25% (Standardabweichung) und <span class="math inline">\(rho_{ij}\)</span> = 30% (Korrelationskoeffizient). Als Vergleichsmaßstab betrachten wir den Fall, das der Anleger sämtliche Parameter exakt kennt und sein optimales Aktienportfolio deshalb aus gleichen Anteilen in allen vier Aktien besteht. Hiermit werden drei Fälle verglichen, in denen der Anleger einen Schätzfehler bezüglich der Parameter der Aktie 1 begeht. Im ersten Fall täuscht er sich bei der erwarteten Rendite der Aktie 1, im zweiten Fall bei der Standardabweichung der Aktie 1 und im dritten Fall bei der Korrelation zwischen den Renditen von Aktie 1 und Aktie 2. Die einzelnen Fälle zur Bestimmung der Komponenten des Schatzrisikos sind in der nachfolgenden Tabelle dargestellt.</p>
+<p><img src="figure31.png" class="img-fluid"></p>
+<p>Wir untersuchen den Einfluß des Schätzfehlers, indem wir in einer komparativ-statischen Analyse den jeweiligen mit Schätzfehler versehenen Parameter ausgehend vom wahren Wert um ±10 Prozentpunkten in Schritten der Größe 2,0 Prozentpunkte variieren. Die erwartete Rendite bewegt sich somit im Wertebereich zwischen 1% und 21%, die Volatilitat zwischen 15% und 35% und die Korrelation zwischen 20% und 40%. Für die verschiedenen Parameterkonstellationen bestimmen wir die optimale Portfoliozusammensetzung und vergleichen diese mit der optimalen Portfoliozusammensetzung bei Kenntnis aller Parameter.</p>
+<p><strong>Fall 1: Schätzfehler in der erwarteten Rendite von Aktie 1, zwischen 1% und 21% um den wahren Wert 11%.</strong></p>
+<div id="cell-19" class="cell" data-execution_count="9">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1"></a><span class="co"># Berechnung der Fehlgewichtung in A1 für Fehler in der geschätzten</span></span>
+<span id="cb9-2"><a href="#cb9-2"></a><span class="co"># erwarteten Rendite</span></span>
+<span id="cb9-3"><a href="#cb9-3"></a>est_error_mean<span class="op">=</span>np.linspace(<span class="fl">0.01</span>, <span class="fl">0.21</span>, <span class="dv">11</span>) <span class="co"># symmetrische Fehler um wahren Wert 11%</span></span>
+<span id="cb9-4"><a href="#cb9-4"></a>wa1_means<span class="op">=</span>np.zeros(<span class="dv">11</span>) <span class="co"># enthält die optimierten Gewichte</span></span>
+<span id="cb9-5"><a href="#cb9-5"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">11</span>):</span>
+<span id="cb9-6"><a href="#cb9-6"></a>    means_mod<span class="op">=</span>np.multiply(means_true,<span class="dv">52</span>) <span class="co"># annualisieren nicht vergessen!</span></span>
+<span id="cb9-7"><a href="#cb9-7"></a>    Sigma_true_ann<span class="op">=</span>np.multiply(Sigma_true,<span class="dv">52</span>) <span class="co"># annualisieren nicht vergessen!</span></span>
+<span id="cb9-8"><a href="#cb9-8"></a>    means_mod[<span class="dv">0</span>]<span class="op">=</span>est_error_mean[i]</span>
+<span id="cb9-9"><a href="#cb9-9"></a>    weights<span class="op">=</span>max_sharpe_ratio(means_mod, Sigma_true_ann, <span class="fl">0.06</span>)</span>
+<span id="cb9-10"><a href="#cb9-10"></a>    wa1_means[i]<span class="op">=</span>weights[<span class="dv">0</span>]</span>
+<span id="cb9-11"><a href="#cb9-11"></a>    </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p><strong>Fall 2: Schätzfehler in der Standardabweichung der Rendite von Aktie 1, zwischen 15% und 35% um den wahren Wert 25%.</strong></p>
+<div id="cell-21" class="cell" data-execution_count="10">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1"></a><span class="co"># Berechnung der Fehlgewichtung in A1 für Fehler in der geschätzten</span></span>
+<span id="cb10-2"><a href="#cb10-2"></a><span class="co"># (annualisierten) Standardabweichung</span></span>
+<span id="cb10-3"><a href="#cb10-3"></a>est_error_std<span class="op">=</span>np.linspace(<span class="fl">0.15</span>, <span class="fl">0.35</span>, <span class="dv">11</span>) <span class="co"># symmetrische Fehler um wahren Wert 25%</span></span>
+<span id="cb10-4"><a href="#cb10-4"></a><span class="co"># Berechnung der neuen Varianz und der Kovarianz</span></span>
+<span id="cb10-5"><a href="#cb10-5"></a>a1_var<span class="op">=</span>np.zeros(<span class="dv">11</span>) <span class="co"># enthält die neue Varianz</span></span>
+<span id="cb10-6"><a href="#cb10-6"></a>a1_cov<span class="op">=</span>np.zeros(<span class="dv">11</span>) <span class="co"># enthält die neue Kovarianz</span></span>
+<span id="cb10-7"><a href="#cb10-7"></a>wa1_std<span class="op">=</span>np.zeros(<span class="dv">11</span>) <span class="co"># enthält die optimierten Gewichte</span></span>
+<span id="cb10-8"><a href="#cb10-8"></a></span>
+<span id="cb10-9"><a href="#cb10-9"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">11</span>):</span>
+<span id="cb10-10"><a href="#cb10-10"></a>    a1_var[i]<span class="op">=</span>est_error_std[i]<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb10-11"><a href="#cb10-11"></a>    a1_cov[i]<span class="op">=</span>est_error_std[i]<span class="op">*</span><span class="fl">0.25</span><span class="op">*</span><span class="fl">0.3</span></span>
+<span id="cb10-12"><a href="#cb10-12"></a>    <span class="co"># Berechnung der neuen Varanz-Kovarianzmatrix; 7 Änderungen vornehmen</span></span>
+<span id="cb10-13"><a href="#cb10-13"></a>    Sigma_true_ann<span class="op">=</span>np.multiply(Sigma_true,<span class="dv">52</span>) <span class="co"># annualisieren nicht vergessen!</span></span>
+<span id="cb10-14"><a href="#cb10-14"></a>    Sigma_mod<span class="op">=</span>Sigma_true_ann</span>
+<span id="cb10-15"><a href="#cb10-15"></a>    Sigma_mod[<span class="dv">0</span>,<span class="dv">0</span>]<span class="op">=</span>a1_var[i]</span>
+<span id="cb10-16"><a href="#cb10-16"></a>    Sigma_mod[<span class="dv">0</span>,<span class="dv">1</span>]<span class="op">=</span>a1_cov[i]</span>
+<span id="cb10-17"><a href="#cb10-17"></a>    Sigma_mod[<span class="dv">0</span>,<span class="dv">2</span>]<span class="op">=</span>a1_cov[i]</span>
+<span id="cb10-18"><a href="#cb10-18"></a>    Sigma_mod[<span class="dv">0</span>,<span class="dv">3</span>]<span class="op">=</span>a1_cov[i]</span>
+<span id="cb10-19"><a href="#cb10-19"></a>    Sigma_mod[<span class="dv">1</span>,<span class="dv">0</span>]<span class="op">=</span>a1_cov[i]</span>
+<span id="cb10-20"><a href="#cb10-20"></a>    Sigma_mod[<span class="dv">2</span>,<span class="dv">0</span>]<span class="op">=</span>a1_cov[i]</span>
+<span id="cb10-21"><a href="#cb10-21"></a>    Sigma_mod[<span class="dv">3</span>,<span class="dv">0</span>]<span class="op">=</span>a1_cov[i]</span>
+<span id="cb10-22"><a href="#cb10-22"></a>    means_ann<span class="op">=</span>np.multiply(means_true,<span class="dv">52</span>) <span class="co"># annualisieren nicht vergessen!</span></span>
+<span id="cb10-23"><a href="#cb10-23"></a>    weights<span class="op">=</span>max_sharpe_ratio(means_ann, Sigma_mod, <span class="fl">0.06</span>)</span>
+<span id="cb10-24"><a href="#cb10-24"></a>    wa1_std[i]<span class="op">=</span>weights[<span class="dv">0</span>]</span>
+<span id="cb10-25"><a href="#cb10-25"></a>   </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p><strong>Fall 3: Schätzfehler in der Korrelation der Rendite von Aktie 1, zwischen 20% und 40% um den wahren Wert 30%.</strong></p>
+<div id="cell-23" class="cell" data-execution_count="11">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1"></a><span class="co"># Berechnung der Fehlgewichtung in A1 für Fehler in der geschätzten</span></span>
+<span id="cb11-2"><a href="#cb11-2"></a><span class="co"># Korrelation zwischen Aktie 1 und 2</span></span>
+<span id="cb11-3"><a href="#cb11-3"></a>est_error_corr<span class="op">=</span>np.linspace(<span class="fl">0.20</span>, <span class="fl">0.40</span>, <span class="dv">11</span>) <span class="co"># symmetrische Fehler um wahren Wert 25%</span></span>
+<span id="cb11-4"><a href="#cb11-4"></a><span class="co"># Berechnung der neuen Kovarianz</span></span>
+<span id="cb11-5"><a href="#cb11-5"></a>a1_cov<span class="op">=</span>np.zeros(<span class="dv">11</span>) <span class="co"># enthält die neue Kovarianz</span></span>
+<span id="cb11-6"><a href="#cb11-6"></a>wa1_corr<span class="op">=</span>np.zeros(<span class="dv">11</span>) <span class="co"># enthält die optimierten Gewichte</span></span>
+<span id="cb11-7"><a href="#cb11-7"></a></span>
+<span id="cb11-8"><a href="#cb11-8"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">11</span>):</span>
+<span id="cb11-9"><a href="#cb11-9"></a>    a1_cov[i]<span class="op">=</span>est_error_corr[i]<span class="op">*</span><span class="fl">0.25</span><span class="op">*</span><span class="fl">0.25</span></span>
+<span id="cb11-10"><a href="#cb11-10"></a>    <span class="co"># Berechnung der neuen Varanz-Kovarianzmatrix; 2 Änderungen vornehmen</span></span>
+<span id="cb11-11"><a href="#cb11-11"></a>    Sigma_true_ann<span class="op">=</span>np.multiply(Sigma_true,<span class="dv">52</span>) <span class="co"># annualisieren nicht vergessen!</span></span>
+<span id="cb11-12"><a href="#cb11-12"></a>    Sigma_mod<span class="op">=</span>Sigma_true_ann</span>
+<span id="cb11-13"><a href="#cb11-13"></a>    Sigma_mod[<span class="dv">0</span>,<span class="dv">1</span>]<span class="op">=</span>a1_cov[i]</span>
+<span id="cb11-14"><a href="#cb11-14"></a>    Sigma_mod[<span class="dv">1</span>,<span class="dv">0</span>]<span class="op">=</span>a1_cov[i]</span>
+<span id="cb11-15"><a href="#cb11-15"></a>    means_ann<span class="op">=</span>np.multiply(means_true,<span class="dv">52</span>) <span class="co"># annualisieren nicht vergessen!</span></span>
+<span id="cb11-16"><a href="#cb11-16"></a>    weights<span class="op">=</span>max_sharpe_ratio(means_ann, Sigma_mod, <span class="fl">0.06</span>)</span>
+<span id="cb11-17"><a href="#cb11-17"></a>    wa1_corr[i]<span class="op">=</span>weights[<span class="dv">0</span>]</span>
+<span id="cb11-18"><a href="#cb11-18"></a>   </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>Die folgende Tabelle gibt die optimalen Gewichte für Aktie 1 für die verschiedenen Fälle an.</p>
+<div id="cell-25" class="cell" data-execution_count="12">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1"></a>df<span class="op">=</span>pd.DataFrame({<span class="st">'1. Fall'</span>: np.<span class="bu">round</span>(wa1_means,<span class="dv">2</span>), <span class="st">'2. Fall'</span>: np.<span class="bu">round</span>(wa1_std,<span class="dv">2</span>), <span class="op">\</span></span>
+<span id="cb12-2"><a href="#cb12-2"></a>              <span class="st">'3. Fall'</span>: np.<span class="bu">round</span>(wa1_corr,<span class="dv">2</span>)}<span class="op">\</span></span>
+<span id="cb12-3"><a href="#cb12-3"></a>             , index<span class="op">=</span>np.linspace(<span class="op">-</span><span class="dv">10</span>, <span class="dv">10</span>, <span class="dv">11</span>)).T</span>
+<span id="cb12-4"><a href="#cb12-4"></a>df.columns.name<span class="op">=</span><span class="st">'Abweichungen vom wahren Parameterwert in (%)'</span></span>
+<span id="cb12-5"><a href="#cb12-5"></a>df</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="12">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">Abweichungen vom wahren Parameterwert in (%)</th>
+<th data-quarto-table-cell-role="th">-10.0</th>
+<th data-quarto-table-cell-role="th">-8.0</th>
+<th data-quarto-table-cell-role="th">-6.0</th>
+<th data-quarto-table-cell-role="th">-4.0</th>
+<th data-quarto-table-cell-role="th">-2.0</th>
+<th data-quarto-table-cell-role="th">0.0</th>
+<th data-quarto-table-cell-role="th">2.0</th>
+<th data-quarto-table-cell-role="th">4.0</th>
+<th data-quarto-table-cell-role="th">6.0</th>
+<th data-quarto-table-cell-role="th">8.0</th>
+<th data-quarto-table-cell-role="th">10.0</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">1. Fall</th>
+<td>-1.79</td>
+<td>-1.11</td>
+<td>-0.62</td>
+<td>-0.26</td>
+<td>0.02</td>
+<td>0.25</td>
+<td>0.44</td>
+<td>0.59</td>
+<td>0.72</td>
+<td>0.83</td>
+<td>0.93</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">2. Fall</th>
+<td>0.66</td>
+<td>0.56</td>
+<td>0.47</td>
+<td>0.38</td>
+<td>0.31</td>
+<td>0.25</td>
+<td>0.20</td>
+<td>0.16</td>
+<td>0.12</td>
+<td>0.09</td>
+<td>0.07</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">3. Fall</th>
+<td>0.27</td>
+<td>0.27</td>
+<td>0.26</td>
+<td>0.26</td>
+<td>0.25</td>
+<td>0.25</td>
+<td>0.25</td>
+<td>0.24</td>
+<td>0.24</td>
+<td>0.24</td>
+<td>0.23</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>In der Tabelle ist klar zu erkennen, dass sich Änderungen der erwarteten Rendite am stärksten auf die Portfoliozusammensetzung durchschlagen. Wird beispielsweise die erwartete Rendite von Aktie 1 um 6 Prozentpunkte überschätzt, so ergibt sich hierdurch ein optimales Gewicht für Aktie 1 in Höhe von 0,72. Im Vergleich zum optimalen Gewicht ohne Schätzfehler bedeutet dies eine Übergewichtung der Aktie 1 um 47 Prozentpunkte. Eine Fehlschätzung der Standardabweichung in gleicher Höhe schlägt sich demgegenüber wesentlich weniger stark (-0,13 = 0,12 - 0,25) auf die Portfoliozusammensetzung durch, und eine Fehlschätzung der Korrelation besitzt keinen nennenswerten Einfluss (-0,01 = 0,24 - 0,25). Dies wird anhand der nachfolgenden Abbildung nochmals verdeutlicht. Dort ist die Über- oder Untergewichtung von Aktie 1 in Abhängigkeit der Stärke des Schätzfehlers graphisch dargestellt.</p>
+<div id="cell-27" class="cell" data-execution_count="13">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1"></a>fig1 <span class="op">=</span> plt.figure(num<span class="op">=</span><span class="dv">1</span>, facecolor<span class="op">=</span><span class="st">'w'</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">5</span>))</span>
+<span id="cb13-2"><a href="#cb13-2"></a>ax <span class="op">=</span> fig1.add_subplot(<span class="dv">111</span>)</span>
+<span id="cb13-3"><a href="#cb13-3"></a>ax.spines[<span class="st">'left'</span>].set_position(<span class="st">'zero'</span>)</span>
+<span id="cb13-4"><a href="#cb13-4"></a>ax.spines[<span class="st">'right'</span>].set_position(<span class="st">'zero'</span>)</span>
+<span id="cb13-5"><a href="#cb13-5"></a>ax.spines[<span class="st">'top'</span>].set_position(<span class="st">'zero'</span>)</span>
+<span id="cb13-6"><a href="#cb13-6"></a></span>
+<span id="cb13-7"><a href="#cb13-7"></a>ax.spines[<span class="st">'bottom'</span>].set_position(<span class="st">'zero'</span>)</span>
+<span id="cb13-8"><a href="#cb13-8"></a>plt.plot(np.linspace(<span class="op">-</span><span class="dv">10</span>, <span class="dv">10</span>, <span class="dv">11</span>), (wa1_means<span class="op">-</span><span class="fl">0.25</span>)<span class="op">*</span><span class="dv">100</span>, <span class="st">'r-'</span>, label<span class="op">=</span><span class="st">'Fehler in der erwarteten Rendite'</span>)</span>
+<span id="cb13-9"><a href="#cb13-9"></a>plt.plot(np.linspace(<span class="op">-</span><span class="dv">10</span>, <span class="dv">10</span>, <span class="dv">11</span>), (wa1_std<span class="op">-</span><span class="fl">0.25</span>)<span class="op">*</span><span class="dv">100</span>, <span class="st">'g-'</span>, label<span class="op">=</span><span class="st">'Fehler in der Standardabweichung'</span>)</span>
+<span id="cb13-10"><a href="#cb13-10"></a>plt.plot(np.linspace(<span class="op">-</span><span class="dv">10</span>, <span class="dv">10</span>, <span class="dv">11</span>), (wa1_corr<span class="op">-</span><span class="fl">0.25</span>)<span class="op">*</span><span class="dv">100</span>, <span class="st">'b-'</span>, label<span class="op">=</span><span class="st">'Fehler im Korrelationskoeffizienten'</span>)</span>
+<span id="cb13-11"><a href="#cb13-11"></a></span>
+<span id="cb13-12"><a href="#cb13-12"></a>plt.legend(loc<span class="op">=</span><span class="dv">4</span>,  frameon<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb13-13"><a href="#cb13-13"></a>plt.xlabel(<span class="st">'Ausmaß der Fehlschätzung (in %)'</span>)</span>
+<span id="cb13-14"><a href="#cb13-14"></a>ax.yaxis.set_label_coords(<span class="op">-</span><span class="fl">0.01</span>,<span class="fl">0.75</span>)</span>
+<span id="cb13-15"><a href="#cb13-15"></a>ax.xaxis.set_label_coords(<span class="fl">0.5</span>,<span class="op">-</span><span class="fl">0.01</span>)</span>
+<span id="cb13-16"><a href="#cb13-16"></a></span>
+<span id="cb13-17"><a href="#cb13-17"></a>plt.ylabel(<span class="st">'Fehlgewichtung in Aktie 1 (in %)'</span>)</span>
+<span id="cb13-18"><a href="#cb13-18"></a>plt.title(<span class="st">'Auswirkung von Schätzfehlern auf die optimalen Gewichte in Aktie 1'</span>)</span>
+<span id="cb13-19"><a href="#cb13-19"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="kapitel3a_files/figure-html/cell-14-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Die Abbildung zeigt deutlich, dass bereits kleine Fehler in den Parameterschätzungen zu erheblichen Änderungen bei den optimierten Gewichten führen. Dies gilt im besonderen für Schätzfehler bei den erwarteten Renditen. Die Sensitivität der Portfoliozusammensetzung auf Schätzfehler ist somit ein zentrales Problem bei der Anwendung des Portfolioansatzes von Markowitz. Wie stark ein Anleger allerdings hierdurch berührt ist, hängt außer von der Sensitivität von der erzielbaren Genauigkeit bei der Schätzung der verschiedenen Parameter ab. Wie groß die Schätzgenauigkeit für die verschiedenen Parameter ist, wird im folgenden analysiert.</p>
+</section>
+<section id="größe-der-schätzfehler-für-die-verschiedenen-parameter" class="level3" data-number="4.3.2">
+<h3 data-number="4.3.2" class="anchored" data-anchor-id="größe-der-schätzfehler-für-die-verschiedenen-parameter"><span class="header-section-number">4.3.2</span> Größe der Schätzfehler für die verschiedenen Parameter</h3>
+<p>Aus historischen Daten sollen möglichst verläßliche Schätzwerte für die erwartete annualisierte Rendite <span class="math inline">\((\mu_i)\)</span> und die annualisierte Standardabweichung <span class="math inline">\((\sigma_i)\)</span> ermittelt werden. (Auf eine Analyse für die Korrelation verzichten wir im folgenden, da - wie oben berichtet - die Sensitivität der Portfoliozusammensetzung auf Fehlschätzungen der Korrelation sehr gering ist.) Hierzu stehe eine Zeitreihe zur Verfügung, die n (nicht annualisierte) Periodenrenditen <span class="math inline">\(r_{t,i}\)</span> enthält, welche unabhängig, identisch und normalverteilt seien. Ihre Verteilung ist durch den Erwartungswert <span class="math inline">\(\mu_i\Delta t\)</span> und die Varianz <span class="math inline">\(\sigma^2_i\Delta t\)</span> charakterisiert. Um den Schätzfehler zu reduzieren, wird der Anleger versuchen, die Anzahl der Beobachtungen, die in seine Schätzung eingehen, zu erhöhen. Dies kann er dadurch erreichen, dass er den Schätzzeitraum <span class="math inline">\(T\)</span> (gemessen in Jahren) verlängert oder den Schätzzeitraum in kürzere Teilintervalle einteilt, also <span class="math inline">\(\Delta t\)</span> verkürzt.</p>
+<p>Aus verschiedenen Gründen ist einem Anleger jedoch die Verlängerung des Beobachtungszeitraums <span class="math inline">\(T\)</span> häufig nicht möglich. Bei jungen Unternehmen liegt keine lange Kurshistorie vor. Andere Unternehmen weisen zwar eine längere Kurshistorie auf, jedoch sind diese durch Brüche gekennzeichnet, die durch Umstrukturierungen oder Unternehmenszukäufe verursacht sind. Schließlich ist gegen die Verwendung einer sehr langen Kurshistorie einzuwenden, dass die Renditeparameter nicht über Jahrzehnte konstant bleiben. Dagegen genießt der Anleger bei der Wahl der Länge der Teilintervalle größere Freiheiten. Er kann von Jahresdaten auf Quartals-, Monats-, Wochen-, Tagesdaten oder gar innertägliche Daten wechseln, um so die Anzahl der Beobachtungen zu erhöhen. Im folgenden wollen wir prüfen, wie sich dies auf die Qualität des Schätzers für die erwartete Rendite und die Varianz niederschlägt. Hierzu müssen wir zunächst eine Annahme treffen, welche Schätzer der Anleger verwendet. Wir unterstellen, dass er wiederum die einfache historisch basierte Schätzung verwendet, also das arithmetische Mittel für das erste Verteilungsmoment. Unter Verwendung der Tatsache, dass die Schätzperiode <span class="math inline">\(T\)</span> sich ergibt als die Anzahl der Subperioden n multipliziert mit deren Länge <span class="math inline">\(\Delta t\)</span>, lässt sich der Mittelwert-Schätzer schreiben als:</p>
+<p><span class="math display">\[ (1)\quad \hat{\mu_i}=\frac{1}{\Delta t}\frac{1}{n}\sum_{t=1}^{n}r_{t,i}=\frac{1}{T}\sum_{t=1}^{n}r_{t,i}.\]</span></p>
+<p>Dieser Schätzer ist erwartungstreu, d.h., er trifft im Mittel den wahren Parameterwert <span class="math inline">\(\mu_i\)</span>. Die Varianz des Schätzers ist ein Maß für dessen Güte. Je geringer die Varianz ist, um so weniger streut der Schätzer um den wahren Parameterwert. Die Varianz des Schätzers beträgt:</p>
+<p><span class="math display">\[ (2)\quad var(\hat{\mu_i})=\frac{\sigma^2_i}{T}.\]</span></p>
+<p>Bemerkenswerterweise hängt dieses Gütemaß bei gleichbleibendem Beobachtungszeitraum <span class="math inline">\(T\)</span> nicht von der Datenfrequenz ab. Dies bedeutet, dass eine Erhöhung der Beobachtungsfrequenz nicht zu genaueren Schätzergebnissen führt. Daneben fällt auf, dass der Schätzfehler im Verhältnis zu der zu schätzenden Größe sehr groß ist. Dies kann man sich verdeutlichen, wenn man erneut die Daten aus unserem Beispiel in Abschnitt 1 verwendet. Die erwartete Rendite einer Aktie beträgt 11% p.a. und die Standardabweichung der Rendite 25% p.a. In der folgenden Tabelle wird die Breite eines 95%-Konfidenzintervalls in Abhängigkeit der Länge des Schätzzeitraums <span class="math inline">\(T\)</span> dargestellt. Allgemein lautet die Formel zur Längenberechnung des (asymptotischen) <span class="math inline">\((1-\alpha)\)</span>-Konfidenzintervalls:</p>
+<p><span class="math display">\[ (3)\quad 2\cdot[Q_{1-\frac{\alpha}{2}}\cdot\frac{\sigma_i}{\sqrt{T}}].\]</span></p>
+<p>Hierbei bezeichnet <span class="math inline">\(Q_{1-\frac{\alpha}{2}}\)</span> das <span class="math inline">\((1-\frac{\alpha}{2})\)</span>-Quantil der Standardnormalverteilung. Für <span class="math inline">\(\alpha=5\%\)</span> gilt: <span class="math inline">\(Q_{97,5}=1,96\)</span></p>
+<div id="cell-31" class="cell" data-execution_count="14">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1"></a><span class="co"># Länge des Schätzzeitraums T in Jahren</span></span>
+<span id="cb14-2"><a href="#cb14-2"></a>est_period<span class="op">=</span>[<span class="dv">1</span>, <span class="dv">5</span>, <span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">50</span>]</span>
+<span id="cb14-3"><a href="#cb14-3"></a><span class="co"># Breite des Konfidenzintervalls</span></span>
+<span id="cb14-4"><a href="#cb14-4"></a>confidence<span class="op">=</span>np.zeros(<span class="dv">5</span>)</span>
+<span id="cb14-5"><a href="#cb14-5"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>):</span>
+<span id="cb14-6"><a href="#cb14-6"></a>    confidence[i]<span class="op">=</span><span class="bu">round</span>((<span class="dv">2</span><span class="op">*</span><span class="fl">1.96</span><span class="op">*</span><span class="fl">0.25</span><span class="op">/</span>np.sqrt(est_period[i]))<span class="op">*</span><span class="dv">100</span>, <span class="dv">2</span>)</span>
+<span id="cb14-7"><a href="#cb14-7"></a>pd.DataFrame({<span class="st">'Schätzzeitraum T in Jahren'</span>: est_period, <span class="op">\</span></span>
+<span id="cb14-8"><a href="#cb14-8"></a>              <span class="st">'Breite des Konfidenzintervalls (%)'</span>: confidence})    </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="14">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Schätzzeitraum T in Jahren</th>
+<th data-quarto-table-cell-role="th">Breite des Konfidenzintervalls (%)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>1</td>
+<td>98.00</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>5</td>
+<td>43.83</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>10</td>
+<td>30.99</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>20</td>
+<td>21.91</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>50</td>
+<td>13.86</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Selbst bei einem Schätzzeitraum von 10 Jahren beträgt die Breite dieses Intervalls noch mehr als 30 Prozentpunkte. Dies bedeutet, dass mit einer Wahrscheinlichkeit von 95% der Schätzfehler nicht mehr als 15,5 Prozentpunkte beträgt, der Schätzwert also im Intervall [-4,5%;+26,5%] liegt. Wie wir aber oben gezeigt haben, besitzt bereits eine deutlich geringere Fehlschätzung einen dramatischen Einfluß auf die Portfoliozusammensetzung.</p>
+<p>Nun wenden wir uns dem Schätzwert für die Varianz zu. Unter Verwendung der definitorischen Beziehung <span class="math inline">\(T = n \cdot \Delta t\)</span> lässt sich der einfache historisch basierte Schätzer schreiben als:</p>
+<p><span class="math display">\[ (4)\quad \hat{\sigma}^2_i=\frac{1}{T-\Delta t}\sum_{t=1}^{n}(r_{t,i}-\hat{\mu_i}\Delta t)^2.\]</span></p>
+<p>Die asymptotische Varianz dieses Schätzers beträgt (siehe Memmel, 2004, S. 33):</p>
+<p><span class="math display">\[ (5)\quad var(\hat{\sigma}^2_i)=\frac{2\sigma^4_i\Delta t}{T}.\]</span></p>
+<p>Die Güte des Varianzschätzers lässt sich somit bei gegebenem Schätzzeitraum <span class="math inline">\(T\)</span> durch eine Erhöhung der Datenfrequenz (Verkleinerung von <span class="math inline">\(\Delta t\)</span>) verbessern. So verdreifacht sich beispielsweise durch Übergang von Quartalsdaten auf Monatsdaten die Anzahl der Beobachtungen, und der Schätzfehler reduziert sich ungefähr auf ein Drittel des ursprünglichen Wertes.</p>
+<p>Die asymptotische Varianz des Schätzers für die Renditestandardabweichung lässt sich bestimmen als :</p>
+<p><span class="math display">\[ (6)\quad var(\hat{\sigma}_i)=\frac{1}{2}\sigma^2_i\frac{\Delta t}{T}.\]</span></p>
+<p>In der folgenden Tabelle sind die Breiten des 95%-Konfidenzintervalles (in %) für den Schätzer der Standardabweichung der annualisierten Renditen für verschiedene Längen der Schätzperioden und verschiedene Datenfrequenzen aufgeführt.</p>
+<div id="cell-33" class="cell" data-execution_count="15">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1"></a><span class="co"># Länge des Schätzzeitraums T in Jahren</span></span>
+<span id="cb15-2"><a href="#cb15-2"></a>est_period<span class="op">=</span>[<span class="dv">1</span>, <span class="dv">5</span>, <span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">50</span>]</span>
+<span id="cb15-3"><a href="#cb15-3"></a><span class="co"># Breite des Konfidenzintervalls</span></span>
+<span id="cb15-4"><a href="#cb15-4"></a>confidence_daily<span class="op">=</span>np.zeros(<span class="dv">5</span>) <span class="co"># delta_t=1/250</span></span>
+<span id="cb15-5"><a href="#cb15-5"></a>confidence_weekly<span class="op">=</span>np.zeros(<span class="dv">5</span>) <span class="co"># delta_t=1/52</span></span>
+<span id="cb15-6"><a href="#cb15-6"></a>confidence_monthly<span class="op">=</span>np.zeros(<span class="dv">5</span>) <span class="co"># delta_t=1/12</span></span>
+<span id="cb15-7"><a href="#cb15-7"></a>confidence_quarterly<span class="op">=</span>np.zeros(<span class="dv">5</span>) <span class="co"># delta_t=1/4</span></span>
+<span id="cb15-8"><a href="#cb15-8"></a></span>
+<span id="cb15-9"><a href="#cb15-9"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>):</span>
+<span id="cb15-10"><a href="#cb15-10"></a>    confidence_daily[i]<span class="op">=</span><span class="bu">round</span>(<span class="dv">2</span><span class="op">*</span><span class="fl">1.96</span><span class="op">*</span>np.sqrt(<span class="fl">0.25</span><span class="op">**</span><span class="dv">2</span><span class="op">/</span> <span class="op">\</span></span>
+<span id="cb15-11"><a href="#cb15-11"></a>                    (<span class="dv">2</span><span class="op">*</span>est_period[i]<span class="op">*</span><span class="dv">250</span>))<span class="op">*</span><span class="dv">100</span>, <span class="dv">2</span>)</span>
+<span id="cb15-12"><a href="#cb15-12"></a>    confidence_weekly[i]<span class="op">=</span><span class="bu">round</span>(<span class="dv">2</span><span class="op">*</span><span class="fl">1.96</span><span class="op">*</span>np.sqrt(<span class="fl">0.25</span><span class="op">**</span><span class="dv">2</span><span class="op">/</span> <span class="op">\</span></span>
+<span id="cb15-13"><a href="#cb15-13"></a>                    (<span class="dv">2</span><span class="op">*</span>est_period[i]<span class="op">*</span><span class="dv">52</span>))<span class="op">*</span><span class="dv">100</span>, <span class="dv">2</span>)</span>
+<span id="cb15-14"><a href="#cb15-14"></a>    confidence_monthly[i]<span class="op">=</span><span class="bu">round</span>(<span class="dv">2</span><span class="op">*</span><span class="fl">1.96</span><span class="op">*</span>np.sqrt(<span class="fl">0.25</span><span class="op">**</span><span class="dv">2</span><span class="op">/</span> <span class="op">\</span></span>
+<span id="cb15-15"><a href="#cb15-15"></a>                    (<span class="dv">2</span><span class="op">*</span>est_period[i]<span class="op">*</span><span class="dv">12</span>))<span class="op">*</span><span class="dv">100</span>, <span class="dv">2</span>)</span>
+<span id="cb15-16"><a href="#cb15-16"></a>    confidence_quarterly[i]<span class="op">=</span><span class="bu">round</span>(<span class="dv">2</span><span class="op">*</span><span class="fl">1.96</span><span class="op">*</span>np.sqrt(<span class="fl">0.25</span><span class="op">**</span><span class="dv">2</span><span class="op">/</span> <span class="op">\</span></span>
+<span id="cb15-17"><a href="#cb15-17"></a>                    (<span class="dv">2</span><span class="op">*</span>est_period[i]<span class="op">*</span><span class="dv">4</span>))<span class="op">*</span><span class="dv">100</span>, <span class="dv">2</span>)</span>
+<span id="cb15-18"><a href="#cb15-18"></a>Zeitraum<span class="op">=</span>[<span class="st">'T=1 Jahr'</span>, <span class="st">'T=5 Jahre'</span>, <span class="st">'T=10 Jahre'</span>, <span class="st">'T=20 Jahre'</span>, <span class="st">'T=50 Jahre'</span>]    </span>
+<span id="cb15-19"><a href="#cb15-19"></a>pd.DataFrame({<span class="st">'Tagesdaten'</span>: confidence_daily, <span class="st">'Wochendaten'</span>: confidence_weekly,<span class="op">\</span></span>
+<span id="cb15-20"><a href="#cb15-20"></a>              <span class="st">'Monatsdaten'</span>: confidence_monthly, <span class="st">'Quartalsdaten'</span>: confidence_quarterly},<span class="op">\</span></span>
+<span id="cb15-21"><a href="#cb15-21"></a>             index<span class="op">=</span>Zeitraum) </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="15">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Tagesdaten</th>
+<th data-quarto-table-cell-role="th">Wochendaten</th>
+<th data-quarto-table-cell-role="th">Monatsdaten</th>
+<th data-quarto-table-cell-role="th">Quartalsdaten</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">T=1 Jahr</th>
+<td>4.38</td>
+<td>9.61</td>
+<td>20.00</td>
+<td>34.65</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">T=5 Jahre</th>
+<td>1.96</td>
+<td>4.30</td>
+<td>8.95</td>
+<td>15.50</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">T=10 Jahre</th>
+<td>1.39</td>
+<td>3.04</td>
+<td>6.33</td>
+<td>10.96</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">T=20 Jahre</th>
+<td>0.98</td>
+<td>2.15</td>
+<td>4.47</td>
+<td>7.75</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">T=50 Jahre</th>
+<td>0.62</td>
+<td>1.36</td>
+<td>2.83</td>
+<td>4.90</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Im Vergleich mit der vorherigen Tabelle fällt auf, dass die Standardabweichung wesentlich genauer geschätzt werden kann als die erwartete Rendite. Dies gilt c.p. um so stärker, je größer die Datenfrequenz ist. So kann unter Verwendung von Tagesdaten bereits bei einer Schätzperiode von einem Jahr eine recht präzise Varianzschätzung vorgenommen werden, während für diese Frist die erwartete Rendite nur mit einer hohen Ungenauigkeit geschätzt werden kann. Die bisher gewonnenen Ergebnisse scheinen damit zu implizieren, dass ein Anleger bei gegebener Schätzperiode eine möglichst hohe Datenfrequenz wählen sollte, da er hierdurch gemäß (5) den Schätzfehler in der Varianz verringert und den Schätzfehler in der erwarteten Rendite unbeeinflußt läßt. Dieser Aussage ist allerdings nicht uneingeschränkt zuzustimmen. Eine sehr hohe Datenfrequenz bringt in der Praxis nämlich das Problem mit sich, dass die empirisch beobachteten Renditen nicht mehr unabhängig, identisch und normalverteilt sind. So findet man beispielsweise, dass Aktienrenditen bei einer hohen Datenfrequenz (bspw. Tagesdaten) Autokorrelation aufweisen und ihre Verteilung zu viel Masse in den Enden aufweist.</p>
+<p>Zusammenfassend kann man damit festhalten: Die Schätzung der erwarteten Renditen verursacht wesentlich größere Probleme als die Schätzung der Renditevarianz. Die Schätzung der erwarteten Renditen kann nämlich nicht durch eine Erhohung der Datenfrequenz verbessert werden, während eine höhere Datenfrequenz zu besseren Schätzungen der Renditevarianz führt. Da außerdem die Portfoliozusammensetzung wesentlich sensitiver auf Fehlschätzungen in den erwarteten Renditen als in den Varianzen reagiert, muss konstatiert werden, dass Schätzfehler in erwarteten Renditen das zentrale Problem bei der Implementierung des Markowitz-Modells darstellen. Deshalb konzentrieren wir uns im folgenden ausschließlich auf Schätzfehler in den erwarteten Renditen und unterstellen, dass die zweiten Momente der Verteilung (Varianzen, Korrelationen) dem Anleger bekannt sind.</p>
+</section>
+</section>
+<section id="lösungsansätze-für-das-schätzproblem" class="level2" data-number="4.4">
+<h2 data-number="4.4" class="anchored" data-anchor-id="lösungsansätze-für-das-schätzproblem"><span class="header-section-number">4.4</span> Lösungsansätze für das Schätzproblem</h2>
+<p>In den bisherigen Abschnitten haben wir herausgearbeitet, warum die traditionelle Umsetzung der Portfoliotheorie Probleme aufwirft. Erwartete Renditen lassen sich mit dem traditionellen Schätzansatz des arithmetischen Mittels nur sehr ungenau schätzen. Dies führt typischerweise zu extremen und suboptimalen Portfoliogewichten.</p>
+<p>Grundsätzlich bieten sich mehrere Möglichkeiten an, dieses Problems Herr zu werden. Eine erste Möglichkeit besteht darin, ein ökonomisch fundiertes Modell zu entwickeln, aus dem sich endogen die optimalen Portfoliogewichte ergeben und das es erlaubt, auf leichter zu ermittelnde Größen anstelle der erwarteten Renditen zurückzugreifen. Ein Beispiel hierfür stellt das CAPM dar, bei dem die optimalen Portfoliogewichte den anteiligen Marktkapitalisierungen entsprechen.</p>
+<p>Eine zweite Möglichkeit, den Einfluss von Schätzfehlern und die daraus resultierenden extremen Portfoliogewichte zu reduzieren, besteht darin, <strong>exogene Schranken (Constraints)</strong> für die erwarteten Renditen bzw. die Portfoliogewichte vorzugeben. Den ersten Ansatz wählt Merton (1980), der unterstellt, dass die wahren erwarteten Renditen in einer Welt mit risikoaversen Anlegern nicht negativ sein können und gleichzeitig einen bestimmten Höchstwert nicht überschreiten sollten. Ein einfaches Beispiel für exogene Schranken bezüglich der Portfoliogewichte - diese sind bereits Bestandteil der Originalarbeit von Markowitz - besteht im Verbot von Leerverkaufen. Hierdurch werden die Portfoliogewichte in jeder Aktie auf den Bereich [0%; 100%] restringiert. Die optimale Strategie besteht hierbei häufig aus Randlösungen, d.h., in den meisten Fällen konzentriert sich das Anlagevolumen auf wenige Aktien, die sich in der jüngsten Vergangenheit besonders gut entwickelt haben (Winner-Strategie). Hierdurch geht Diverifikationspotential innerhalb des Portfolios verloren. Um diesem Mißstand abzuhelfen, werden z.B. im Rahmen der relativen (Index- oder Benchmark-basierten) Optimierung die Abweichungen der Portfolioanteile von den Gewichten eines Index- oder Benchmarkportfolios begrenzt. Als Folge der erzwungenen, aber nicht optimalen Diversifikation reduziert sich zwar das Portfoliorisiko, doch leidet gleichzeitig die Wertentwicklung dieses Portfolios.</p>
+<p>Die dritte Möglichkeit besteht darin, gänzlich auf die Schätzung von erwarteten Renditen zu verzichten. So könnte ein Anleger beispielsweise das <strong>global varianzminimale Aktienportfolio</strong> oder ein <strong>gleichgewichtetes Portfolio</strong> wählen. Diese Portfoliozusammensetzung muss als <em>heuristisch</em> bezeichnet werden, da sie sich nicht aus einem allgemeinen Markowitz-Ansatz ergibt. Trotzdem haben verschiedene empirische Studien (z.B. DeMiguel et al., 2009) ergeben, dass mit diesen Strategien bessere Ergebnisse erzielt werden können als mit der traditionellen Umsetzung der Portfoliotheorie.</p>
+<p>Neben diesen klassischen heuristischen Ansätzen haben sich seit der Finanzkrise 2008-2009 zunehmend risikogesteuerte Ansätze etabliert. Die Portfoliobildung basiert auch hier allein auf Volatilitäts- und Korrelationsannahmen und die Diversifikation wird in den Mittelpunkt gestellt. Prognosen erwarteter Renditen spielen keine Rolle und werden nicht benötigt. Drei Methoden einer risikogesteuerten Portfoliokonstruktion werden unterschieden: <strong>Equal-Risk-Budget (ERB), Equal-Risk-Contribution (ERC)</strong> und <strong>Maximum-Diversification (MD)</strong>, wobei die ersten Beiden als sogenannte <strong>Risk Parity</strong> Ansätze bezeichnet werden. Alle drei Ansätze sind methodisch eng verwandt. Im Grundsatz soll jederzeit mit vergleichbarem Risiko in alle Assetklassen investiert werden. Das Gewicht einer Assetklasse wird dabei reduziert, wenn ihre Volatilität oder ihre Korrelation zu einer anderen Assetklasse steigt.</p>
+<p>Die vierte Möglichkeit zur Reduzierung des Einflusses von Schätzrisiken in den erwarteten Renditen besteht darin, den Schätzer für erwartete Renditen zu verbessern und diesen verbesserten Schätzwert dann als Inputvariable für die Portfoliooptimierung zu verwenden. Eine beliebte Klasse solcher verbesserter Schätzer sowohl für <span class="math inline">\(\mu\)</span> als auch <span class="math inline">\(\Sigma\)</span> stellen die sogenannten <strong>geschrumpften Schätzer</strong> dar.</p>
+<p>Die fünfte Möglichkeit besteht schließlich darin, (wie bei der vierten Möglichkeit) einen verbesserten Schätzer für die erwarteten Renditen zu verwenden, aber zusätzlich noch bei der Portfoliooptimierung die Existenz des verbleibenden Schätzrisikos zu berücksichtigen. In diesem Ansatz wird also explizit berücksichtigt, dass der Anleger zwei Arten von Risiken ausgesetzt ist, dem Renditeänderungsrisiko und dem Schätzrisiko. Zwei bekannte Vertreter dieses Ansatzes sind die <strong>Portfolio-Resampling</strong> Methode von Michaud und Michaud (2008), und das <strong>Black/Litterman (BL)</strong> Modell (siehe Black und Litterman, 1992).</p>
+<p>Die folgende Abbildung untergliedert noch einmal die oben skizzierten Lösungsansätze nach den zugrundeliegenden Ansatzpunkten.</p>
+<p><img src="figure32.png" class="img-fluid"></p>
+</section>
+<section id="lernvideos" class="level2" data-number="4.5">
+<h2 data-number="4.5" class="anchored" data-anchor-id="lernvideos"><span class="header-section-number">4.5</span> Lernvideos</h2>
+<section id="video-teil-1" class="level3" data-number="4.5.1">
+<h3 data-number="4.5.1" class="anchored" data-anchor-id="video-teil-1"><span class="header-section-number">4.5.1</span> Video Teil 1</h3>
+<p><a href="https://www.youtube.com/watch?v=E8IEzPOKK0I"><img src="https://img.youtube.com/vi/E8IEzPOKK0I/0.jpg" class="img-fluid"></a></p>
+</section>
+<section id="video-teil-2" class="level3" data-number="4.5.2">
+<h3 data-number="4.5.2" class="anchored" data-anchor-id="video-teil-2"><span class="header-section-number">4.5.2</span> Video Teil 2</h3>
+<p><a href="https://www.youtube.com/watch?v=YpPFY30cjDk"><img src="https://img.youtube.com/vi/YpPFY30cjDk/0.jpg" class="img-fluid"></a></p>
+</section>
+</section>
+<section id="literatur" class="level2" data-number="4.6">
+<h2 data-number="4.6" class="anchored" data-anchor-id="literatur"><span class="header-section-number">4.6</span> Literatur</h2>
+<p>Black, F., Litterman R. (1992). Global Portfolio Optimization. Financial Analysts Journal (September-October), 28-43.</p>
+<p>DeMiguel, V., Garlappi, L., Uppa, R. (2009). Optimal Versus Naive Diversification: How Inefficient is the 1/N Portfolio Strategy? Review of Financial Studies 22, 1915-1953.</p>
+<p>Markowitz, H.M. (1952). Portfolio Selection. Journal of Finance 7, 77-91.</p>
+<p>Merton, R.C. (1980). On Estimating the Expected Return on the Market: An Exploratory Investigation. Journal of Financial Economics 8, 323-361.</p>
+<p>Michaud, R.O, Michaud, R.O., (2008). Efficient Asset Management: A Practical Guide to Stock Portfolio Optimization and Asset Allocation, 2nd Edition, Oxford University Press.</p>
+<p>Tobin, J. (1958). Liquidity Preference as Behaviour Towards Risk. Review of Economic Studies 25, 65-86.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./kapitel2a.html" class="pagination-link" aria-label="Relative Portfoliooptimierung">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Relative Portfoliooptimierung</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./kapitel4a.html" class="pagination-link" aria-label="Verbesserte Schätzung der Inputparameter: Geschrumpfte Schätzer">
+        <span class="nav-page-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Verbesserte Schätzung der Inputparameter: Geschrumpfte Schätzer</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+<script src="site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>
